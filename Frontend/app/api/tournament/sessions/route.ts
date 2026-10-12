@@ -4,10 +4,10 @@ import { getSession } from "@/lib/session";
 
 export const runtime = "nodejs";
 
-// GET: list all sessions (admin)
+// GET: list all sessions (public — any logged-in user can view)
 export async function GET() {
   const session = await getSession();
-  if (!session?.is_admin) return NextResponse.json({ error: "Không có quyền." }, { status: 403 });
+  if (!session) return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
 
   try {
     const rows = await sql`
