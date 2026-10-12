@@ -142,6 +142,21 @@ export default async function DashboardPage() {
                   </p>
                 </div>
               </Link>
+
+              <Link
+                href="/admin/settings"
+                className="group flex flex-col gap-3 rounded-2xl border border-teal-300/20 bg-teal-300/5 p-5 transition hover:border-teal-300/40 hover:bg-teal-300/10"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-400/20 text-xl">
+                  ⚙️
+                </div>
+                <div>
+                  <p className="font-semibold text-teal-200">Cài Đặt</p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Cập nhật Backend URL (tunnel) không cần redeploy.
+                  </p>
+                </div>
+              </Link>
             </div>
           </div>
         )}
