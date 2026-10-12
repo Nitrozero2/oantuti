@@ -1,0 +1,445 @@
+================================================================================
+OTTv2 Arena — 6 Agent Mẫu (Đơn giản → Phức tạp)
+================================================================================
+
+Luật tóm tắt:
+  - Bàn cờ 9×9 (cột a–i, hàng 1–9)
+  - ROCK ✊ thắng SCISSORS ✌️
+  - PAPER ✋ thắng ROCK ✊
+  - SCISSORS ✌️ thắng PAPER ✋
+  - P1 (Xanh) thắng khi: đưa quân về i9  HOẶC  tiêu diệt hết 1 loại quân P2
+  - P2 (Đỏ)  thắng khi: đưa quân về a1  HOẶC  tiêu diệt hết 1 loại quân P1
+  - observation["valid_moves"]: list[{from_col, from_row, to_col, to_row, is_capture}]
+  - observation["board"]: list[81], mỗi ô là None hoặc {"player":1|2,"type":"ROCK"|"PAPER"|"SCISSORS"}
+  - observation["current_player"]: 1 hoặc 2
+  - observation["piece_counts"]: {"1":{ROCK:n,...}, "2":{...}}
+  - Trả về: {"from_col":int, "from_row":int, "to_col":int, "to_row":int}  hoặc None
+
+================================================================================
+AGENT 1 — Random Agent (Ngẫu nhiên)
+================================================================================
+
+import random
+
+def agent(observation, configuration):
+    """Chọn nước đi hoàn toàn ngẫu nhiên trong danh sách hợp lệ."""
+    moves = observation.get("valid_moves", [])
+    if not moves:
+        return None
+    move = random.choice(moves)
+    return {
+        "from_col": move["from_col"],
+        "from_row": move["from_row"],
+        "to_col":   move["to_col"],
+        "to_row":   move["to_row"],
+    }
+
+
+================================================================================
+AGENT 2 — Capture First (Ưu tiên ăn quân)
+================================================================================
+
+import random
+
+def agent(observation, configuration):
+    """
+    Nếu có nước ăn quân thì chọn (ngẫu nhiên trong số đó).
+    Nếu không thì đi ngẫu nhiên.
+    """
+    moves = observation.get("valid_moves", [])
+    if not moves:
+        return None
+
+    captures = [m for m in moves if m.get("is_capture")]
+    chosen = random.choice(captures) if captures else random.choice(moves)
+    return {
+        "from_col": chosen["from_col"],
+        "from_row": chosen["from_row"],
+        "to_col":   chosen["to_col"],
+        "to_row":   chosen["to_row"],
+    }
+
+
+================================================================================
+AGENT 3 — Advance Agent (Tiến về phía căn cứ đối thủ)
+================================================================================
+
+import random
+
+def agent(observation, configuration):
+    """
+    Ưu tiên: ăn quân > tiến về phía căn cứ địch > ngẫu nhiên.
+    P1 muốn tăng col+row (tiến về i9).
+    P2 muốn giảm col+row (tiến về a1).
+    """
+    moves = observation.get("valid_moves", [])
+    if not moves:
+        return None
+
+    player = observation.get("current_player", 1)
+
+    # 1. Ưu tiên ăn quân
+    captures = [m for m in moves if m.get("is_capture")]
+    if captures:
+        return {
+            "from_col": captures[0]["from_col"],
+            "from_row": captures[0]["from_row"],
+            "to_col":   captures[0]["to_col"],
+            "to_row":   captures[0]["to_row"],
+        }
+
+    # 2. Chọn nước tiến về phía căn cứ địch nhất
+    def advance_score(m):
+        delta_col = m["to_col"] - m["from_col"]
+        delta_row = m["to_row"] - m["from_row"]
+        if player == 1:
+            return delta_col + delta_row   # muốn tăng về (8,8)
+        else:
+            return -(delta_col + delta_row)  # muốn giảm về (0,0)
+
+    best_score = max(advance_score(m) for m in moves)
+    best_moves = [m for m in moves if advance_score(m) == best_score]
+    chosen = random.choice(best_moves)
+    return {
+        "from_col": chosen["from_col"],
+        "from_row": chosen["from_row"],
+        "to_col":   chosen["to_col"],
+        "to_row":   chosen["to_row"],
+    }
+
+
+================================================================================
+AGENT 4 — Safe Capture Agent (Ăn quân an toàn)
+================================================================================
+
+import random
+
+def agent(observation, configuration):
+    """
+    Phân biệt ăn quân an toàn vs nguy hiểm.
+    Ưu tiên: ăn quân an toàn > tiến nhanh > ngẫu nhiên.
+    Tránh đi vào ô mà quân địch CÓ THỂ ăn lại ta (nếu có lựa chọn khác).
+    """
+    moves = observation.get("valid_moves", [])
+    if not moves:
+        return None
+
+    player    = observation.get("current_player", 1)
+    board     = observation.get("board", [])
+    opponent  = 2 if player == 1 else 1
+
+    BEATS = {"ROCK": "SCISSORS", "PAPER": "ROCK", "SCISSORS": "PAPER"}
+
+    def get_piece(col, row):
+        return board[row * 9 + col] if 0 <= col < 9 and 0 <= row < 9 else None
+
+    def can_be_captured_at(col, row, my_type):
+        """Kiểm tra ô (col,row) có quân địch nào có thể ăn my_type không."""
+        DIRS = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+        for dc, dr in DIRS:
+            p = get_piece(col + dc, row + dr)
+            if p and p["player"] == opponent:
+                if BEATS.get(p["type"]) == my_type:
+                    return True
+        return False
+
+    # Lấy type của quân đang di chuyển
+    def move_piece_type(m):
+        p = get_piece(m["from_col"], m["from_row"])
+        return p["type"] if p else None
+
+    captures = [m for m in moves if m.get("is_capture")]
+    non_captures = [m for m in moves if not m.get("is_capture")]
+
+    # Ăn quân an toàn: sau khi ăn, ta không bị ăn lại
+    safe_captures = [
+        m for m in captures
+        if not can_be_captured_at(m["to_col"], m["to_row"], move_piece_type(m))
+    ]
+
+    # Nước đi an toàn (không ăn)
+    safe_moves = [
+        m for m in non_captures
+        if not can_be_captured_at(m["to_col"], m["to_row"], move_piece_type(m))
+    ]
+
+    def advance_score(m):
+        if player == 1:
+            return (m["to_col"] + m["to_row"]) - (m["from_col"] + m["from_row"])
+        else:
+            return -((m["to_col"] + m["to_row"]) - (m["from_col"] + m["from_row"]))
+
+    def best_of(lst):
+        if not lst:
+            return None
+        score = max(advance_score(m) for m in lst)
+        return random.choice([m for m in lst if advance_score(m) == score])
+
+    chosen = (
+        best_of(safe_captures) or
+        best_of(safe_moves) or
+        best_of(captures) or
+        best_of(moves)
+    )
+    return {
+        "from_col": chosen["from_col"],
+        "from_row": chosen["from_row"],
+        "to_col":   chosen["to_col"],
+        "to_row":   chosen["to_row"],
+    }
+
+
+================================================================================
+AGENT 5 — Greedy Scoring Agent (Đánh giá theo điểm)
+================================================================================
+
+import random
+
+def agent(observation, configuration):
+    """
+    Đánh giá từng nước đi theo hàm điểm tổng hợp:
+      + Ăn quân địch có giá trị cao  (+10 ~ +30)
+      + Tránh bị ăn lại              (-15)
+      + Tiến về căn cứ địch          (+1 ~ +2 mỗi bước)
+      + Bonus khi gần căn cứ địch    (+5 nếu trong 2 ô)
+    """
+    moves = observation.get("valid_moves", [])
+    if not moves:
+        return None
+
+    player   = observation.get("current_player", 1)
+    board    = observation.get("board", [])
+    opponent = 2 if player == 1 else 1
+
+    BEATS = {"ROCK": "SCISSORS", "PAPER": "ROCK", "SCISSORS": "PAPER"}
+    # Giá trị quân (PAPER quý nhất vì có 4 con, ROCK/SCISSORS có 3)
+    PIECE_VALUE = {"ROCK": 10, "PAPER": 15, "SCISSORS": 10}
+    DIRS = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+
+    def get_piece(col, row):
+        return board[row * 9 + col] if 0 <= col < 9 and 0 <= row < 9 else None
+
+    def threat_at(col, row, my_type):
+        """Số quân địch có thể ăn my_type tại (col, row)."""
+        count = 0
+        for dc, dr in DIRS:
+            p = get_piece(col + dc, row + dr)
+            if p and p["player"] == opponent and BEATS.get(p["type"]) == my_type:
+                count += 1
+        return count
+
+    def score_move(m):
+        my_piece = get_piece(m["from_col"], m["from_row"])
+        if not my_piece:
+            return -999
+        my_type = my_piece["type"]
+        tc, tr = m["to_col"], m["to_row"]
+        score = 0
+
+        # Ăn quân
+        if m.get("is_capture"):
+            target = get_piece(tc, tr)
+            if target:
+                score += PIECE_VALUE.get(target["type"], 10)
+
+        # Bị đe dọa tại ô đến
+        threats = threat_at(tc, tr, my_type)
+        score -= threats * 15
+
+        # Tiến về căn cứ
+        if player == 1:
+            score += (tc + tr) * 0.3
+            # Bonus gần i9 (col=8, row=8)
+            dist = abs(8 - tc) + abs(8 - tr)
+            if dist <= 2:
+                score += (3 - dist) * 5
+        else:
+            score += (8 - tc + 8 - tr) * 0.3
+            # Bonus gần a1 (col=0, row=0)
+            dist = abs(tc) + abs(tr)
+            if dist <= 2:
+                score += (3 - dist) * 5
+
+        return score
+
+    best_score = max(score_move(m) for m in moves)
+    best_moves = [m for m in moves if score_move(m) >= best_score - 0.01]
+    chosen = random.choice(best_moves)
+    return {
+        "from_col": chosen["from_col"],
+        "from_row": chosen["from_row"],
+        "to_col":   chosen["to_col"],
+        "to_row":   chosen["to_row"],
+    }
+
+
+================================================================================
+AGENT 6 — Minimax Agent (1 tầng lookahead)
+================================================================================
+
+import random
+
+def agent(observation, configuration):
+    """
+    Minimax 1 tầng: đánh giá trạng thái SAU khi ta đi và đối thủ phản công.
+    Hàm đánh giá:
+      - Tổng distance của quân ta đến căn cứ địch (thấp hơn = tốt hơn)
+      - Số quân còn lại của mỗi loại
+      - Ưu tiên tiêu diệt loại quân ít nhất của địch
+    """
+    moves = observation.get("valid_moves", [])
+    if not moves:
+        return None
+
+    player   = observation.get("current_player", 1)
+    board    = observation.get("board", [])
+    counts   = observation.get("piece_counts", {})
+    opponent = 2 if player == 1 else 1
+
+    BEATS = {"ROCK": "SCISSORS", "PAPER": "ROCK", "SCISSORS": "PAPER"}
+    DIRS  = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+
+    # ── Helpers ──────────────────────────────────────────────────────────────
+
+    def get_piece(b, col, row):
+        if 0 <= col < 9 and 0 <= row < 9:
+            return b[row * 9 + col]
+        return None
+
+    def apply_move_to_board(b, m):
+        """Trả về board mới sau khi thực hiện m (shallow sim)."""
+        nb = list(b)
+        piece = nb[m["from_row"] * 9 + m["from_col"]]
+        nb[m["to_row"] * 9 + m["to_col"]]     = piece
+        nb[m["from_row"] * 9 + m["from_col"]] = None
+        return nb
+
+    def get_all_moves(b, p):
+        """Lấy tất cả nước đi hợp lệ của player p trên board b."""
+        result = []
+        for r in range(9):
+            for c in range(9):
+                piece = b[r * 9 + c]
+                if piece and piece["player"] == p:
+                    for dc, dr in DIRS:
+                        tc, tr = c + dc, r + dr
+                        if 0 <= tc < 9 and 0 <= tr < 9:
+                            target = b[tr * 9 + tc]
+                            if target is None:
+                                result.append({"from_col":c,"from_row":r,"to_col":tc,"to_row":tr,"is_capture":False})
+                            elif target["player"] != p and BEATS.get(piece["type"]) == target["type"]:
+                                result.append({"from_col":c,"from_row":r,"to_col":tc,"to_row":tr,"is_capture":True})
+        return result
+
+    def piece_counts_from_board(b):
+        c = {1:{"ROCK":0,"PAPER":0,"SCISSORS":0}, 2:{"ROCK":0,"PAPER":0,"SCISSORS":0}}
+        for sq in b:
+            if sq:
+                c[sq["player"]][sq["type"]] += 1
+        return c
+
+    def evaluate(b, me):
+        """Hàm đánh giá trạng thái board từ góc nhìn của player me."""
+        them = 2 if me == 1 else 1
+        c = piece_counts_from_board(b)
+
+        # Kiểm tra thắng ngay (tiêu diệt hết 1 loại)
+        for t in ["ROCK","PAPER","SCISSORS"]:
+            if c[them][t] == 0:
+                return 10000   # ta thắng
+            if c[me][t] == 0:
+                return -10000  # ta thua
+
+        score = 0
+
+        # Tổng quân còn lại
+        my_total   = sum(c[me].values())
+        opp_total  = sum(c[them].values())
+        score += (my_total - opp_total) * 20
+
+        # Ưu tiên diệt loại quân ít nhất của địch
+        min_opp = min(c[them].values())
+        score += (3 - min_opp) * 30   # địch càng gần mất 1 loại → càng tốt
+
+        # Khoảng cách trung bình đến căn cứ địch
+        target_col, target_row = (8, 8) if me == 1 else (0, 0)
+        total_dist = 0
+        my_count = 0
+        for r in range(9):
+            for c_idx in range(9):
+                sq = b[r * 9 + c_idx]
+                if sq and sq["player"] == me:
+                    total_dist += abs(c_idx - target_col) + abs(r - target_row)
+                    my_count += 1
+        if my_count > 0:
+            score -= (total_dist / my_count) * 2  # gần hơn là tốt hơn
+
+        # Bonus đã vào căn cứ
+        base_piece = b[target_row * 9 + target_col]
+        if base_piece and base_piece["player"] == me:
+            score += 5000
+
+        return score
+
+    # ── Minimax 1 tầng ────────────────────────────────────────────────────────
+
+    best_score = None
+    best_moves = []
+
+    for m in moves:
+        board_after_my_move = apply_move_to_board(board, m)
+
+        # Kiểm tra thắng ngay sau nước đi của ta
+        c_after = piece_counts_from_board(board_after_my_move)
+        instant_win = any(c_after[opponent].get(t, 1) == 0 for t in ["ROCK","PAPER","SCISSORS"])
+        p1_at_base  = (player == 1 and board_after_my_move[8*9+8] and board_after_my_move[8*9+8]["player"] == 1)
+        p2_at_base  = (player == 2 and board_after_my_move[0*9+0] and board_after_my_move[0*9+0]["player"] == 2)
+
+        if instant_win or p1_at_base or p2_at_base:
+            return {
+                "from_col": m["from_col"], "from_row": m["from_row"],
+                "to_col":   m["to_col"],   "to_row":   m["to_row"],
+            }
+
+        # Đối thủ phản công: lấy nước tệ nhất cho ta (best cho đối thủ)
+        opp_moves = get_all_moves(board_after_my_move, opponent)
+
+        if not opp_moves:
+            # Đối thủ không còn nước đi → ta thắng
+            move_score = 9999
+        else:
+            # Min: đối thủ chọn nước tốt nhất cho họ (tệ nhất cho ta)
+            worst = None
+            for om in opp_moves:
+                board_after_opp = apply_move_to_board(board_after_my_move, om)
+                s = evaluate(board_after_opp, player)
+                if worst is None or s < worst:
+                    worst = s
+            move_score = worst
+
+        if best_score is None or move_score > best_score:
+            best_score = move_score
+            best_moves = [m]
+        elif move_score == best_score:
+            best_moves.append(m)
+
+    chosen = random.choice(best_moves)
+    return {
+        "from_col": chosen["from_col"],
+        "from_row": chosen["from_row"],
+        "to_col":   chosen["to_col"],
+        "to_row":   chosen["to_row"],
+    }
+
+================================================================================
+Tóm tắt độ mạnh dự kiến
+================================================================================
+
+  #1 Random         — Hoàn toàn ngẫu nhiên, thua hết
+  #2 Capture First  — Biết ăn quân, không có chiến lược
+  #3 Advance        — Biết tiến về căn cứ + ăn quân
+  #4 Safe Capture   — Tránh bị ăn lại, đi an toàn
+  #5 Greedy Score   — Đánh giá đa tiêu chí, khá mạnh
+  #6 Minimax        — Nhìn trước 1 lượt của đối thủ, mạnh nhất
+
+================================================================================
