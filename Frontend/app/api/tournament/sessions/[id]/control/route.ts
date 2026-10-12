@@ -135,17 +135,22 @@ export async function POST(
         timeoutMs: 8_000,
       });
 
-      if (!backendRes.ok && !backendRes.isOffline) {
-        // Lỗi backend thực sự (không phải offline) → báo lỗi
-        return NextResponse.json({ error: backendRes.error }, { status: 500 });
+      let wasOffline = false;
+      if (!backendRes.ok) {
+        // Type narrowed to { ok: false; isOffline: boolean; error: string; ... }
+        wasOffline = backendRes.isOffline;
+        if (!wasOffline) {
+          // Lỗi backend thực sự (không phải offline) → báo lỗi
+          return NextResponse.json({ error: backendRes.error }, { status: 500 });
+        }
       }
 
-      // Nếu backend offline, vẫn cập nhật DB thành stopped
+      // Nếu backend offline hoặc online & stop thành công, cập nhật DB
       await sql`UPDATE tournament_sessions SET status = 'stopped', stopped_at = NOW() WHERE id = ${sessionId}`;
       return NextResponse.json({
         ok: true,
         status: "stopped",
-        note: backendRes.isOffline
+        note: wasOffline
           ? "Backend offline — trạng thái đã được cập nhật trong DB nhưng worker có thể vẫn đang chạy."
           : undefined,
       });
