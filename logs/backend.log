@@ -1,0 +1,1373 @@
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started parent process [64364]
+INFO:     Started server process [64368]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [64367]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:46578 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34036 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     Received SIGTERM, exiting.
+INFO:     Terminated child process [64367]
+INFO:     Terminated child process [64368]
+INFO:     Waiting for child process [64367]
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [64367]
+INFO:     Finished server process [64368]
+INFO:     Waiting for child process [64368]
+INFO:     Stopping parent process [64364]
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started parent process [87795]
+INFO:     Started server process [87798]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [87799]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Received SIGTERM, exiting.
+INFO:     Terminated child process [87798]
+INFO:     Terminated child process [87799]
+INFO:     Waiting for child process [87798]
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [87799]
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [87798]
+INFO:     Waiting for child process [87799]
+INFO:     Stopping parent process [87795]
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started parent process [89920]
+INFO:     Started server process [89935]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [89936]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Received SIGTERM, exiting.
+INFO:     Terminated child process [89935]
+INFO:     Terminated child process [89936]
+INFO:     Waiting for child process [89935]
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [89936]
+INFO:     Finished server process [89935]
+INFO:     Waiting for child process [89936]
+INFO:     Stopping parent process [89920]
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started parent process [94004]
+INFO:     Started server process [94008]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [94007]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Received SIGTERM, exiting.
+INFO:     Terminated child process [94007]
+INFO:     Terminated child process [94008]
+INFO:     Waiting for child process [94007]
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [94008]
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [94007]
+INFO:     Waiting for child process [94008]
+INFO:     Stopping parent process [94004]
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started parent process [176886]
+INFO:     Started server process [176890]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [176889]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Received SIGTERM, exiting.
+INFO:     Terminated child process [176889]
+INFO:     Terminated child process [176890]
+INFO:     Waiting for child process [176889]
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [176890]
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [176889]
+INFO:     Waiting for child process [176890]
+INFO:     Stopping parent process [176886]
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started parent process [215555]
+INFO:     Started server process [215558]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [215559]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [221163]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:02:16,452 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:50784 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:02:33,993 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     98.92.174.43:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [221367]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:02:54,704 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     3.223.4.238:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:03:06,885 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     3.223.4.238:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:03:07,460 [INFO] app.services.match_service: Created match 3ee732a0
+INFO:     3.223.4.238:0 - "POST /matches/ HTTP/1.1" 200 OK
+2026-10-12 17:03:08,091 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:08,651 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:09,239 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:09,859 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:10,441 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:11,020 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:11,612 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:12,418 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:13,033 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:13,645 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:14,191 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:14,769 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:15,326 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:15,899 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:16,382 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+2026-10-12 17:03:16,922 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     3.223.4.238:0 - "POST /matches/3ee732a0/step HTTP/1.1" 200 OK
+INFO:     Started server process [222241]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:03:46,685 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     3.223.4.238:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [222364]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:03:54,200 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     107.22.26.56:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:03:54,704 [INFO] app.services.match_service: Created match c217d802
+INFO:     107.22.26.56:0 - "POST /matches/ HTTP/1.1" 200 OK
+2026-10-12 17:03:55,250 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:55,836 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:56,415 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:56,990 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:57,596 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:58,160 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:58,717 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:59,216 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:03:59,835 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:00,834 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:01,373 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:01,896 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:02,460 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:02,980 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:03,518 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:04,014 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:04,662 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:05,249 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:05,782 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:06,363 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:06,906 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38530 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-12 17:04:07,490 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:08,037 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:08,622 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:09,266 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:09,758 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:10,282 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:10,850 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:11,505 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:11,972 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:12,526 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:13,124 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:13,783 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:14,353 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:14,885 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:15,374 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:16,013 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:16,602 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:17,140 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:17,654 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:18,173 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:18,658 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:19,204 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:19,764 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:20,319 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:20,830 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:21,343 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:21,938 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:22,568 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+INFO:     Started server process [224772]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:04:23,036 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:23,592 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:24,071 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:24,595 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:25,115 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:25,624 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:26,169 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:26,761 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:27,263 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:27,774 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:28,388 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:28,901 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:29,401 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:29,924 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:30,476 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:31,051 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:31,556 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:32,099 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:32,678 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+2026-10-12 17:04:33,202 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     107.22.26.56:0 - "POST /matches/c217d802/step HTTP/1.1" 200 OK
+INFO:     Started server process [225906]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:54604 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42362 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42362 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48594 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39504 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [227474]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:33:36,836 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:39072 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:33:51,474 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     54.161.133.23:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:34:05,335 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     2405:4802:1be6:91b0:b744:1a70:699:a3ee:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:34:11,672 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     52.71.227.81:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [227662]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:34:31,455 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     2405:4802:1be6:91b0:b744:1a70:699:a3ee:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:34:34,207 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     52.71.227.81:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [227738]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:54462 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-12 17:34:59,713 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     54.161.133.23:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-12 17:35:09,955 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     52.71.227.81:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [227911]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:60900 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     Started server process [227996]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:52196 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52196 - "GET /matches/ HTTP/1.1" 200 OK
+2026-10-12 17:35:53,147 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     52.71.227.81:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [228136]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-12 17:36:19,263 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 201 Created"
+INFO:     52.71.227.81:0 - "POST /tournament/validate-agent HTTP/1.1" 200 OK
+INFO:     Started server process [228268]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [228401]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:40678 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     Started server process [228474]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:35508 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [228592]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [228686]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [228832]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [228915]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229084]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229195]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229336]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229417]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229571]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229653]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229807]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [229894]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230028]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230111]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230283]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230379]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230518]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230622]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230753]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230833]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [230987]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231071]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231206]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231303]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231485]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231596]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231739]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231821]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [231954]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [232037]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [232169]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [232601]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:36142 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [232856]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [232985]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [233197]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [233385]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [233563]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [233681]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [233828]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [234764]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [235090]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [235254]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [235497]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [235641]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [235823]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [235948]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [236161]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [236298]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [236523]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [236654]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [236907]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [237038]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [237313]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [237454]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [237613]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [237773]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [237976]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [238108]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [238287]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [238444]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [238624]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [238725]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [238928]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [239069]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [239220]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [239351]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [239543]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [239706]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [239948]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [240112]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [240353]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [240488]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [240769]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [240972]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [241221]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [241397]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [241568]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [241705]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [241901]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [242065]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [242250]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [242429]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [242667]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [242876]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [243102]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [243278]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [243483]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [243628]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [243802]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [244070]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [244267]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [244357]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [244523]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [244630]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [244934]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245065]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245200]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245322]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245507]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245596]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245733]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [245867]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246053]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246190]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246347]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246477]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246629]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246797]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [246957]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [247109]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [247269]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [247367]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [247596]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [247722]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [247908]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248003]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248160]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248241]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248372]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248454]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248807]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [248923]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [249188]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [249420]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [249570]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [249650]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [249783]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [249864]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250019]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250098]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250231]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250313]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250491]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250662]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [250916]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [251014]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [299356]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-13 06:58:14,895 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:58000 - "GET /health HTTP/1.1" 200 OK
+2026-10-13 06:58:29,833 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     123.31.18.242:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-13 06:58:33,103 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     18.212.159.208:0 - "GET /health HTTP/1.1" 200 OK
+2026-10-13 06:58:43,271 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     34.235.160.57:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [299552]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [299642]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [299789]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [299953]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300089]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300187]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300326]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300515]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300636]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300754]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300890]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [300974]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [301138]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [301231]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [301409]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [301506]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [301698]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [301789]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [302173]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.

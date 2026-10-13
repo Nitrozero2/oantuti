@@ -23,9 +23,9 @@ export default function BackendOfflineBanner({
   if (checking) {
     return (
       <div
-        className={`flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/40 px-4 py-2.5 text-sm text-slate-400 ${className}`}
+        className={`flex items-center gap-2 rounded-none border border-[#ded8d3] bg-white px-4 py-2.5 text-sm text-slate-600 ${className}`}
       >
-        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-slate-500 border-t-slate-200" />
+        <span className="inline-block h-3 w-3 animate-spin border-2 border-slate-300 border-t-[#253B80]" />
         Đang kiểm tra kết nối máy chủ...
       </div>
     );
@@ -36,14 +36,14 @@ export default function BackendOfflineBanner({
   return (
     <div
       role="alert"
-      className={`flex items-start gap-3 rounded-xl border border-orange-400/30 bg-orange-400/10 px-4 py-3 text-sm ${className}`}
+      className={`flex items-start gap-3 rounded-none border border-amber-300 bg-amber-50 px-4 py-3 text-sm ${className}`}
     >
       {/* Icon */}
       <span className="mt-0.5 shrink-0 text-lg leading-none">🔌</span>
 
       <div className="flex-1">
-        <p className="font-semibold text-orange-300">Máy chủ cá nhân đang offline</p>
-        <p className="mt-0.5 text-orange-200/70">
+        <p className="font-semibold text-amber-800">Máy chủ cá nhân đang offline</p>
+        <p className="mt-0.5 text-amber-700">
           Tính năng này cần máy chủ cá nhân đang chạy (FastAPI + Judge0).
           Các tính năng khác như đăng nhập, nộp agent, bảng xếp hạng và replay vẫn hoạt động bình thường.
         </p>

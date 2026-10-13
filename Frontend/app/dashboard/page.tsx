@@ -1,7 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import LogoutButton from "@/components/logout-button";
+import Navbar from "@/components/Navbar";
+import leaderboardImg from "@/source/images/leaderboard.png";
+import submitImg from "@/source/images/submit.png";
+import competeImg from "@/source/images/compete.png";
 
 export const runtime = "nodejs";
 
@@ -9,160 +13,129 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
+  const features = [
+    {
+      title: "Bảng Xếp Hạng",
+      description: "Theo dõi thứ hạng ELO, vinh danh các cao thủ và xem lại các ván đấu đỉnh cao.",
+      href: "/arena/leaderboard",
+      image: leaderboardImg,
+    },
+    {
+      title: "Nộp Agent",
+      description: "Viết code bot Python trực tiếp, kiểm tra tính hợp lệ và đưa agent vào đấu trường.",
+      href: "/arena/submit",
+      image: submitImg,
+    },
+    {
+      title: "Đấu Đối Kháng",
+      description: "Chọn hai agent bất kỳ để so tài trực tiếp trên bàn cờ 9x9 không tính điểm rank.",
+      href: "/arena/friendly",
+      image: competeImg,
+    },
+  ];
+
   return (
-    <main className="flex min-h-screen items-center justify-center px-5 py-12">
-      <section className="w-full max-w-2xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl sm:p-12">
-        <div className="text-sm font-semibold text-teal-300">ĐĂNG NHẬP THÀNH CÔNG</div>
-        <h1 className="mt-4 text-3xl font-bold sm:text-4xl">
-          Xin chào, {session.username} 👋
-          {session.is_admin && (
-            <span className="ml-3 rounded-full border border-rose-400/30 bg-rose-400/10 px-3 py-1 text-sm font-semibold text-rose-300 align-middle">
-              Admin
-            </span>
-          )}
-        </h1>
-        <p className="mt-3 text-slate-300">Chọn một trong các tính năng bên dưới để bắt đầu.</p>
+    <div className="min-h-screen bg-[#F5F0ED]">
+      {/* ─── THANH HEADER TRÊN CÙNG ───────────────────────────────────── */}
+      <Navbar initialUser={session} />
 
-        <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
-          <p className="text-xs text-slate-500">Tài khoản</p>
-          <p className="mt-1 text-lg font-medium">{session.username}</p>
-          <p className="mt-1 text-xs text-slate-500">User ID: {session.id}</p>
+      {/* ─── NỘI DUNG CHÍNH: 3 Ô TÍNH NĂNG KHUNG THẲNG ĐỐI XỨNG ───────── */}
+      <main className="mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
+        {/* Lưới 3 ô tính năng kích thước bằng nhau, khung thẳng, đối xứng qua trục dọc */}
+        <div className="grid grid-cols-1 items-stretch gap-6 sm:gap-8 md:grid-cols-3">
+          {features.map((feature) => (
+            <Link
+              key={feature.href}
+              href={feature.href}
+              className="group flex flex-col overflow-hidden rounded-none border border-[#ded8d3] bg-white p-4 shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:border-[#253B80] hover:shadow-xl hover:shadow-[#253B80]/15"
+            >
+              {/* Ảnh ở phía trên: Khung thẳng */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-none bg-stone-100 border border-[#ded8d3]">
+                <Image
+                  src={feature.image}
+                  alt={feature.title}
+                  priority
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+
+              {/* Tính năng ở phía dưới: Khi di chuột thì thay tên bằng mô tả */}
+              <div className="relative flex min-h-[84px] w-full items-center justify-center p-3 text-center">
+                {/* Tên tính năng (mặc định hiện, hover ẩn) */}
+                <h3 className="text-xl font-bold tracking-tight text-[#1a1e29] transition-all duration-300 group-hover:invisible group-hover:scale-90 group-hover:opacity-0">
+                  {feature.title}
+                </h3>
+
+                {/* Mô tả tính năng (mặc định ẩn, hover hiện thay thế) */}
+                <p className="absolute inset-x-3 text-sm font-medium leading-relaxed text-[#253B80] opacity-0 scale-95 invisible transition-all duration-300 group-hover:visible group-hover:scale-100 group-hover:opacity-100">
+                  {feature.description}
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
 
-        {/* Section: Arena (OTTv2) */}
-        <div className="mt-8">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-indigo-400">
-            ⚔️ OTTv2 Arena
-          </p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Link
-              href="/arena/leaderboard"
-              className="group flex flex-col gap-3 rounded-2xl border border-yellow-300/20 bg-yellow-300/5 p-5 transition hover:border-yellow-300/40 hover:bg-yellow-300/10"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400/20 text-xl">
-                🏆
-              </div>
-              <div>
-                <p className="font-semibold text-yellow-200">Bảng Xếp Hạng</p>
-                <p className="mt-1 text-xs text-slate-400">ELO ranking giống Kaggle ConnectX.</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/arena/submit"
-              className="group flex flex-col gap-3 rounded-2xl border border-indigo-300/20 bg-indigo-300/5 p-5 transition hover:border-indigo-300/40 hover:bg-indigo-300/10"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-400/20 text-xl">
-                🤖
-              </div>
-              <div>
-                <p className="font-semibold text-indigo-200">Nộp Agent</p>
-                <p className="mt-1 text-xs text-slate-400">Nộp agent Python để thi đấu Arena.</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/arena/friendly"
-              className="group flex flex-col gap-3 rounded-2xl border border-teal-300/20 bg-teal-300/5 p-5 transition hover:border-teal-300/40 hover:bg-teal-300/10"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-400/20 text-xl">
-                ⚔️
-              </div>
-              <div>
-                <p className="font-semibold text-teal-200">Đấu Đối Kháng Riêng</p>
-                <p className="mt-1 text-xs text-slate-400">Chọn hai agent để đấu thử, không tính ELO.</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Section: Admin — chỉ hiện với is_admin */}
+        {/* ─── KHU VỰC DÀNH CHO ADMIN (NẾU CÓ) ─────────────────────────── */}
         {session.is_admin && (
-          <div className="mt-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-rose-400">
-              🛠 Admin
-            </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <section className="mt-12 w-full rounded-none border border-[#ded8d3] bg-white p-6 shadow-md sm:p-7">
+            <div className="mb-4 flex items-center justify-between border-b border-[#ded8d3] pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-bold text-rose-700">🛠 Quản Trị Hệ Thống (Admin)</span>
+                <span className="rounded-none bg-rose-50 px-2.5 py-0.5 text-[11px] font-semibold text-rose-700 border border-rose-300">
+                  Chỉ định cho Admin
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <Link
                 href="/admin/tournament"
-                className="group flex flex-col gap-3 rounded-2xl border border-purple-300/20 bg-purple-300/5 p-5 transition hover:border-purple-300/40 hover:bg-purple-300/10"
+                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-400/20 text-xl">
-                  🎮
-                </div>
-                <div>
-                  <p className="font-semibold text-purple-200">Tournament Control</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Bật, tạm dừng, tiếp tục, dừng ghép trận.
-                  </p>
-                </div>
+                <span className="text-xl">🎮</span>
+                <span className="text-xs font-bold text-[#1a1e29]">Tournament</span>
+                <span className="text-[10px] text-slate-500">Bật/tắt worker giải</span>
               </Link>
 
               <Link
                 href="/admin/agents"
-                className="group flex flex-col gap-3 rounded-2xl border border-orange-300/20 bg-orange-300/5 p-5 transition hover:border-orange-300/40 hover:bg-orange-300/10"
+                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-400/20 text-xl">
-                  🤖
-                </div>
-                <div>
-                  <p className="font-semibold text-orange-200">Duyệt Agent</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Xem xét, validate và kích hoạt agent.
-                  </p>
-                </div>
+                <span className="text-xl">🤖</span>
+                <span className="text-xs font-bold text-[#1a1e29]">Duyệt Agent</span>
+                <span className="text-[10px] text-slate-500">Xem xét & kích hoạt</span>
               </Link>
 
               <Link
                 href="/admin/match"
-                className="group flex flex-col gap-3 rounded-2xl border border-rose-300/20 bg-rose-300/5 p-5 transition hover:border-rose-300/40 hover:bg-rose-300/10"
+                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-400/20 text-xl">
-                  ⚔️
-                </div>
-                <div>
-                  <p className="font-semibold text-rose-200">Tạo Trận Đấu</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Chọn agent, xem live board theo bước.
-                  </p>
-                </div>
+                <span className="text-xl">⚔️</span>
+                <span className="text-xs font-bold text-[#1a1e29]">Tạo Trận Đấu</span>
+                <span className="text-[10px] text-slate-500">Playground test bot</span>
               </Link>
 
               <Link
                 href="/admin/matches"
-                className="group flex flex-col gap-3 rounded-2xl border border-orange-300/20 bg-orange-300/5 p-5 transition hover:border-orange-300/40 hover:bg-orange-300/10"
+                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-400/20 text-xl">
-                  📋
-                </div>
-                <div>
-                  <p className="font-semibold text-orange-200">Quản Lý Trận</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Danh sách, xóa, theo dõi trận đấu.
-                  </p>
-                </div>
+                <span className="text-xl">📋</span>
+                <span className="text-xs font-bold text-[#1a1e29]">Quản Lý Trận</span>
+                <span className="text-[10px] text-slate-500">Danh sách & dọn dẹp</span>
               </Link>
 
               <Link
                 href="/admin/settings"
-                className="group flex flex-col gap-3 rounded-2xl border border-teal-300/20 bg-teal-300/5 p-5 transition hover:border-teal-300/40 hover:bg-teal-300/10"
+                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-400/20 text-xl">
-                  ⚙️
-                </div>
-                <div>
-                  <p className="font-semibold text-teal-200">Cài Đặt</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Cập nhật Backend URL (tunnel) không cần redeploy.
-                  </p>
-                </div>
+                <span className="text-xl">⚙️</span>
+                <span className="text-xs font-bold text-[#1a1e29]">Cài Đặt</span>
+                <span className="text-[10px] text-slate-500">Backend Tunnel URL</span>
               </Link>
             </div>
-          </div>
+          </section>
         )}
-
-        <LogoutButton />
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { python } from "@codemirror/lang-python";
 import { oneDark } from "@codemirror/theme-one-dark";
+import Navbar from "@/components/Navbar";
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), { ssr: false });
 
@@ -28,10 +29,10 @@ type Agent = {
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  active:     "bg-emerald-400/20 text-emerald-300",
-  pending:    "bg-slate-400/20 text-slate-300",
-  validating: "bg-yellow-400/20 text-yellow-300",
-  rejected:   "bg-rose-400/20 text-rose-300",
+  active: "bg-emerald-50 text-emerald-700 border-emerald-300",
+  pending: "bg-slate-100 text-slate-700 border-slate-300",
+  validating: "bg-amber-50 text-amber-700 border-amber-300",
+  rejected: "bg-rose-50 text-rose-700 border-rose-300",
 };
 
 const FILTER_TABS = [
@@ -58,8 +59,11 @@ export default function AdminAgentsPage() {
         ? `/api/admin/agents?status=${filter}`
         : "/api/admin/agents";
       const res = await fetch(url);
-      const data = await res.json() as { agents?: Agent[]; error?: string };
-      if (data.error) { setError(data.error); return; }
+      const data = (await res.json()) as { agents?: Agent[]; error?: string };
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
       setAgents(data.agents ?? []);
     } catch {
       setError("Không thể tải danh sách agent.");
@@ -68,15 +72,23 @@ export default function AdminAgentsPage() {
     }
   }, [filter]);
 
-  useEffect(() => { loadAgents(); }, [loadAgents]);
+  useEffect(() => {
+    loadAgents();
+  }, [loadAgents]);
 
   async function validateAgent(agent: Agent) {
-    setValidating(agent.id); setError("");
+    setValidating(agent.id);
+    setError("");
     try {
       const res = await fetch(`/api/arena/agents/${agent.id}/activate`, {
         method: "POST",
       });
-      const data = await res.json() as { ok?: boolean; status?: string; validation_error?: string; error?: string };
+      const data = (await res.json()) as {
+        ok?: boolean;
+        status?: string;
+        validation_error?: string;
+        error?: string;
+      };
       if (!res.ok && res.status !== 200) {
         setError(data.error ?? "Kích hoạt thất bại.");
       }
@@ -89,15 +101,19 @@ export default function AdminAgentsPage() {
   }
 
   async function patchStatus(agentId: number, status: string, validationError: string | null) {
-    setBusy(agentId); setError("");
+    setBusy(agentId);
+    setError("");
     try {
       const res = await fetch(`/api/arena/agents/${agentId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, validation_error: validationError }),
       });
-      const data = await res.json() as { ok?: boolean; error?: string };
-      if (!res.ok) { setError(data.error ?? "Cập nhật thất bại."); return; }
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Cập nhật thất bại.");
+        return;
+      }
       await loadAgents();
     } catch {
       setError("Không thể cập nhật agent.");
@@ -107,13 +123,15 @@ export default function AdminAgentsPage() {
   }
 
   async function handleActivate(agent: Agent) {
-    // Validate first, then activate
     await validateAgent(agent);
   }
 
   async function handleReject(agent: Agent) {
-    const reason = prompt(`Lý do từ chối agent "${agent.agent_name}" (${agent.username})?`, "Agent không đáp ứng yêu cầu.");
-    if (reason === null) return; // cancelled
+    const reason = prompt(
+      `Lý do từ chối agent "${agent.agent_name}" (@${agent.username})?`,
+      "Agent không đáp ứng yêu cầu thuật toán."
+    );
+    if (reason === null) return;
     await patchStatus(agent.id, "rejected", reason || "Bị từ chối bởi admin.");
   }
 
@@ -121,56 +139,62 @@ export default function AdminAgentsPage() {
     await patchStatus(agent.id, "pending", null);
   }
 
-  const pendingCount = agents.filter(a => a.status === "pending").length;
+  const pendingCount = agents.filter((a) => a.status === "pending").length;
 
   return (
-    <main className="min-h-screen px-4 py-10">
-      <div className="mx-auto max-w-5xl">
-        {/* Breadcrumb */}
-        <div className="mb-6 flex items-center gap-2 text-sm text-slate-400">
-          <Link href="/dashboard" className="hover:text-white">Dashboard</Link>
-          <span className="text-slate-700">/</span>
-          <Link href="/admin/tournament" className="hover:text-white">Tournament</Link>
-          <span className="text-slate-700">/</span>
-          <span className="text-white">Duyệt Agent</span>
+    <div className="min-h-screen bg-[#F5F0ED] text-[#1a1e29]">
+      <Navbar />
+
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-center justify-between border-b border-[#ded8d3] pb-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <Link href="/dashboard" className="hover:text-[#253B80]">Dashboard</Link>
+            <span>/</span>
+            <Link href="/admin/tournament" className="hover:text-[#253B80]">Tournament</Link>
+            <span>/</span>
+            <span className="text-[#1a1e29]">Duyệt Agent</span>
+          </div>
+          <span className="rounded-none border border-rose-300 bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">
+            Admin Area
+          </span>
         </div>
 
-        <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">🤖 Quản lý Agent</h1>
-            <p className="mt-1 text-slate-400 text-sm">
-              Xem xét và duyệt agent do người dùng nộp. Chỉ agent active mới tham gia ghép trận.
+            <h1 className="text-3xl font-extrabold text-[#1a1e29]">🤖 Quản lý & Duyệt Agent</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              Kiểm duyệt các bot do người dùng nộp lên. Chỉ agent trạng thái active mới được ghép cặp thi đấu.
             </p>
           </div>
           <button
             onClick={loadAgents}
-            className="rounded-xl border border-white/15 px-4 py-2 text-sm hover:bg-white/5 transition"
+            className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-4 py-2 text-xs font-bold text-slate-700 transition hover:border-[#253B80]"
           >
             🔄 Làm mới
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
+          <div className="mb-6 rounded-none border border-rose-300 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">
             {error}
           </div>
         )}
 
-        {/* Filter tabs */}
-        <div className="mb-5 flex gap-1 rounded-xl border border-white/10 bg-black/20 p-1 w-fit flex-wrap">
-          {FILTER_TABS.map(t => (
+        {/* Filter tabs: Khung thẳng */}
+        <div className="mb-6 flex flex-wrap gap-1 rounded-none border border-[#ded8d3] bg-white p-1">
+          {FILTER_TABS.map((t) => (
             <button
               key={t.value}
               onClick={() => setFilter(t.value)}
-              className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+              className={`cursor-pointer rounded-none px-4 py-1.5 text-xs font-bold transition ${
                 filter === t.value
-                  ? "bg-indigo-500/30 text-indigo-200"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#253B80] text-white"
+                  : "text-slate-600 hover:text-[#253B80] hover:bg-stone-50"
               }`}
             >
               {t.label}
               {t.value === "pending" && pendingCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-orange-500/60 px-1.5 py-0.5 text-xs text-white font-semibold">
+                <span className="ml-1.5 rounded-none bg-rose-600 px-1.5 py-0.2 text-[10px] font-bold text-white">
                   {pendingCount}
                 </span>
               )}
@@ -181,88 +205,88 @@ export default function AdminAgentsPage() {
         {/* Agent list */}
         {loading ? (
           <div className="flex justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-indigo-400" />
+            <div className="h-8 w-8 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
           </div>
         ) : agents.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] py-16 text-center">
-            <p className="text-slate-500">Không có agent nào{filter ? ` với status "${filter}"` : ""}.</p>
+          <div className="rounded-none border border-[#ded8d3] bg-white py-16 text-center shadow-sm">
+            <p className="text-sm text-slate-500">
+              Không có agent nào{filter ? ` với trạng thái "${filter}"` : ""}.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {agents.map(agent => (
+            {agents.map((agent) => (
               <div
                 key={agent.id}
-                className={`rounded-2xl border p-5 ${
-                  agent.status === "pending"
-                    ? "border-orange-400/20 bg-orange-400/5"
-                    : agent.status === "active"
-                    ? "border-emerald-400/20 bg-emerald-400/5"
-                    : agent.status === "rejected"
-                    ? "border-rose-400/15 bg-rose-400/5"
-                    : "border-white/10 bg-white/[0.04]"
-                }`}
+                className="rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm"
               >
                 {/* Header row */}
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/arena/agents/${agent.id}`}
-                        className="font-bold text-white hover:text-indigo-300 transition text-lg"
+                        className="text-lg font-bold text-[#253B80] hover:underline"
                       >
                         {agent.agent_name}
                       </Link>
-                      <span className="text-xs text-slate-500">v{agent.version}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[agent.status] ?? "bg-slate-400/20 text-slate-300"}`}>
+                      <span className="font-mono text-xs text-slate-500">v{agent.version}</span>
+                      <span
+                        className={`rounded-none border px-2 py-0.5 text-xs font-bold ${
+                          STATUS_BADGE[agent.status] ?? "bg-slate-100 text-slate-700"
+                        }`}
+                      >
                         {agent.status}
                       </span>
                       {agent.is_active && (
-                        <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs text-emerald-300">
+                        <span className="rounded-none border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
                           ✓ Arena Active
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-slate-300">
-                      by <span className="font-semibold text-white">@{agent.username}</span>
-                      <span className="text-slate-500 ml-2">· nộp {new Date(agent.submitted_at).toLocaleString("vi-VN")}</span>
+                    <p className="mt-1 text-xs text-slate-600">
+                      Tác giả: <strong className="text-[#1a1e29]">@{agent.username}</strong>
+                      <span className="ml-2 text-slate-400">
+                        · nộp {new Date(agent.submitted_at).toLocaleString("vi-VN")}
+                      </span>
                     </p>
                     {agent.description && (
-                      <p className="mt-1 text-xs text-slate-400 italic">{agent.description}</p>
+                      <p className="mt-1 text-xs italic text-slate-500">{agent.description}</p>
                     )}
                     {agent.validation_error && (
-                      <p className="mt-1 text-xs text-rose-300">
+                      <p className="mt-1 text-xs font-bold text-rose-700">
                         ❌ Lỗi: {agent.validation_error}
                       </p>
                     )}
-                    <div className="mt-2 flex gap-4 text-xs text-slate-500">
-                      <span>ELO: <span className="font-mono font-bold text-slate-300">{agent.elo}</span></span>
-                      <span className="text-emerald-400">W:{agent.wins}</span>
-                      <span className="text-rose-400">L:{agent.losses}</span>
-                      <span className="text-slate-400">D:{agent.draws}</span>
+                    <div className="mt-2 flex flex-wrap gap-4 font-mono text-xs text-slate-600">
+                      <span>
+                        ELO: <strong className="text-[#253B80]">{agent.elo}</strong>
+                      </span>
+                      <span className="font-bold text-emerald-700">W:{agent.wins}</span>
+                      <span className="font-bold text-rose-700">L:{agent.losses}</span>
+                      <span className="text-slate-700">D:{agent.draws}</span>
                       {agent.error_matches > 0 && (
-                        <span className="text-orange-400">⚠️{agent.error_matches}</span>
+                        <span className="font-bold text-amber-700">⚠️ {agent.error_matches} lỗi</span>
                       )}
                     </div>
                   </div>
 
-                  {/* Action buttons */}
-                  <div className="flex gap-2 flex-wrap shrink-0">
+                  {/* Action buttons: Khung thẳng */}
+                  <div className="flex shrink-0 flex-wrap gap-2">
                     {(agent.status === "pending" || agent.status === "validating") && (
                       <button
                         onClick={() => handleActivate(agent)}
                         disabled={busy === agent.id || validating === agent.id}
-                        className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition disabled:opacity-60"
+                        className="cursor-pointer rounded-none bg-emerald-700 px-4 py-2 text-xs font-bold text-white transition hover:bg-emerald-800 disabled:opacity-50"
                       >
-                        {validating === agent.id
-                          ? "⏳ Đang kiểm tra..."
-                          : "✅ Validate & Activate"}
+                        {validating === agent.id ? "⏳ Đang kiểm tra..." : "✅ Validate & Kích hoạt"}
                       </button>
                     )}
                     {agent.status === "pending" && (
                       <button
                         onClick={() => handleReject(agent)}
                         disabled={busy === agent.id || validating === agent.id}
-                        className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-500 transition disabled:opacity-60"
+                        className="cursor-pointer rounded-none bg-rose-700 px-4 py-2 text-xs font-bold text-white transition hover:bg-rose-800 disabled:opacity-50"
                       >
                         ❌ Từ chối
                       </button>
@@ -271,35 +295,35 @@ export default function AdminAgentsPage() {
                       <button
                         onClick={() => patchStatus(agent.id, "pending", null)}
                         disabled={busy === agent.id}
-                        className="rounded-xl border border-slate-400/20 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/5 transition disabled:opacity-60"
+                        className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#253B80] disabled:opacity-50"
                       >
-                        ↩ Deactivate
+                        ↩ Hủy kích hoạt
                       </button>
                     )}
                     {agent.status === "rejected" && (
                       <button
                         onClick={() => handleReset(agent)}
                         disabled={busy === agent.id}
-                        className="rounded-xl border border-slate-400/20 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/5 transition disabled:opacity-60"
+                        className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#253B80] disabled:opacity-50"
                       >
-                        ↩ Đặt lại pending
+                        ↩ Đặt lại Pending
                       </button>
                     )}
                     <button
                       onClick={() => setExpandedId(expandedId === agent.id ? null : agent.id)}
-                      className="rounded-xl border border-white/15 px-4 py-2 text-sm hover:bg-white/5 transition"
+                      className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#253B80]"
                     >
                       {expandedId === agent.id ? "Ẩn code" : "Xem code"}
                     </button>
                   </div>
                 </div>
 
-                {/* Code viewer */}
+                {/* Code viewer: Khung thẳng */}
                 {expandedId === agent.id && (
-                  <div className="mt-4 rounded-xl overflow-hidden border border-white/10">
-                    <div className="flex items-center justify-between bg-black/30 px-3 py-2">
-                      <span className="text-xs text-slate-400 font-mono">
-                        {agent.agent_name} v{agent.version} · {agent.code.length.toLocaleString()} chars
+                  <div className="mt-4 overflow-hidden rounded-none border border-[#ded8d3]">
+                    <div className="flex items-center justify-between border-b border-[#ded8d3] bg-stone-100 px-3 py-2">
+                      <span className="font-mono text-xs font-bold text-slate-700">
+                        {agent.agent_name} v{agent.version} · {agent.code.length.toLocaleString()} ký tự
                       </span>
                     </div>
                     <CodeMirror
@@ -316,7 +340,7 @@ export default function AdminAgentsPage() {
             ))}
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

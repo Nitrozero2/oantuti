@@ -1,0 +1,242 @@
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+   ▲ Next.js 15.5.27
+   - Local:        http://localhost:3000
+   - Network:      http://10.11.153.109:3000
+
+ ✓ Starting...
+ ✓ Ready in 380ms
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+   ▲ Next.js 15.5.27
+   - Local:        http://localhost:3000
+   - Network:      http://10.11.113.192:3000
+
+ ✓ Starting...
+ ✓ Ready in 382ms
+Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/608.js:30:2423)
+    at async y (.next/server/app/api/tournament/match-result/route.js:13:33)
+    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
+    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
+    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/608.js:30:2423)
+    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
+    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
+    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
+    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/608.js:30:2423)
+    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
+    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
+    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
+    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/608.js:30:2423)
+    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
+    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
+    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
+    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/608.js:30:2423)
+    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
+    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
+    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
+    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/608.js:30:2423)
+    at async y (.next/server/app/api/tournament/match-result/route.js:13:33)
+    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
+    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
+    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+> neon-vercel-auth@1.0.0 start
+> next start --port 3000
+
+   ▲ Next.js 15.5.27
+   - Local:        http://localhost:3000
+   - Network:      http://10.11.184.106:3000
+
+ ✓ Starting...
+[Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]

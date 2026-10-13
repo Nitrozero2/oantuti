@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import Navbar from "@/components/Navbar";
+import { GameBoard, type Piece } from "@/components/GameBoard";
 import { python } from "@codemirror/lang-python";
 import { oneDark } from "@codemirror/theme-one-dark";
 import type { MatchState, StepResult } from "@/lib/api";
@@ -86,101 +88,9 @@ const PRESETS: Record<string, { label: string; code: string; emoji: string }> = 
   custom: { label: "Custom Code", code: RANDOM_AGENT, emoji: "✏️" },
 };
 
-// ─── Board rendering ────────────────────────────────────────────────────────
-const COLS = ["a","b","c","d","e","f","g","h","i"];
-const PIECE_EMOJI: Record<string, string> = {
-  ROCK: "✊", PAPER: "✋", SCISSORS: "✌️",
-};
-const PIECE_COLOR: Record<number, string> = {
-  1: "text-blue-300",
-  2: "text-rose-300",
-};
-
-function BoardCell({
-  piece,
-  isTarget,
-  isLastFrom,
-  isLastTo,
-}: {
-  piece: { player: number; type: string } | null;
-  isTarget: boolean;
-  isLastFrom: boolean;
-  isLastTo: boolean;
-}) {
-  let bg = "bg-white/5";
-  if (isTarget) bg = "bg-yellow-400/15";
-  if (isLastFrom) bg = "bg-blue-400/20";
-  if (isLastTo) bg = "bg-green-400/20";
-
-  return (
-    <div
-      className={`relative flex items-center justify-center border border-white/5 text-lg leading-none ${bg}`}
-      style={{ aspectRatio: "1" }}
-    >
-      {piece && (
-        <span
-          className={`select-none text-[clamp(0.6rem,1.5vw,1.2rem)] ${PIECE_COLOR[piece.player] ?? ""}`}
-          title={`P${piece.player} ${piece.type}`}
-        >
-          {PIECE_EMOJI[piece.type]}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function GameBoard({
-  board,
-  lastMove,
-}: {
-  board: (null | { player: number; type: string })[];
-  lastMove: { from_col: number; from_row: number; to_col: number; to_row: number } | null;
-}) {
-  return (
-    <div className="w-full">
-      {/* Column labels */}
-      <div className="grid grid-cols-[1.5rem_repeat(9,1fr)] mb-1">
-        <div />
-        {COLS.map((c) => (
-          <div key={c} className="text-center text-[0.6rem] text-slate-600 font-mono">
-            {c}
-          </div>
-        ))}
-      </div>
-      {/* Board rows */}
-      {Array.from({ length: 9 }, (_, i) => 8 - i).map((row) => (
-        <div key={row} className="grid grid-cols-[1.5rem_repeat(9,1fr)]">
-          <div className="flex items-center justify-end pr-1 text-[0.6rem] text-slate-600 font-mono">
-            {row + 1}
-          </div>
-          {Array.from({ length: 9 }, (_, col) => {
-            const idx = row * 9 + col;
-            const piece = board[idx] as { player: number; type: string } | null;
-            const isTarget =
-              (col === 8 && row === 8) || (col === 0 && row === 0);
-            const isLastFrom =
-              lastMove?.from_col === col && lastMove?.from_row === row;
-            const isLastTo =
-              lastMove?.to_col === col && lastMove?.to_row === row;
-            return (
-              <BoardCell
-                key={col}
-                piece={piece}
-                isTarget={isTarget}
-                isLastFrom={isLastFrom}
-                isLastTo={isLastTo}
-              />
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Main page ──────────────────────────────────────────────────────────────
 type AgentKey = "random" | "greedy" | "custom";
 
+// ─── Main page ──────────────────────────────────────────────────────────────
 export default function AdminMatchPage() {
   const [agent1Key, setAgent1Key] = useState<AgentKey>("random");
   const [agent2Key, setAgent2Key] = useState<AgentKey>("greedy");
@@ -249,9 +159,8 @@ export default function AdminMatchPage() {
       }
       setMatchId(data.match_id);
       addLog(`✅ Tạo trận ${data.match_id} thành công`);
-      // Load initial state
       await loadState(data.match_id);
-    } catch (e) {
+    } catch {
       setError("Không thể kết nối backend. Đảm bảo FastAPI đang chạy tại " + BACKEND_URL);
     } finally {
       setBusy(false);
@@ -354,26 +263,37 @@ export default function AdminMatchPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-10">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center gap-4">
-          <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white">
-            ← Dashboard
-          </Link>
-          <span className="text-slate-700">/</span>
-          <Link href="/admin/matches" className="text-sm text-slate-400 hover:text-white">
-            Danh sách trận
-          </Link>
+    <div className="min-h-screen bg-[#F5F0ED] text-[#1a1e29]">
+      <Navbar />
+
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Breadcrumb & Admin tag */}
+        <div className="mb-6 flex items-center justify-between border-b border-[#ded8d3] pb-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <Link href="/dashboard" className="hover:text-[#253B80]">Dashboard</Link>
+            <span>/</span>
+            <Link href="/admin/tournament" className="hover:text-[#253B80]">Tournament</Link>
+            <span>/</span>
+            <Link href="/admin/matches" className="hover:text-[#253B80]">Danh sách trận</Link>
+            <span>/</span>
+            <span className="text-[#1a1e29]">Trận trực tiếp</span>
+          </div>
+          <span className="rounded-none border border-rose-300 bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">
+            Admin Area
+          </span>
         </div>
 
-        <h1 className="text-3xl font-bold sm:text-4xl">⚔️ Tạo & Xem Trận Đấu</h1>
-        <p className="mt-1 text-slate-400">
-          Chọn 2 agent, cài đặt và chạy trận đấu OTTv2 trực tiếp.
-        </p>
+        {/* Page Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-[#1a1e29] sm:text-4xl">⚔️ Tạo & Xem Trận Đấu</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Chọn 2 agent AI, cài đặt thông số và chạy trận đấu OTTv2 trực tiếp.
+          </p>
+        </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_auto_1fr]">
-          {/* ── Agent 1 config ── */}
+        {/* ── 2 Agents Config ── */}
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-[1fr_auto_1fr]">
+          {/* Agent 1 config */}
           <AgentConfig
             player={1}
             agentKey={agent1Key}
@@ -382,12 +302,14 @@ export default function AdminMatchPage() {
             onCodeChange={setAgent1Code}
           />
 
-          {/* ── vs ── */}
+          {/* VS Divider */}
           <div className="flex items-center justify-center">
-            <span className="text-3xl font-black text-slate-600">VS</span>
+            <span className="rounded-none border border-[#ded8d3] bg-white px-3 py-2 text-sm font-black text-slate-400 shadow-sm">
+              VS
+            </span>
           </div>
 
-          {/* ── Agent 2 config ── */}
+          {/* Agent 2 config */}
           <AgentConfig
             player={2}
             agentKey={agent2Key}
@@ -398,9 +320,9 @@ export default function AdminMatchPage() {
         </div>
 
         {/* ── Match settings ── */}
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+        <div className="mt-6 rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-end gap-6">
-            <label className="flex flex-col gap-1 text-sm text-slate-300">
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-[#1a1e29]">
               Số nước tối đa
               <input
                 type="number"
@@ -408,10 +330,10 @@ export default function AdminMatchPage() {
                 max={1000}
                 value={maxMoves}
                 onChange={(e) => setMaxMoves(Number(e.target.value))}
-                className="w-28 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white outline-none focus:border-indigo-300"
+                className="w-28 rounded-none border border-[#ded8d3] bg-[#F5F0ED] px-3 py-2 text-[#1a1e29] outline-none focus:border-[#253B80]"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm text-slate-300">
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-[#1a1e29]">
               Delay auto-run (ms)
               <input
                 type="number"
@@ -420,7 +342,7 @@ export default function AdminMatchPage() {
                 step={100}
                 value={autoDelay}
                 onChange={(e) => setAutoDelay(Number(e.target.value))}
-                className="w-28 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white outline-none focus:border-indigo-300"
+                className="w-28 rounded-none border border-[#ded8d3] bg-[#F5F0ED] px-3 py-2 text-[#1a1e29] outline-none focus:border-[#253B80]"
               />
             </label>
 
@@ -428,7 +350,7 @@ export default function AdminMatchPage() {
               <button
                 onClick={createMatch}
                 disabled={busy}
-                className="rounded-xl bg-indigo-500 px-5 py-2.5 font-semibold text-white transition hover:bg-indigo-400 disabled:opacity-60"
+                className="rounded-none bg-[#253B80] px-5 py-2.5 font-semibold text-white transition hover:bg-[#1d2e66] disabled:opacity-60 cursor-pointer"
               >
                 {busy && !autoRunning ? "Đang tạo..." : "🆕 Tạo trận"}
               </button>
@@ -437,7 +359,7 @@ export default function AdminMatchPage() {
                 <button
                   onClick={handleStep}
                   disabled={busy}
-                  className="rounded-xl bg-emerald-600 px-5 py-2.5 font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                  className="rounded-none bg-emerald-600 px-5 py-2.5 font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60 cursor-pointer"
                 >
                   ▶ Nước tiếp
                 </button>
@@ -447,7 +369,7 @@ export default function AdminMatchPage() {
                 <button
                   onClick={handleAutoRun}
                   disabled={busy}
-                  className="rounded-xl bg-amber-600 px-5 py-2.5 font-semibold text-white transition hover:bg-amber-500 disabled:opacity-60"
+                  className="rounded-none bg-amber-600 px-5 py-2.5 font-semibold text-white transition hover:bg-amber-700 disabled:opacity-60 cursor-pointer"
                 >
                   ⚡ Auto-run
                 </button>
@@ -456,7 +378,7 @@ export default function AdminMatchPage() {
               {autoRunning && (
                 <button
                   onClick={handleStop}
-                  className="rounded-xl bg-rose-600 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-500"
+                  className="rounded-none bg-rose-600 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-700 cursor-pointer"
                 >
                   ⏹ Dừng
                 </button>
@@ -466,7 +388,7 @@ export default function AdminMatchPage() {
                 <button
                   onClick={handleDelete}
                   disabled={busy}
-                  className="rounded-xl border border-rose-400/30 px-5 py-2.5 font-semibold text-rose-300 transition hover:bg-rose-400/10 disabled:opacity-60"
+                  className="rounded-none border border-rose-300 bg-rose-50 px-5 py-2.5 font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-60 cursor-pointer"
                 >
                   🗑 Xóa
                 </button>
@@ -475,7 +397,7 @@ export default function AdminMatchPage() {
           </div>
 
           {error && (
-            <p className="mt-4 rounded-lg border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-sm text-rose-200">
+            <p className="mt-4 rounded-none border border-rose-300 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700">
               {error}
             </p>
           )}
@@ -483,25 +405,25 @@ export default function AdminMatchPage() {
 
         {/* ── Live battle area ── */}
         {matchId && matchState && (
-          <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_400px]">
+          <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_420px]">
             {/* Board */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-semibold text-slate-200">
+            <div className="rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm">
+              <div className="mb-4 flex items-center justify-between border-b border-[#ded8d3] pb-3">
+                <h2 className="font-bold text-[#1a1e29]">
                   🎮 Bàn cờ — Trận{" "}
-                  <span className="font-mono text-indigo-300">{matchId}</span>
+                  <span className="font-mono text-[#253B80]">{matchId}</span>
                 </h2>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="text-slate-400">
-                    Nước: <span className="font-mono text-white">{matchState.move_count}</span>
+                  <span className="text-slate-600">
+                    Nước: <span className="font-mono font-bold text-[#1a1e29]">{matchState.move_count}</span>
                   </span>
                   {!gameOver && (
-                    <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs text-emerald-300">
+                    <span className="rounded-none border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">
                       Lượt P{matchState.current_turn}
                     </span>
                   )}
                   {gameOver && (
-                    <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-xs text-yellow-300">
+                    <span className="rounded-none border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-800">
                       Kết thúc
                     </span>
                   )}
@@ -510,11 +432,11 @@ export default function AdminMatchPage() {
 
               {/* Winner banner */}
               {gameOver && (
-                <div className="mb-4 rounded-xl border border-yellow-400/30 bg-yellow-400/10 px-4 py-3 text-center">
-                  <p className="text-xl font-bold text-yellow-300">
+                <div className="mb-4 rounded-none border border-amber-300 bg-amber-50 px-4 py-3 text-center">
+                  <p className="text-xl font-extrabold text-amber-900">
                     {matchState.winner ? `🏆 Player ${matchState.winner} thắng!` : "🤝 Hòa!"}
                   </p>
-                  <p className="mt-1 text-sm text-slate-400">{matchState.win_reason}</p>
+                  <p className="mt-1 text-sm text-amber-800">{matchState.win_reason}</p>
                 </div>
               )}
 
@@ -522,14 +444,15 @@ export default function AdminMatchPage() {
               <div className="mb-4 grid grid-cols-2 gap-3">
                 {([1, 2] as const).map((p) => {
                   const counts = getPieceCounts(p);
-                  const colorClass = p === 1 ? "border-blue-400/20 bg-blue-400/5" : "border-rose-400/20 bg-rose-400/5";
-                  const textColor = p === 1 ? "text-blue-300" : "text-rose-300";
+                  const colorClass =
+                    p === 1 ? "border-[#253B80]/30 bg-[#253B80]/5" : "border-[#b91c1c]/30 bg-[#b91c1c]/5";
+                  const textColor = p === 1 ? "text-[#253B80]" : "text-[#b91c1c]";
                   return (
-                    <div key={p} className={`rounded-xl border p-3 ${colorClass}`}>
-                      <p className={`mb-2 text-xs font-semibold ${textColor}`}>
+                    <div key={p} className={`rounded-none border p-3 ${colorClass}`}>
+                      <p className={`mb-2 text-xs font-bold ${textColor}`}>
                         Player {p} {p === 1 ? "(Xanh, đi trước)" : "(Đỏ)"}
                       </p>
-                      <div className="flex gap-3 text-sm">
+                      <div className="flex gap-3 text-sm font-semibold text-[#1a1e29]">
                         <span>✊ {counts.ROCK}</span>
                         <span>✋ {counts.PAPER}</span>
                         <span>✌️ {counts.SCISSORS}</span>
@@ -539,21 +462,23 @@ export default function AdminMatchPage() {
                 })}
               </div>
 
-              <GameBoard
-                board={matchState.board}
-                lastMove={lastStep?.move ?? null}
-              />
+              <div className="flex justify-center p-2">
+                <GameBoard
+                  board={matchState.board as Piece[]}
+                  lastMove={lastStep?.move ?? null}
+                />
+              </div>
             </div>
 
             {/* Log */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <h2 className="mb-3 font-semibold text-slate-200">📜 Nhật ký nước đi</h2>
+            <div className="rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm">
+              <h2 className="mb-3 font-bold text-[#1a1e29]">📜 Nhật ký nước đi</h2>
               <div
                 ref={logRef}
-                className="h-[500px] overflow-y-auto space-y-1 font-mono text-xs text-slate-300"
+                className="h-[520px] overflow-y-auto space-y-1 rounded-none border border-[#ded8d3] bg-[#F5F0ED] p-3 font-mono text-xs text-[#1a1e29]"
               >
                 {log.length === 0 && (
-                  <p className="text-slate-600 py-4 text-center">Chưa có nước đi nào.</p>
+                  <p className="text-slate-500 py-4 text-center">Chưa có nước đi nào.</p>
                 )}
                 {log.map((line, i) => (
                   <div key={i} className="leading-5">
@@ -564,9 +489,9 @@ export default function AdminMatchPage() {
 
               {/* Last step detail */}
               {lastStep?.agent_stdout && (
-                <div className="mt-4 rounded-xl border border-white/5 bg-black/30 p-3">
-                  <p className="mb-1 text-xs text-slate-500">Agent stdout:</p>
-                  <pre className="text-xs text-slate-400 overflow-x-auto whitespace-pre-wrap break-words">
+                <div className="mt-4 rounded-none border border-[#ded8d3] bg-[#eae4df] p-3">
+                  <p className="mb-1 text-xs font-bold text-slate-600">Agent stdout:</p>
+                  <pre className="text-xs text-[#1a1e29] overflow-x-auto whitespace-pre-wrap break-words font-mono">
                     {lastStep.agent_stdout}
                   </pre>
                 </div>
@@ -574,8 +499,8 @@ export default function AdminMatchPage() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
 
@@ -593,17 +518,18 @@ function AgentConfig({
   onSelectPreset: (k: AgentKey) => void;
   onCodeChange: (c: string) => void;
 }) {
-  const colorClass =
-    player === 1
-      ? "border-blue-400/20 bg-blue-400/5"
-      : "border-rose-400/20 bg-rose-400/5";
-  const accentClass = player === 1 ? "text-blue-300" : "text-rose-300";
+  const isP1 = player === 1;
+  const borderAccent = isP1 ? "border-l-4 border-l-[#253B80]" : "border-l-4 border-l-[#b91c1c]";
+  const accentText = isP1 ? "text-[#253B80]" : "text-[#b91c1c]";
 
   return (
-    <div className={`rounded-2xl border p-5 ${colorClass}`}>
-      <p className={`mb-4 text-sm font-bold ${accentClass}`}>
-        Player {player} {player === 1 ? "(Xanh · i9)" : "(Đỏ · a1)"}
-      </p>
+    <div className={`rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm ${borderAccent}`}>
+      <div className="mb-4 flex items-center justify-between">
+        <p className={`text-base font-bold ${accentText}`}>
+          Player {player} {isP1 ? "(Xanh · Điểm xuất phát i9)" : "(Đỏ · Điểm xuất phát a1)"}
+        </p>
+        <span className="text-xs font-mono text-slate-500">Python 3.10</span>
+      </div>
 
       {/* Preset selector */}
       <div className="mb-4 flex gap-2 flex-wrap">
@@ -611,10 +537,12 @@ function AgentConfig({
           <button
             key={k}
             onClick={() => onSelectPreset(k)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+            className={`rounded-none border px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
               agentKey === k
-                ? "border-indigo-400/50 bg-indigo-400/20 text-indigo-200"
-                : "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10"
+                ? isP1
+                  ? "border-[#253B80] bg-[#253B80] text-white font-bold"
+                  : "border-[#b91c1c] bg-[#b91c1c] text-white font-bold"
+                : "border-[#ded8d3] bg-[#F5F0ED] text-[#1a1e29] hover:bg-[#eae4df]"
             }`}
           >
             {PRESETS[k].emoji} {PRESETS[k].label}
@@ -623,7 +551,7 @@ function AgentConfig({
       </div>
 
       {/* Code editor */}
-      <div className="rounded-xl overflow-hidden border border-white/10">
+      <div className="rounded-none overflow-hidden border border-[#ded8d3]">
         <CodeMirror
           value={code}
           height="280px"
