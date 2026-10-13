@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GameBoard, applyMove, getPieceCounts, PIECE_EMOJI, type Piece } from "@/components/GameBoard";
-import BackendOfflineBanner from "@/components/BackendOfflineBanner";
 import Navbar from "@/components/Navbar";
+import BackendOfflineBanner from "@/components/BackendOfflineBanner";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type AgentOption = {
   id: number;
@@ -13,6 +14,34 @@ type AgentOption = {
   username: string;
   user_id: number;
   elo: number;
+};
+
+type Challenge = {
+  id: number;
+  status: "pending" | "accepted" | "declined" | "cancelled" | "expired";
+  message: string;
+  created_at: string;
+  responded_at: string | null;
+  expires_at: string;
+  friendly_match_id: number | null;
+  // challenger
+  challenger_id: number;
+  challenger_username: string;
+  challenger_agent_id: number;
+  challenger_agent_name: string;
+  challenger_agent_elo: number;
+  // opponent
+  opponent_id: number;
+  opponent_username: string;
+  opponent_agent_id: number;
+  opponent_agent_name: string;
+  opponent_agent_elo: number;
+  // match result
+  match_status: string | null;
+  match_outcome: string | null;
+  match_total_moves: number | null;
+  match_pending_backend: boolean | null;
+  match_winner_name: string | null;
 };
 
 type FriendlyMatch = {
@@ -31,570 +60,762 @@ type FriendlyMatch = {
   agent2_name: string;
   agent2_username: string;
   winner_name: string | null;
+  pending_backend: boolean;
 };
 
-type LiveStep = {
-  type: "step";
-  step_number: number;
-  player: number;
-  move: { from_col: number; from_row: number; to_col: number; to_row: number; from_pos: string; to_pos: string } | null;
-  captured_type: string | null;
-  game_over: boolean;
-  winner: number | null;
-  win_reason: string;
-  error: string | null;
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const CHALLENGE_STATUS_BADGE: Record<string, string> = {
+  pending:   "bg-amber-50 text-amber-700 border-amber-300",
+  accepted:  "bg-emerald-50 text-emerald-700 border-emerald-300",
+  declined:  "bg-rose-50 text-rose-700 border-rose-300",
+  cancelled: "bg-slate-100 text-slate-600 border-slate-300",
+  expired:   "bg-slate-100 text-slate-500 border-slate-200",
 };
 
-// Build initial board matching game.py _init_board()
-function buildInitialBoard(): Piece[] {
-  const flat: Piece[] = Array(81).fill(null);
-  function place(player: number, type: string, pos: string) {
-    let col = -1, row = -1;
-    for (const ch of pos) {
-      if (isNaN(Number(ch))) col = ch.charCodeAt(0) - 97;
-      else row = parseInt(ch) - 1;
-    }
-    if (col >= 0 && row >= 0) flat[row * 9 + col] = { player, type };
-  }
-  for (const p of ["5c","4d","3e"]) place(1,"SCISSORS",p);
-  for (const p of ["5b","4c","3d","2e"]) place(1,"PAPER",p);
-  for (const p of ["4b","3c","2d"]) place(1,"ROCK",p);
-  for (const p of ["7e","6f","5g"]) place(2,"SCISSORS",p);
-  for (const p of ["8e","7f","6g","5h"]) place(2,"PAPER",p);
-  for (const p of ["8f","7g","6h"]) place(2,"ROCK",p);
-  return flat;
-}
-
-const STATUS_BADGE: Record<string, string> = {
+const MATCH_STATUS_BADGE: Record<string, string> = {
   scheduled: "bg-slate-100 text-slate-700 border-slate-300",
   running:   "bg-amber-50 text-amber-700 border-amber-300",
   finished:  "bg-emerald-50 text-emerald-700 border-emerald-300",
   error:     "bg-rose-50 text-rose-700 border-rose-300",
 };
 
+const OUTCOME_LABEL: Record<string, string> = {
+  agent1: "Bot1 thắng",
+  agent2: "Bot2 thắng",
+  draw:   "Hòa",
+};
+
+type Tab = "challenge" | "received" | "sent" | "history";
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function FriendlyPage() {
   const router = useRouter();
+  const [tab, setTab] = useState<Tab>("challenge");
+
+  // Agents
   const [agents, setAgents] = useState<AgentOption[]>([]);
-  const [agent1Id, setAgent1Id] = useState<number | "">("");
-  const [agent2Id, setAgent2Id] = useState<number | "">("");
-  const [matches, setMatches] = useState<FriendlyMatch[]>([]);
+  const [myAgents, setMyAgents] = useState<AgentOption[]>([]);
   const [loadingAgents, setLoadingAgents] = useState(true);
-  const [loadingMatches, setLoadingMatches] = useState(true);
-  const [error, setError] = useState("");
 
-  // Backend online status
+  // Challenge form
+  const [myAgentId, setMyAgentId] = useState<number | "">("");
+  const [theirAgentId, setTheirAgentId] = useState<number | "">("");
+  const [challengeMsg, setChallengeMsg] = useState("");
+  const [sendingChallenge, setSendingChallenge] = useState(false);
+  const [challengeError, setChallengeError] = useState("");
+  const [challengeSuccess, setChallengeSuccess] = useState("");
+
+  // Challenges lists
+  const [received, setReceived] = useState<Challenge[]>([]);
+  const [sent, setSent] = useState<Challenge[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [loadingChallenges, setLoadingChallenges] = useState(false);
+  const [respondingId, setRespondingId] = useState<number | null>(null);
+
+  // Match history
+  const [matches, setMatches] = useState<FriendlyMatch[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
+
+  // Backend status
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+  const [processingPending, setProcessingPending] = useState(false);
+  const [processResult, setProcessResult] = useState<{ processed: number; errors: number } | null>(null);
 
-  // Live match state
-  const [liveActive, setLiveActive] = useState(false);
-  const [liveSteps, setLiveSteps] = useState<LiveStep[]>([]);
-  const [liveBoard, setLiveBoard] = useState<Piece[]>(buildInitialBoard());
-  const [liveLastMove, setLiveLastMove] = useState<LiveStep["move"]>(null);
-  const [liveDone, setLiveDone] = useState<{ friendly_match_id: number; outcome: string; total_moves: number; win_reason: string } | null>(null);
-  const [liveError, setLiveError] = useState("");
-  const [liveAgent1, setLiveAgent1] = useState<AgentOption | null>(null);
-  const [liveAgent2, setLiveAgent2] = useState<AgentOption | null>(null);
-  const sseRef = useRef<EventSource | null>(null);
-  const moveLogRef = useRef<HTMLDivElement>(null);
+  // Current user id (needed to determine "my" vs "their" in challenge display)
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
-  const MIN_STEP_MS = 1300;
-  type QueueItem =
-    | ({ type: "step" } & LiveStep)
-    | { type: "done"; friendly_match_id: number; outcome: string; total_moves: number; win_reason: string }
-    | { type: "error"; message: string };
+  // ─── Load data ──────────────────────────────────────────────────────────────
 
-  const stepQueueRef = useRef<QueueItem[]>([]);
-  const drainingRef  = useRef<boolean>(false);
-  const boardRef     = useRef<Piece[]>(buildInitialBoard());
-
-  const applyQueueItem = useCallback((item: QueueItem) => {
-    if (item.type === "step") {
-      setLiveSteps(prev => [...prev, item]);
-      if (item.move) {
-        boardRef.current = applyMove(boardRef.current, item.move);
-        setLiveBoard([...boardRef.current]);
-        setLiveLastMove(item.move);
-      }
-      if (item.error) { setLiveError(item.error); }
-      setTimeout(() => {
-        if (moveLogRef.current) {
-          moveLogRef.current.scrollTop = moveLogRef.current.scrollHeight;
+  const loadAgents = useCallback(async () => {
+    setLoadingAgents(true);
+    try {
+      const res = await fetch("/api/arena/agents/all-active");
+      if (res.status === 401) { router.push("/login"); return; }
+      const d = await res.json() as { agents?: AgentOption[]; current_user_id?: number };
+      const all = d.agents ?? [];
+      setAgents(all);
+      // Lấy user id từ session
+      const sessionRes = await fetch("/api/auth/me").catch(() => null);
+      if (sessionRes?.ok) {
+        const sd = await sessionRes.json() as { user?: { id?: number } };
+        const uid = sd.user?.id ? Number(sd.user.id) : null;
+        if (uid) {
+          setCurrentUserId(uid);
+          setMyAgents(all.filter(a => Number(a.user_id) === uid));
         }
-      }, 50);
-    } else if (item.type === "done") {
-      setLiveDone(item);
-      loadMatches();
-    } else if (item.type === "error") {
-      setLiveError(item.message);
-    }
-  }, []);
-
-  const startDrainLoop = useCallback(() => {
-    if (drainingRef.current) return;
-    drainingRef.current = true;
-
-    function tick() {
-      if (stepQueueRef.current.length === 0) {
-        drainingRef.current = false;
-        return;
       }
-      const item = stepQueueRef.current.shift()!;
-      applyQueueItem(item);
-      setTimeout(tick, MIN_STEP_MS);
+    } catch {
+      setChallengeError("Không thể tải danh sách agent.");
+    } finally {
+      setLoadingAgents(false);
     }
-    tick();
-  }, [applyQueueItem]);
-
-  useEffect(() => {
-    fetch("/api/backend-status")
-      .then(r => r.ok ? r.json() : { online: false })
-      .then((d: { online: boolean }) => setBackendOnline(d.online))
-      .catch(() => setBackendOnline(false));
-
-    fetch("/api/arena/agents/all-active")
-      .then(r => {
-        if (r.status === 401) { router.push("/login"); return null; }
-        return r.json();
-      })
-      .then((d: { agents?: AgentOption[] } | null) => {
-        if (d?.agents) setAgents(d.agents);
-      })
-      .catch(() => setError("Không thể tải danh sách agent."))
-      .finally(() => setLoadingAgents(false));
-
-    loadMatches();
-
-    return () => {
-      if (sseRef.current) sseRef.current.close();
-    };
   }, [router]);
 
-  function loadMatches() {
+  const loadChallenges = useCallback(async () => {
+    setLoadingChallenges(true);
+    try {
+      const res = await fetch("/api/friendly/challenges?type=all");
+      if (!res.ok) return;
+      const d = await res.json() as {
+        challenges?: Challenge[];
+        pending_received_count?: number;
+      };
+      const all = d.challenges ?? [];
+      setReceived(all.filter(c => c.opponent_id === currentUserId));
+      setSent(all.filter(c => c.challenger_id === currentUserId));
+      setPendingCount(d.pending_received_count ?? 0);
+    } catch {/* silent */}
+    finally { setLoadingChallenges(false); }
+  }, [currentUserId]);
+
+  const loadMatches = useCallback(async () => {
     setLoadingMatches(true);
-    fetch("/api/friendly")
-      .then(r => r.ok ? r.json() : null)
-      .then((d: { matches?: FriendlyMatch[] } | null) => {
-        if (d?.matches) setMatches(d.matches);
-      })
-      .catch(() => {})
-      .finally(() => setLoadingMatches(false));
-  }
+    try {
+      const res = await fetch("/api/friendly");
+      if (!res.ok) return;
+      const d = await res.json() as { matches?: FriendlyMatch[] };
+      setMatches(d.matches ?? []);
+    } catch {/* silent */}
+    finally { setLoadingMatches(false); }
+  }, []);
 
-  function startLive() {
-    if (!agent1Id || !agent2Id) return;
-    const a1 = agents.find(a => a.id === agent1Id) ?? null;
-    const a2 = agents.find(a => a.id === agent2Id) ?? null;
-    if (a1 && a2 && a1.user_id === a2.user_id) {
-      setError("Hai agent phải thuộc hai người dùng khác nhau.");
-      return;
+  const checkBackend = useCallback(async () => {
+    try {
+      const r = await fetch("/api/backend-status");
+      const d = await r.json() as { online: boolean };
+      setBackendOnline(d.online);
+    } catch { setBackendOnline(false); }
+  }, []);
+
+  useEffect(() => {
+    loadAgents();
+    checkBackend();
+  }, [loadAgents, checkBackend]);
+
+  useEffect(() => {
+    if (currentUserId !== null) {
+      loadChallenges();
     }
+  }, [currentUserId, loadChallenges]);
 
-    const initBoard = buildInitialBoard();
-    setLiveBoard(initBoard);
-    boardRef.current = initBoard;
-    setLiveSteps([]);
-    setLiveLastMove(null);
-    setLiveActive(true);
-    setLiveDone(null);
-    setLiveError("");
-    setLiveAgent1(a1);
-    setLiveAgent2(a2);
-    setError("");
-    stepQueueRef.current = [];
-    drainingRef.current = false;
+  useEffect(() => {
+    if (tab === "history") loadMatches();
+    if (tab === "received" || tab === "sent") loadChallenges();
+  }, [tab, loadMatches, loadChallenges]);
 
-    if (sseRef.current) { sseRef.current.close(); }
+  // Auto-refresh khi backend offline → online để process pending
+  useEffect(() => {
+    if (backendOnline !== true) return;
+    // Nếu có pending matches → tự gọi process
+    const hasPending = matches.some(m => m.pending_backend && m.status === "scheduled");
+    if (hasPending) processPending();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backendOnline]);
 
-    const url = `/api/friendly/live?agent1_id=${agent1Id}&agent2_id=${agent2Id}`;
-    const es = new EventSource(url);
-    sseRef.current = es;
+  // ─── Actions ────────────────────────────────────────────────────────────────
 
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as
-        | { type: "step" } & LiveStep
-        | { type: "done"; friendly_match_id: number; outcome: string; total_moves: number; win_reason: string }
-        | { type: "error"; message: string };
+  async function sendChallenge() {
+    if (!myAgentId || !theirAgentId) return;
+    setSendingChallenge(true);
+    setChallengeError("");
+    setChallengeSuccess("");
+    try {
+      const res = await fetch("/api/friendly/challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challenger_agent_id: myAgentId,
+          opponent_agent_id: theirAgentId,
+          message: challengeMsg,
+        }),
+      });
+      const d = await res.json() as { ok?: boolean; message?: string; error?: string };
+      if (!res.ok) { setChallengeError(d.error ?? "Lỗi gửi thách đấu."); return; }
+      setChallengeSuccess(d.message ?? "Đã gửi lời thách đấu!");
+      setMyAgentId("");
+      setTheirAgentId("");
+      setChallengeMsg("");
+      // Switch sang tab sent
+      setTab("sent");
+      loadChallenges();
+    } catch { setChallengeError("Không thể kết nối."); }
+    finally { setSendingChallenge(false); }
+  }
 
-      if (data.type === "error") {
-        setLiveError(data.message);
-        es.close();
-        return;
+  async function respond(challengeId: number, action: "accept" | "decline") {
+    setRespondingId(challengeId);
+    try {
+      const res = await fetch(`/api/friendly/challenges/${challengeId}/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const d = await res.json() as { ok?: boolean; message?: string; error?: string };
+      if (!res.ok) { alert(d.error ?? "Lỗi."); return; }
+      if (action === "accept" && d.message) alert(d.message);
+      await loadChallenges();
+      // Nếu backend online → tự process
+      if (action === "accept" && backendOnline) {
+        await processPending();
       }
-
-      stepQueueRef.current.push(data);
-      startDrainLoop();
-    };
-
-    es.onerror = () => {
-      if (es.readyState === EventSource.CLOSED) return;
-      setLiveError("Kết nối bị ngắt.");
-      es.close();
-    };
+    } catch { alert("Không thể kết nối."); }
+    finally { setRespondingId(null); }
   }
 
-  function resetLive() {
-    if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
-    stepQueueRef.current = [];
-    drainingRef.current = false;
-    setLiveActive(false);
-    setLiveSteps([]);
-    const initBoard = buildInitialBoard();
-    setLiveBoard(initBoard);
-    boardRef.current = initBoard;
-    setLiveLastMove(null);
-    setLiveDone(null);
-    setLiveError("");
+  async function processPending(matchId?: number) {
+    setProcessingPending(true);
+    setProcessResult(null);
+    try {
+      const res = await fetch("/api/friendly/process-pending", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(matchId ? { match_id: matchId } : {}),
+      });
+      const d = await res.json() as {
+        ok?: boolean; processed?: number; errors?: number;
+        message?: string; backend_online?: boolean; error?: string;
+      };
+      if (res.ok && d.processed !== undefined) {
+        setProcessResult({ processed: d.processed, errors: d.errors ?? 0 });
+        await loadChallenges();
+        await loadMatches();
+      }
+    } catch {/* silent */}
+    finally { setProcessingPending(false); }
   }
 
-  const pieceCounts = getPieceCounts(liveBoard);
-  const isRunning = liveActive && !liveDone && !liveError;
-  const selectedA1 = agents.find(a => a.id === agent1Id);
-  const selectedA2 = agents.find(a => a.id === agent2Id);
-  const sameUser = selectedA1 && selectedA2 && selectedA1.user_id === selectedA2.user_id;
-  const byUser = agents.reduce<Record<number, AgentOption[]>>((acc, a) => {
-    if (!acc[a.user_id]) acc[a.user_id] = [];
-    acc[a.user_id].push(a);
+  // ─── Derived ────────────────────────────────────────────────────────────────
+
+  // Opponents: agents không phải của mình
+  const opponentAgents = agents.filter(a => a.user_id !== currentUserId);
+  const byUser = opponentAgents.reduce<Record<string, AgentOption[]>>((acc, a) => {
+    if (!acc[a.username]) acc[a.username] = [];
+    acc[a.username].push(a);
     return acc;
   }, {});
 
-  const outcomeLabel = liveDone
-    ? liveDone.outcome === "agent1"
-      ? `🏆 ${liveAgent1?.agent_name ?? "Agent 1"} thắng!`
-      : liveDone.outcome === "agent2"
-      ? `🏆 ${liveAgent2?.agent_name ?? "Agent 2"} thắng!`
-      : "🤝 Hòa!"
-    : null;
+  const selectedMyAgent = myAgents.find(a => a.id === myAgentId);
+  const selectedTheirAgent = agents.find(a => a.id === theirAgentId);
+
+  // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-[#F5F0ED] text-[#1a1e29]">
-      {/* Header đồng bộ */}
       <Navbar />
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 border-b border-[#ded8d3] pb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1e29] sm:text-4xl">
-              ⚔️ Đấu Đối Kháng Riêng
-            </h1>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-6 border-b border-[#ded8d3] pb-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-3">
+            <Link href="/dashboard" className="hover:text-[#253B80]">Dashboard</Link>
+            <span>/</span>
+            <span className="text-[#1a1e29]">Đấu Đối Kháng</span>
           </div>
-          <p className="text-sm text-slate-600">
-            Xem trực tiếp từng nước đi của hai agent. Trận đấu thử không tính điểm vào bảng xếp hạng ELO chính thức.
+          <h1 className="text-3xl font-extrabold text-[#1a1e29]">⚔️ Đấu Đối Kháng</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Gửi lời thách đấu tới agent của người khác. Kết quả không tính ELO chính thức.
           </p>
         </div>
 
-        {/* Backend offline banner */}
+        {/* Backend banner */}
         <BackendOfflineBanner
           isOffline={backendOnline === false}
           checking={backendOnline === null}
-          className="mb-6 rounded-none border border-amber-300 bg-amber-50 text-amber-900"
+          className="mb-4 rounded-none border border-amber-300 bg-amber-50 text-amber-900"
         />
 
-        {/* Khung chọn Agent: Khung thẳng */}
-        <div className="mb-8 rounded-none border border-[#ded8d3] bg-white p-6 shadow-md">
-          {loadingAgents ? (
-            <div className="flex justify-center py-6">
-              <div className="h-6 w-6 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-end gap-4">
-              {/* Agent 1 */}
-              <div className="min-w-[200px] flex-1">
-                <p className="mb-1.5 font-bold text-xs text-[#253B80]">🟦 Player 1 (Xanh)</p>
-                <select
-                  value={agent1Id}
-                  onChange={(e) => setAgent1Id(e.target.value ? Number(e.target.value) : "")}
-                  disabled={isRunning}
-                  className="w-full rounded-none border border-[#ded8d3] bg-white px-3 py-2.5 text-sm font-semibold text-[#1a1e29] outline-none transition focus:border-[#253B80] disabled:opacity-50"
-                >
-                  <option value="">-- Chọn agent 1 --</option>
-                  {Object.entries(byUser).map(([, list]) => (
-                    <optgroup key={list[0].username} label={`@${list[0].username}`}>
-                      {list.map((a) => (
-                        <option key={a.id} value={a.id} disabled={a.id === agent2Id}>
-                          {a.agent_name} (ELO {a.elo})
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-
-              <span className="pb-2 text-xl font-black text-slate-400">VS</span>
-
-              {/* Agent 2 */}
-              <div className="min-w-[200px] flex-1">
-                <p className="mb-1.5 font-bold text-xs text-rose-700">🟥 Player 2 (Đỏ)</p>
-                <select
-                  value={agent2Id}
-                  onChange={(e) => setAgent2Id(e.target.value ? Number(e.target.value) : "")}
-                  disabled={isRunning}
-                  className="w-full rounded-none border border-[#ded8d3] bg-white px-3 py-2.5 text-sm font-semibold text-[#1a1e29] outline-none transition focus:border-rose-600 disabled:opacity-50"
-                >
-                  <option value="">-- Chọn agent 2 --</option>
-                  {Object.entries(byUser).map(([, list]) => (
-                    <optgroup key={list[0].username} label={`@${list[0].username}`}>
-                      {list.map((a) => (
-                        <option key={a.id} value={a.id} disabled={a.id === agent1Id}>
-                          {a.agent_name} (ELO {a.elo})
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-
-              {/* Buttons */}
-              <div className="pb-0.5">
-                {!liveActive ? (
-                  <button
-                    onClick={startLive}
-                    disabled={!agent1Id || !agent2Id || !!sameUser || agent1Id === agent2Id || backendOnline === false || backendOnline === null}
-                    className="cursor-pointer rounded-none bg-[#253B80] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#1d2e66] disabled:cursor-not-allowed disabled:opacity-50"
-                    title={backendOnline === false ? "Backend đang offline" : undefined}
-                  >
-                    {backendOnline === null ? "⏳ Đang kiểm tra..." : "⚔️ Bắt đầu đấu"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={resetLive}
-                    className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:border-[#253B80]"
-                  >
-                    ↩ Trận mới
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {sameUser && (
-            <p className="mt-3 text-xs font-bold text-amber-700">⚠️ Hai agent phải thuộc hai người dùng khác nhau.</p>
-          )}
-          {error && <p className="mt-3 text-xs font-bold text-rose-700">❌ {error}</p>}
-        </div>
-
-        {/* Live match area */}
-        {liveActive && (
-          <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
-            {/* Board */}
-            <div className="rounded-none border border-[#ded8d3] bg-white p-5 shadow-md">
-              {/* Player headers */}
-              <div className="mb-4 flex justify-between gap-3">
-                {[
-                  { agent: liveAgent1, p: 1, label: "Player 1", color: "text-[#253B80]", border: "border-[#253B80] bg-[#253B80]/5" },
-                  { agent: liveAgent2, p: 2, label: "Player 2", color: "text-rose-700", border: "border-rose-400 bg-rose-50" },
-                ].map(({ agent, p, label, color, border }) => {
-                  const c = pieceCounts[p];
-                  return (
-                    <div key={p} className={`rounded-none border p-3 flex-1 ${border}`}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`font-bold text-sm ${color}`}>{agent?.agent_name ?? `Agent ${p}`}</span>
-                        <span className="text-[10px] font-bold uppercase text-slate-500">{label}</span>
-                      </div>
-                      <div className="flex gap-3 font-mono text-xs text-slate-700">
-                        <span>✊ <span className="font-bold text-[#1a1e29]">{c.ROCK}</span></span>
-                        <span>✋ <span className="font-bold text-[#1a1e29]">{c.PAPER}</span></span>
-                        <span>✌️ <span className="font-bold text-[#1a1e29]">{c.SCISSORS}</span></span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Status bar */}
-              <div className="mb-3 flex items-center justify-between border-b border-[#ded8d3] pb-2 text-xs">
-                <div className="flex items-center gap-2">
-                  {isRunning && (
-                    <div className="h-2 w-2 animate-pulse bg-emerald-600 rounded-none" />
-                  )}
-                  <span className="font-bold text-slate-700">
-                    {isRunning
-                      ? `Đang thi đấu... Nước ${liveSteps.length}`
-                      : liveDone
-                      ? `Kết thúc · Tổng ${liveDone.total_moves} nước`
-                      : liveError
-                      ? "⚠️ Đã xảy ra lỗi"
-                      : ""}
-                  </span>
-                </div>
-                {liveDone && (
-                  <Link
-                    href={`/arena/replay/friendly/${liveDone.friendly_match_id}`}
-                    className="rounded-none border border-[#253B80] px-3 py-1 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
-                  >
-                    ▶ Xem Replay đầy đủ
-                  </Link>
-                )}
-              </div>
-
-              {/* Winner banner */}
-              {liveDone && outcomeLabel && (
-                <div className="mb-4 rounded-none border border-amber-300 bg-amber-50 px-4 py-3 text-center">
-                  <p className="text-lg font-bold text-amber-800">{outcomeLabel}</p>
-                  {liveDone.win_reason && (
-                    <p className="mt-0.5 text-xs text-slate-600">{liveDone.win_reason}</p>
-                  )}
-                </div>
-              )}
-
-              {liveError && (
-                <div className="mb-4 rounded-none border border-rose-300 bg-rose-50 px-4 py-3 text-center">
-                  <p className="text-sm font-bold text-rose-700">⚠️ {liveError}</p>
-                </div>
-              )}
-
-              <div className="flex justify-center p-2 bg-[#F5F0ED]/60 border border-[#ded8d3]">
-                <GameBoard board={liveBoard} lastMove={liveLastMove} />
-              </div>
-            </div>
-
-            {/* Move log: Khung thẳng */}
-            <div className="flex flex-col rounded-none border border-[#ded8d3] bg-white p-5 shadow-md">
-              <div className="mb-3 flex items-center justify-between border-b border-[#ded8d3] pb-2">
-                <h3 className="text-sm font-bold text-[#1a1e29]">📜 Nhật ký nước đi</h3>
-                <span className="font-mono text-xs font-bold text-slate-500">{liveSteps.length} nước</span>
-              </div>
-              <div
-                ref={moveLogRef}
-                className="flex-1 space-y-1 overflow-y-auto pr-1"
-                style={{ maxHeight: 480 }}
-              >
-                {liveSteps.length === 0 && (
-                  <p className="py-8 text-center text-xs text-slate-400">Chờ trận đấu bắt đầu...</p>
-                )}
-                {liveSteps.map((s, i) => {
-                  const pColor = s.player === 1 ? "text-[#253B80]" : "text-rose-700";
-                  const isLast = i === liveSteps.length - 1;
-                  return (
-                    <div
-                      key={s.step_number}
-                      className={`rounded-none px-2 py-1 font-mono text-xs transition border ${
-                        isLast
-                          ? "border-[#253B80] bg-[#253B80]/10 font-bold"
-                          : "border-transparent text-slate-700 hover:bg-stone-50"
-                      }`}
-                    >
-                      <span className="inline-block w-6 text-slate-400">{s.step_number}.</span>
-                      <span className={`${pColor} font-bold mr-1.5`}>P{s.player}</span>
-                      {s.move ? (
-                        <>
-                          {s.move.from_pos} → {s.move.to_pos}
-                          {s.captured_type && (
-                            <span className="ml-1 text-amber-700 font-bold"> ×{PIECE_EMOJI[s.captured_type]}</span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-rose-600"> [lỗi]</span>
-                      )}
-                      {s.game_over && <span className="ml-1 font-bold text-amber-600"> ⚑</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        {/* Process result banner */}
+        {processResult && (
+          <div className="mb-4 rounded-none border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 flex items-center justify-between">
+            <span>⚡ Đã xử lý {processResult.processed} trận{processResult.errors > 0 && `, ${processResult.errors} lỗi`}.</span>
+            <button onClick={() => setProcessResult(null)} className="text-xs opacity-60 hover:opacity-100">✕</button>
           </div>
         )}
 
-        {/* Match history: Khung thẳng */}
-        <div className="overflow-hidden rounded-none border border-[#ded8d3] bg-white shadow-md">
-          <div className="flex items-center justify-between border-b border-[#ded8d3] bg-stone-50 px-5 py-4">
-            <h2 className="text-sm font-bold text-[#1a1e29]">📋 Lịch sử các trận đối kháng gần đây</h2>
+        {/* Tabs */}
+        <div className="mb-6 flex gap-0 border-b border-[#ded8d3]">
+          {([
+            { key: "challenge", label: "⚔️ Gửi thách đấu" },
+            { key: "received", label: `📥 Nhận được${pendingCount > 0 ? ` (${pendingCount})` : ""}` },
+            { key: "sent", label: "📤 Đã gửi" },
+            { key: "history", label: "📋 Lịch sử trận" },
+          ] as { key: Tab; label: string }[]).map(t => (
             <button
-              onClick={loadMatches}
-              className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-[#253B80]"
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`cursor-pointer px-4 py-2.5 text-xs font-bold border-b-2 transition ${
+                tab === t.key
+                  ? "border-[#253B80] text-[#253B80]"
+                  : "border-transparent text-slate-500 hover:text-[#1a1e29]"
+              } ${t.key === "received" && pendingCount > 0 ? "text-amber-700" : ""}`}
             >
-              🔄 Làm mới
+              {t.label}
             </button>
+          ))}
+        </div>
+
+        {/* ── Tab: Gửi thách đấu ─────────────────────────────────────────────── */}
+        {tab === "challenge" && (
+          <div className="rounded-none border border-[#ded8d3] bg-white p-6 shadow-md">
+            <h2 className="mb-5 text-base font-bold text-[#253B80]">Chọn agent để thách đấu</h2>
+
+            {loadingAgents ? (
+              <div className="flex justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  {/* Agent của mình */}
+                  <div>
+                    <p className="mb-2 text-xs font-bold text-[#253B80]">🟦 Agent của bạn</p>
+                    {myAgents.length === 0 ? (
+                      <p className="text-xs text-slate-500 italic">
+                        Bạn chưa có agent active.{" "}
+                        <Link href="/arena/submit" className="text-[#253B80] hover:underline">Nộp agent →</Link>
+                      </p>
+                    ) : (
+                      <select
+                        value={myAgentId}
+                        onChange={e => setMyAgentId(e.target.value ? Number(e.target.value) : "")}
+                        className="w-full rounded-none border border-[#ded8d3] bg-white px-3 py-2.5 text-sm font-semibold text-[#1a1e29] outline-none focus:border-[#253B80]"
+                      >
+                        <option value="">-- Chọn agent của bạn --</option>
+                        {myAgents.map(a => (
+                          <option key={a.id} value={a.id}>
+                            {a.agent_name} (ELO {a.elo})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {selectedMyAgent && (
+                      <p className="mt-1.5 text-xs text-slate-500">
+                        ELO: <strong>{selectedMyAgent.elo}</strong>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Agent đối thủ */}
+                  <div>
+                    <p className="mb-2 text-xs font-bold text-rose-700">🟥 Agent đối thủ</p>
+                    {opponentAgents.length === 0 ? (
+                      <p className="text-xs text-slate-500 italic">Chưa có agent active của người khác.</p>
+                    ) : (
+                      <select
+                        value={theirAgentId}
+                        onChange={e => setTheirAgentId(e.target.value ? Number(e.target.value) : "")}
+                        className="w-full rounded-none border border-[#ded8d3] bg-white px-3 py-2.5 text-sm font-semibold text-[#1a1e29] outline-none focus:border-rose-400"
+                      >
+                        <option value="">-- Chọn agent đối thủ --</option>
+                        {Object.entries(byUser).map(([username, list]) => (
+                          <optgroup key={username} label={`@${username}`}>
+                            {list.map(a => (
+                              <option key={a.id} value={a.id}>
+                                {a.agent_name} (ELO {a.elo})
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                    )}
+                    {selectedTheirAgent && (
+                      <p className="mt-1.5 text-xs text-slate-500">
+                        Của <strong>@{selectedTheirAgent.username}</strong> · ELO: <strong>{selectedTheirAgent.elo}</strong>
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Preview matchup */}
+                {selectedMyAgent && selectedTheirAgent && (
+                  <div className="mt-4 flex items-center justify-center gap-4 rounded-none border border-[#ded8d3] bg-[#F5F0ED] py-4 px-6">
+                    <div className="text-center">
+                      <p className="text-xs font-bold text-[#253B80]">{selectedMyAgent.agent_name}</p>
+                      <p className="text-[11px] text-slate-500">@{selectedMyAgent.username}</p>
+                      <p className="font-mono text-xs font-bold text-[#253B80]">ELO {selectedMyAgent.elo}</p>
+                    </div>
+                    <span className="text-xl font-black text-slate-400">⚔️</span>
+                    <div className="text-center">
+                      <p className="text-xs font-bold text-rose-700">{selectedTheirAgent.agent_name}</p>
+                      <p className="text-[11px] text-slate-500">@{selectedTheirAgent.username}</p>
+                      <p className="font-mono text-xs font-bold text-rose-700">ELO {selectedTheirAgent.elo}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Message */}
+                <div className="mt-4">
+                  <label className="block text-xs font-bold text-slate-600 mb-1">
+                    Tin nhắn kèm thách đấu (tùy chọn)
+                  </label>
+                  <input
+                    value={challengeMsg}
+                    onChange={e => setChallengeMsg(e.target.value)}
+                    maxLength={200}
+                    placeholder="Ví dụ: Xem ai giỏi hơn nhé!"
+                    className="w-full rounded-none border border-[#ded8d3] bg-white px-3 py-2 text-sm text-[#1a1e29] outline-none focus:border-[#253B80]"
+                  />
+                </div>
+
+                {/* Errors / success */}
+                {challengeError && (
+                  <p className="mt-3 text-xs font-bold text-rose-700">❌ {challengeError}</p>
+                )}
+                {challengeSuccess && (
+                  <p className="mt-3 text-xs font-bold text-emerald-700">✅ {challengeSuccess}</p>
+                )}
+
+                {/* Send button */}
+                <button
+                  onClick={sendChallenge}
+                  disabled={!myAgentId || !theirAgentId || sendingChallenge}
+                  className="mt-5 cursor-pointer rounded-none bg-[#253B80] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#1d2e66] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {sendingChallenge ? "Đang gửi..." : "📨 Gửi lời thách đấu"}
+                </button>
+
+                <p className="mt-3 text-xs text-slate-500">
+                  Đối thủ sẽ thấy thách đấu trong tab &quot;Nhận được&quot; và có thể accept/decline.
+                  Sau khi accept, trận sẽ tự chạy khi backend online.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── Tab: Nhận được ─────────────────────────────────────────────────── */}
+        {tab === "received" && (
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-bold text-[#1a1e29]">
+                Lời thách đấu nhận được
+              </h2>
+              <button
+                onClick={loadChallenges}
+                disabled={loadingChallenges}
+                className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:border-[#253B80] disabled:opacity-50"
+              >
+                🔄 Làm mới
+              </button>
+            </div>
+
+            {loadingChallenges ? <Spinner /> : received.length === 0 ? (
+              <EmptyState text="Chưa có lời thách đấu nào." />
+            ) : (
+              <div className="space-y-3">
+                {received.map(c => (
+                  <ChallengeCard
+                    key={c.id}
+                    challenge={c}
+                    role="opponent"
+                    respondingId={respondingId}
+                    backendOnline={backendOnline === true}
+                    processingPending={processingPending}
+                    onRespond={respond}
+                    onProcessPending={processPending}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Tab: Đã gửi ────────────────────────────────────────────────────── */}
+        {tab === "sent" && (
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-bold text-[#1a1e29]">Lời thách đấu đã gửi</h2>
+              <button
+                onClick={loadChallenges}
+                disabled={loadingChallenges}
+                className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:border-[#253B80] disabled:opacity-50"
+              >
+                🔄 Làm mới
+              </button>
+            </div>
+
+            {loadingChallenges ? <Spinner /> : sent.length === 0 ? (
+              <EmptyState text="Chưa gửi lời thách đấu nào." />
+            ) : (
+              <div className="space-y-3">
+                {sent.map(c => (
+                  <ChallengeCard
+                    key={c.id}
+                    challenge={c}
+                    role="challenger"
+                    respondingId={respondingId}
+                    backendOnline={backendOnline === true}
+                    processingPending={processingPending}
+                    onRespond={respond}
+                    onProcessPending={processPending}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Tab: Lịch sử ───────────────────────────────────────────────────── */}
+        {tab === "history" && (
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-bold text-[#1a1e29]">Lịch sử trận đối kháng</h2>
+              <button
+                onClick={loadMatches}
+                disabled={loadingMatches}
+                className="cursor-pointer rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:border-[#253B80] disabled:opacity-50"
+              >
+                🔄 Làm mới
+              </button>
+            </div>
+
+            {loadingMatches ? <Spinner /> : matches.length === 0 ? (
+              <EmptyState text="Chưa có trận đối kháng nào." />
+            ) : (
+              <div className="overflow-hidden rounded-none border border-[#ded8d3] bg-white shadow-sm">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#ded8d3] bg-stone-50 text-left text-xs font-bold text-slate-600">
+                      <th className="px-4 py-3">Agent 1 🟦</th>
+                      <th className="px-3 py-3 text-center">vs</th>
+                      <th className="px-4 py-3">Agent 2 🟥</th>
+                      <th className="px-4 py-3">Kết quả</th>
+                      <th className="px-4 py-3">Trạng thái</th>
+                      <th className="px-4 py-3 text-right">Thời gian</th>
+                      <th className="px-4 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#ded8d3]">
+                    {matches.map(m => (
+                      <tr key={m.id} className="hover:bg-stone-50">
+                        <td className="px-4 py-2.5">
+                          <span className="font-bold text-[#253B80]">{m.agent1_name}</span>
+                          <p className="text-[11px] text-slate-500">@{m.agent1_username}</p>
+                        </td>
+                        <td className="px-3 py-2.5 text-center text-xs font-bold text-slate-400">vs</td>
+                        <td className="px-4 py-2.5">
+                          <span className="font-bold text-rose-700">{m.agent2_name}</span>
+                          <p className="text-[11px] text-slate-500">@{m.agent2_username}</p>
+                        </td>
+                        <td className="px-4 py-2.5 text-xs">
+                          {m.pending_backend && m.status === "scheduled" ? (
+                            <span className="font-bold text-amber-600">⏳ Chờ backend</span>
+                          ) : m.is_infra_error ? (
+                            <span className="font-bold text-rose-600">⚠️ Lỗi</span>
+                          ) : m.winner_name ? (
+                            <span className="font-bold text-amber-700">🏆 {m.winner_name}</span>
+                          ) : m.outcome === "draw" ? (
+                            <span className="font-bold text-slate-600">🤝 Hòa</span>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className={`rounded-none border px-2 py-0.5 text-[11px] font-bold ${
+                            MATCH_STATUS_BADGE[m.status] ?? "bg-slate-100 text-slate-700"
+                          }`}>
+                            {m.pending_backend ? "pending" : m.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-right text-[11px] text-slate-500">
+                          {new Date(m.created_at).toLocaleString("vi-VN")}
+                        </td>
+                        <td className="px-4 py-2.5 text-right">
+                          {m.status === "finished" && !m.is_infra_error && (
+                            <Link
+                              href={`/arena/replay/friendly/${m.id}`}
+                              className="rounded-none border border-[#253B80] px-2.5 py-1 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
+                            >
+                              ▶ Replay
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+// ─── ChallengeCard ────────────────────────────────────────────────────────────
+
+function ChallengeCard({
+  challenge,
+  role,
+  respondingId,
+  backendOnline,
+  processingPending,
+  onRespond,
+  onProcessPending,
+}: {
+  challenge: Challenge;
+  role: "challenger" | "opponent";
+  respondingId: number | null;
+  backendOnline: boolean;
+  processingPending: boolean;
+  onRespond: (id: number, action: "accept" | "decline") => void;
+  onProcessPending: (matchId?: number) => void;
+}) {
+  const isResponding = respondingId === challenge.id;
+  const isPending = challenge.status === "pending";
+  const isAccepted = challenge.status === "accepted";
+
+  const matchPending = isAccepted &&
+    challenge.match_pending_backend &&
+    challenge.match_status === "scheduled";
+
+  const matchDone = isAccepted && challenge.match_status === "finished";
+
+  return (
+    <div className={`rounded-none border bg-white shadow-sm ${
+      isPending && role === "opponent"
+        ? "border-amber-300"
+        : "border-[#ded8d3]"
+    }`}>
+      <div className="p-4">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`rounded-none border px-2 py-0.5 text-[11px] font-bold ${
+                CHALLENGE_STATUS_BADGE[challenge.status]
+              }`}>
+                {challenge.status}
+              </span>
+              {isPending && role === "opponent" && (
+                <span className="text-[11px] font-bold text-amber-700 animate-pulse">
+                  ● Đang chờ phản hồi của bạn
+                </span>
+              )}
+              {matchPending && (
+                <span className="text-[11px] font-bold text-amber-600">
+                  ⏳ Chờ backend online để chạy
+                </span>
+              )}
+              {matchDone && (
+                <span className="text-[11px] font-bold text-emerald-700">
+                  ✅ Trận đã hoàn thành
+                </span>
+              )}
+            </div>
+
+            {/* Matchup */}
+            <div className="mt-2 flex items-center gap-2 font-mono text-xs flex-wrap">
+              <span>
+                <span className="font-bold text-[#253B80]">{challenge.challenger_agent_name}</span>
+                <span className="text-slate-400"> (@{challenge.challenger_username})</span>
+              </span>
+              <span className="text-slate-400">vs</span>
+              <span>
+                <span className="font-bold text-rose-700">{challenge.opponent_agent_name}</span>
+                <span className="text-slate-400"> (@{challenge.opponent_username})</span>
+              </span>
+            </div>
+
+            {challenge.message && (
+              <p className="mt-1.5 text-xs text-slate-600 italic">
+                💬 &quot;{challenge.message}&quot;
+              </p>
+            )}
+
+            <p className="mt-1 text-[11px] text-slate-400">
+              Gửi lúc {new Date(challenge.created_at).toLocaleString("vi-VN")}
+              {isPending && ` · Hết hạn ${new Date(challenge.expires_at).toLocaleDateString("vi-VN")}`}
+            </p>
           </div>
 
-          {loadingMatches ? (
-            <div className="flex justify-center py-10">
-              <div className="h-6 w-6 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
-            </div>
-          ) : matches.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-sm text-slate-500">Chưa có trận đối kháng nào.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[#ded8d3] bg-stone-50 text-left text-xs font-bold text-slate-600">
-                    <th className="px-4 py-3">Agent 1 🟦</th>
-                    <th className="px-3 py-3 text-center">vs</th>
-                    <th className="px-4 py-3">Agent 2 🟥</th>
-                    <th className="px-4 py-3">Kết quả</th>
-                    <th className="px-4 py-3 text-right">Nước</th>
-                    <th className="px-4 py-3">Trạng thái</th>
-                    <th className="px-4 py-3 text-right">Thời gian</th>
-                    <th className="px-4 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#ded8d3]">
-                  {matches.map((m) => (
-                    <tr key={m.id} className="hover:bg-stone-50 transition">
-                      <td className="px-4 py-2.5">
-                        <Link
-                          href={`/arena/agents/${m.agent1_id}`}
-                          className="font-bold text-[#253B80] hover:underline"
-                        >
-                          {m.agent1_name}
-                        </Link>
-                        <p className="text-xs text-slate-500">@{m.agent1_username}</p>
-                      </td>
-                      <td className="px-3 py-2.5 text-center font-bold text-xs text-slate-400">vs</td>
-                      <td className="px-4 py-2.5">
-                        <Link
-                          href={`/arena/agents/${m.agent2_id}`}
-                          className="font-bold text-rose-700 hover:underline"
-                        >
-                          {m.agent2_name}
-                        </Link>
-                        <p className="text-xs text-slate-500">@{m.agent2_username}</p>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        {m.is_infra_error ? (
-                          <span className="text-xs font-bold text-amber-700">⚠️ Lỗi</span>
-                        ) : m.winner_name ? (
-                          <span className="text-xs font-bold text-amber-800">🏆 {m.winner_name}</span>
-                        ) : m.outcome === "draw" ? (
-                          <span className="text-xs font-bold text-slate-600">🤝 Hòa</span>
-                        ) : (
-                          <span className="text-xs text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2.5 text-right font-mono text-xs text-slate-600">
-                        {m.total_moves}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <span
-                          className={`rounded-none border px-2 py-0.5 text-xs font-bold ${
-                            STATUS_BADGE[m.status] ?? "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {m.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-right font-sans text-xs text-slate-500">
-                        {new Date(m.created_at).toLocaleString("vi-VN")}
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        {m.status === "finished" && !m.is_infra_error && (
-                          <Link
-                            href={`/arena/replay/friendly/${m.id}`}
-                            className="rounded-none border border-[#253B80] px-2.5 py-1 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
-                          >
-                            ▶ Replay
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* Result (nếu có) */}
+          {matchDone && challenge.match_outcome && (
+            <div className="text-right shrink-0">
+              <p className="text-xs font-bold text-amber-700">
+                {challenge.match_winner_name
+                  ? `🏆 ${challenge.match_winner_name}`
+                  : challenge.match_outcome === "draw"
+                  ? "🤝 Hòa"
+                  : OUTCOME_LABEL[challenge.match_outcome]}
+              </p>
+              {challenge.match_total_moves && (
+                <p className="text-[11px] text-slate-500">{challenge.match_total_moves} nước</p>
+              )}
             </div>
           )}
         </div>
-      </main>
+
+        {/* Actions */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {/* Opponent: accept/decline khi pending */}
+          {role === "opponent" && isPending && (
+            <>
+              <button
+                onClick={() => onRespond(challenge.id, "accept")}
+                disabled={isResponding}
+                className="cursor-pointer rounded-none bg-emerald-700 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50"
+              >
+                {isResponding ? "..." : "✅ Chấp nhận"}
+              </button>
+              <button
+                onClick={() => onRespond(challenge.id, "decline")}
+                disabled={isResponding}
+                className="cursor-pointer rounded-none border border-rose-300 bg-rose-50 px-4 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+              >
+                {isResponding ? "..." : "✗ Từ chối"}
+              </button>
+            </>
+          )}
+
+          {/* Nếu pending_backend + backend online → kích hoạt chạy */}
+          {matchPending && backendOnline && challenge.friendly_match_id && (
+            <button
+              onClick={() => onProcessPending(challenge.friendly_match_id!)}
+              disabled={processingPending}
+              className="cursor-pointer rounded-none bg-[#253B80] px-4 py-1.5 text-xs font-bold text-white hover:bg-[#1d2e66] disabled:opacity-50"
+            >
+              {processingPending ? "⏳ Đang chạy..." : "▶ Chạy ngay"}
+            </button>
+          )}
+          {matchPending && !backendOnline && (
+            <span className="text-[11px] text-amber-600 italic">
+              Backend offline — sẽ tự chạy khi backend online
+            </span>
+          )}
+
+          {/* Replay */}
+          {matchDone && challenge.friendly_match_id && (
+            <Link
+              href={`/arena/replay/friendly/${challenge.friendly_match_id}`}
+              className="rounded-none border border-[#253B80] px-4 py-1.5 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
+            >
+              ▶ Xem Replay
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function Spinner() {
+  return (
+    <div className="flex justify-center py-10">
+      <div className="h-6 w-6 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
+    </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="rounded-none border border-[#ded8d3] bg-white py-12 text-center">
+      <p className="text-sm text-slate-500">{text}</p>
     </div>
   );
 }

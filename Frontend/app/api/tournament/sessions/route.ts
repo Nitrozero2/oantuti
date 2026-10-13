@@ -34,7 +34,7 @@ export async function GET() {
   }
 }
 
-// POST: create new session + generate all match pairs (admin)
+// POST: create new session only (no matches yet — admin must confirm pairs separately)
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session?.is_admin) return NextResponse.json({ error: "Không có quyền." }, { status: 403 });
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   };
 
   try {
-    // Lấy tất cả active agents
+    // Kiểm tra có đủ agents không
     const agents = await sql`
       SELECT a.id AS agent_id, a.user_id
       FROM arena_agents a
@@ -64,11 +64,14 @@ export async function POST(request: Request) {
       ORDER BY a.user_id, a.id
     ` as { agent_id: number; user_id: number }[];
 
-    if (agents.length < 2) {
+    const crossUserPairs = agents.filter((a, i) =>
+      agents.some((b, j) => j > i && b.user_id !== a.user_id)
+    );
+    if (agents.length < 2 || crossUserPairs.length === 0) {
       return NextResponse.json({ error: "Cần ít nhất 2 agent active từ 2 người dùng khác nhau." }, { status: 400 });
     }
 
-    // Tạo session
+    // Tạo session với trạng thái 'idle' — CHƯA insert matches, chờ confirm-pairs
     const sessionRows = await sql`
       INSERT INTO tournament_sessions (name, status, created_by, config, notes)
       VALUES (${sessionName}, 'idle', ${session.id}, ${JSON.stringify(sessionConfig)}, ${sessionNotes})
@@ -76,36 +79,12 @@ export async function POST(request: Request) {
     `;
     const sessionId = (sessionRows[0] as { id: number }).id;
 
-    // Tạo tất cả cặp đấu cross-user (không ghép cùng user)
-    const pairs: Array<[number, number]> = [];
-    for (let i = 0; i < agents.length; i++) {
-      for (let j = i + 1; j < agents.length; j++) {
-        if (agents[i].user_id !== agents[j].user_id) {
-          pairs.push([agents[i].agent_id, agents[j].agent_id]);
-        }
-      }
-    }
-
-    if (pairs.length === 0) {
-      // Rollback session
-      await sql`DELETE FROM tournament_sessions WHERE id = ${sessionId}`;
-      return NextResponse.json({ error: "Không có cặp đấu hợp lệ (tất cả agent cùng 1 user)." }, { status: 400 });
-    }
-
-    // Bulk insert match pairs
-    for (const [a1, a2] of pairs) {
-      await sql`
-        INSERT INTO tournament_matches (session_id, agent1_id, agent2_id, status)
-        VALUES (${sessionId}, ${a1}, ${a2}, 'scheduled')
-        ON CONFLICT (session_id, agent1_id, agent2_id) DO NOTHING
-      `;
-    }
-
     return NextResponse.json({
       ok: true,
       session_id: sessionId,
+      // Báo cho frontend biết cần vào bước xác nhận cặp đấu
+      needs_pair_confirmation: true,
       total_agents: agents.length,
-      total_pairs: pairs.length,
     });
   } catch (error) {
     console.error("Create session failed:", error);

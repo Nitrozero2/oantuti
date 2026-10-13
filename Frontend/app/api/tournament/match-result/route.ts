@@ -79,11 +79,11 @@ export async function POST(request: Request) {
     // 3. ELO update (only for valid, non-infra-error matches)
     if (!isInfra && outcomeStr && typeof agent1_id === "number" && typeof agent2_id === "number") {
       const agentRows = await sql`
-        SELECT id, elo, wins, losses, draws FROM arena_agents WHERE id IN (${agent1_id}, ${agent2_id})
+        SELECT id::int, elo, wins, losses, draws FROM arena_agents WHERE id IN (${agent1_id}, ${agent2_id})
       ` as { id: number; elo: number; wins: number; losses: number; draws: number }[];
 
-      const a1 = agentRows.find(r => r.id === agent1_id);
-      const a2 = agentRows.find(r => r.id === agent2_id);
+      const a1 = agentRows.find(r => Number(r.id) === Number(agent1_id));
+      const a2 = agentRows.find(r => Number(r.id) === Number(agent2_id));
 
       if (a1 && a2) {
         const eloOutcome: "win" | "loss" | "draw" =

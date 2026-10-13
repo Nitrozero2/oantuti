@@ -118,11 +118,11 @@ export default function ArenaLeaderboardPage() {
     load();
   }, [router]);
 
-  // Load sessions
+  // Load sessions (public endpoint — không cần admin)
   useEffect(() => {
     if (tab === "sessions" || tab === "matches") {
       if (sessions !== null) return;
-      fetch("/api/tournament/sessions")
+      fetch("/api/tournament/sessions-public")
         .then((r) => (r.ok ? r.json() : null))
         .then((d: { sessions?: Session[] } | null) => {
           if (d) setSessions(d.sessions ?? []);

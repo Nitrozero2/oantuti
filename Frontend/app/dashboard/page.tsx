@@ -107,24 +107,6 @@ export default async function DashboardPage() {
               </Link>
 
               <Link
-                href="/admin/match"
-                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
-              >
-                <span className="text-xl">⚔️</span>
-                <span className="text-xs font-bold text-[#1a1e29]">Tạo Trận Đấu</span>
-                <span className="text-[10px] text-slate-500">Playground test bot</span>
-              </Link>
-
-              <Link
-                href="/admin/matches"
-                className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
-              >
-                <span className="text-xl">📋</span>
-                <span className="text-xs font-bold text-[#1a1e29]">Quản Lý Trận</span>
-                <span className="text-[10px] text-slate-500">Danh sách & dọn dẹp</span>
-              </Link>
-
-              <Link
                 href="/admin/settings"
                 className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
