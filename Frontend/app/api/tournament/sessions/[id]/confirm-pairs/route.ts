@@ -80,19 +80,23 @@ export async function POST(
     }
 
     // Lấy tất cả active agents để validate các pair gửi lên
+    // Cast về int để tránh BIGINT → string mismatch (Neon trả BIGINT dạng string)
     const activeAgents = await sql`
-      SELECT a.id, a.user_id
+      SELECT a.id::int AS id, a.user_id::int AS user_id
       FROM arena_agents a
       WHERE a.status = 'active'
     ` as { id: number; user_id: number }[];
 
-    const agentUserMap = new Map(activeAgents.map((a) => [a.id, a.user_id]));
+    const agentUserMap = new Map(activeAgents.map((a) => [Number(a.id), Number(a.user_id)]));
 
     // Lọc chỉ các pair hợp lệ (cả 2 agent active, khác user)
     const validPairs: Array<[number, number]> = [];
     const skipped: Array<{ agent1_id: number; agent2_id: number; reason: string }> = [];
 
     for (const p of pairs) {
+      // Normalize to number in case JSON deserialisation gives strings (edge case)
+      p.agent1_id = Number(p.agent1_id);
+      p.agent2_id = Number(p.agent2_id);
       const user1 = agentUserMap.get(p.agent1_id);
       const user2 = agentUserMap.get(p.agent2_id);
 

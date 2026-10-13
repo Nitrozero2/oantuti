@@ -2353,3 +2353,372 @@ INFO:     Application startup complete.
 ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
+INFO:     Started server process [342060]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [342412]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [342899]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [343302]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [343617]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [343932]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [344362]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [344883]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [345224]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:43670 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [345525]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:47448 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [345901]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [346468]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-13 08:25:21,468 [INFO] httpx: HTTP Request: GET http://localhost:2358/about "HTTP/1.1 200 OK"
+INFO:     123.31.18.242:0 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44454 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [346825]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [347207]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [347538]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [348073]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [348386]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [348695]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [349030]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [349588]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [350163]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [350518]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [350934]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [351334]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [351856]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [352323]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [352684]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [353013]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [353366]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [354001]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [354460]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [355290]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:51446 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51452 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [355950]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [356477]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [357270]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:44450 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44452 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     Started server process [357651]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [357960]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [358429]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:41416 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:38:37,044 [INFO] app.services.tournament_service: Tournament worker started: session=5, 9 pairs queued.
+INFO:     123.31.18.242:0 - "POST /tournament/sessions/5/start HTTP/1.1" 200 OK
+2026-10-13 08:38:37,045 [INFO] app.services.tournament_service: Worker loop started.
+2026-10-13 08:38:37,045 [INFO] app.services.tournament_service: Starting match db_id=28 (a4 vs a3)
+2026-10-13 08:38:37,080 [INFO] app.services.tournament_service: Starting match db_id=29 (a4 vs a2)
+2026-10-13 08:38:37,111 [INFO] app.services.tournament_service: Starting match db_id=30 (a4 vs a1)
+2026-10-13 08:38:37,141 [INFO] app.services.tournament_service: Starting match db_id=31 (a5 vs a3)
+2026-10-13 08:38:37,173 [INFO] app.services.tournament_service: Starting match db_id=32 (a5 vs a2)
+INFO:     127.0.0.1:32884 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:38:37,633 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:37,635 [INFO] app.services.match_service: Created match b42f033e
+2026-10-13 08:38:37,865 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:37,867 [INFO] app.services.match_service: Created match 01ad19fe
+2026-10-13 08:38:37,967 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:37,968 [INFO] app.services.match_service: Created match d6782faf
+2026-10-13 08:38:38,008 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:38,008 [INFO] app.services.match_service: Created match dc08fb98
+2026-10-13 08:38:38,172 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:38,174 [INFO] app.services.match_service: Created match ab643a7e
+INFO:     127.0.0.1:45956 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45962 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:38:47,688 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:38:47,689 [WARNING] app.services.match_service: Match b42f033e step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:38:47,945 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:38:47,946 [WARNING] app.services.match_service: Match 01ad19fe step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:38:48,882 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:48,883 [INFO] app.services.tournament_service: Match db_id=29 done. Outcome=agent2, moves=0
+2026-10-13 08:38:49,048 [INFO] app.services.tournament_service: Starting match db_id=33 (a5 vs a1)
+2026-10-13 08:38:49,234 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:49,236 [INFO] app.services.tournament_service: Match db_id=28 done. Outcome=agent2, moves=0
+2026-10-13 08:38:49,334 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:49,336 [INFO] app.services.match_service: Created match 9a0b0f61
+2026-10-13 08:38:49,549 [INFO] app.services.tournament_service: Starting match db_id=34 (a3 vs a2)
+2026-10-13 08:38:49,848 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:49,849 [INFO] app.services.match_service: Created match 2a80d583
+INFO:     Started server process [358923]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:45962 - "GET /tournament/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45962 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:38:57,718 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:38:57,720 [WARNING] app.services.match_service: Match dc08fb98 step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:38:57,972 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:38:57,973 [WARNING] app.services.match_service: Match d6782faf step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:38:58,560 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:58,562 [INFO] app.services.tournament_service: Match db_id=32 done. Outcome=agent2, moves=0
+2026-10-13 08:38:58,961 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:58,962 [INFO] app.services.tournament_service: Match db_id=31 done. Outcome=agent2, moves=0
+2026-10-13 08:38:59,057 [INFO] app.services.tournament_service: Starting match db_id=35 (a3 vs a1)
+2026-10-13 08:38:59,099 [INFO] app.services.tournament_service: Starting match db_id=36 (a2 vs a1)
+2026-10-13 08:38:59,575 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:38:59,576 [INFO] app.services.match_service: Created match 39a82be4
+2026-10-13 08:39:00,496 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:39:00,497 [INFO] app.services.match_service: Created match 82e235d8
+INFO:     127.0.0.1:45962 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:39:07,730 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:39:07,730 [WARNING] app.services.match_service: Match ab643a7e step 1: agent P1 error: Judge0 HTTP 500: 
+INFO:     127.0.0.1:52456 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:39:07,994 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:39:07,995 [WARNING] app.services.match_service: Match 9a0b0f61 step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:39:09,236 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:39:09,237 [INFO] app.services.tournament_service: Match db_id=33 done. Outcome=agent2, moves=0
+2026-10-13 08:39:09,242 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:39:09,243 [INFO] app.services.tournament_service: Match db_id=30 done. Outcome=agent2, moves=0
+INFO:     127.0.0.1:35006 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:39:17,744 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:39:17,745 [WARNING] app.services.match_service: Match 82e235d8 step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:39:18,012 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:39:18,013 [WARNING] app.services.match_service: Match 2a80d583 step 1: agent P1 error: Judge0 HTTP 500: 
+INFO:     127.0.0.1:35010 - "GET /tournament/status HTTP/1.1" 200 OK
+2026-10-13 08:39:19,286 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:39:19,288 [INFO] app.services.tournament_service: Match db_id=36 done. Outcome=agent2, moves=0
+2026-10-13 08:39:19,297 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:39:19,299 [INFO] app.services.tournament_service: Match db_id=34 done. Outcome=agent2, moves=0
+INFO:     Started server process [359273]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+2026-10-13 08:39:28,026 [INFO] httpx: HTTP Request: POST http://localhost:2358/submissions?wait=true "HTTP/1.1 500 Internal Server Error"
+2026-10-13 08:39:28,028 [WARNING] app.services.match_service: Match 39a82be4 step 1: agent P1 error: Judge0 HTTP 500: 
+2026-10-13 08:39:28,533 [INFO] httpx: HTTP Request: POST http://localhost:3000/api/tournament/match-result "HTTP/1.1 200 OK"
+2026-10-13 08:39:28,534 [INFO] app.services.tournament_service: Match db_id=35 done. Outcome=agent2, moves=0
+2026-10-13 08:39:28,563 [INFO] app.services.tournament_service: All matches completed, worker idle.
+2026-10-13 08:39:28,563 [INFO] app.services.tournament_service: Worker loop exited.
+INFO:     Started server process [359661]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [360072]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [360686]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [361100]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [361412]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [361851]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Started server process [362422]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
