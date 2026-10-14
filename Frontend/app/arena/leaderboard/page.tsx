@@ -21,9 +21,8 @@ type LeaderboardEntry = {
   submitted_at: string;
 };
 
-type TournamentMatch = {
+type RatingMatch = {
   id: number;
-  session_id: number;
   status: string;
   outcome: string | null;
   win_reason: string;
@@ -40,21 +39,6 @@ type TournamentMatch = {
   agent2_name: string;
   agent2_username: string;
   winner_name: string | null;
-  session_name: string | null;
-};
-
-type Session = {
-  id: number;
-  name: string;
-  status: string;
-  config: Record<string, unknown>;
-  created_at: string;
-  started_at: string | null;
-  completed_at: string | null;
-  total_matches: number;
-  scheduled_matches: number;
-  finished_matches: number;
-  error_matches: number;
 };
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -79,20 +63,10 @@ function EloBar({ elo }: { elo: number }) {
   );
 }
 
-const STATUS_BADGE: Record<string, string> = {
-  idle: "bg-slate-100 text-slate-700 border-slate-300",
-  running: "bg-emerald-50 text-emerald-700 border-emerald-300",
-  paused: "bg-amber-50 text-amber-700 border-amber-300",
-  stopped: "bg-rose-50 text-rose-700 border-rose-300",
-  completed: "bg-[#253B80]/10 text-[#253B80] border-[#253B80]/30",
-};
-
 export default function ArenaLeaderboardPage() {
-  const [tab, setTab] = useState<"rankings" | "matches" | "sessions">("rankings");
+  const [tab, setTab] = useState<"rankings" | "matches">("rankings");
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[] | null>(null);
-  const [matches, setMatches] = useState<TournamentMatch[] | null>(null);
-  const [sessions, setSessions] = useState<Session[] | null>(null);
-  const [sessionFilter, setSessionFilter] = useState<string>("");
+  const [matches, setMatches] = useState<RatingMatch[] | null>(null);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -118,40 +92,21 @@ export default function ArenaLeaderboardPage() {
     load();
   }, [router]);
 
-  // Load sessions (public endpoint — không cần admin)
-  useEffect(() => {
-    if (tab === "sessions" || tab === "matches") {
-      if (sessions !== null) return;
-      fetch("/api/tournament/sessions-public")
-        .then((r) => (r.ok ? r.json() : null))
-        .then((d: { sessions?: Session[] } | null) => {
-          if (d) setSessions(d.sessions ?? []);
-        })
-        .catch(() => {});
-    }
-  }, [tab, sessions]);
-
   // Load matches
   useEffect(() => {
     if (tab !== "matches") return;
     setMatches(null);
-    const url = sessionFilter
-      ? `/api/tournament/matches?session_id=${sessionFilter}`
-      : "/api/tournament/matches";
-    fetch(url)
+    fetch("/api/rating/matches")
       .then((r) => r.json())
-      .then((d: { matches?: TournamentMatch[] }) => setMatches(d.matches ?? []))
+      .then((d: { matches?: RatingMatch[] }) => setMatches(d.matches ?? []))
       .catch(() => setMatches([]));
-  }, [tab, sessionFilter]);
+  }, [tab]);
 
   function reloadMatches() {
     setMatches(null);
-    const url = sessionFilter
-      ? `/api/tournament/matches?session_id=${sessionFilter}`
-      : "/api/tournament/matches";
-    fetch(url)
+    fetch("/api/rating/matches")
       .then((r) => r.json())
-      .then((d: { matches?: TournamentMatch[] }) => setMatches(d.matches ?? []))
+      .then((d: { matches?: RatingMatch[] }) => setMatches(d.matches ?? []))
       .catch(() => setMatches([]));
   }
 
@@ -176,7 +131,7 @@ export default function ArenaLeaderboardPage() {
               🏆 Bảng Xếp Hạng Arena
             </h1>
             <p className="mt-1 text-sm text-slate-600">
-              Hệ thống xếp hạng AI Agent theo chuẩn ELO rating (Kaggle ConnectX style).
+              Xếp hạng liên tục bằng TrueSkill; điểm hiển thị đã tính đến độ tin cậy của agent.
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
@@ -224,7 +179,7 @@ export default function ArenaLeaderboardPage() {
 
         {/* Tabs: Khung thẳng */}
         <div className="mb-6 flex gap-1 border border-[#ded8d3] bg-white p-1 w-fit rounded-none">
-          {(["rankings", "matches", "sessions"] as const).map((t) => (
+          {(["rankings", "matches"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -234,7 +189,7 @@ export default function ArenaLeaderboardPage() {
                   : "text-slate-600 hover:text-[#253B80] hover:bg-stone-50"
               }`}
             >
-              {t === "rankings" ? "📊 Xếp hạng" : t === "matches" ? "📋 Lịch sử trận" : "🎯 Sessions"}
+              {t === "rankings" ? "📊 Xếp hạng" : "📋 Lịch sử trận"}
             </button>
           ))}
         </div>
@@ -243,7 +198,7 @@ export default function ArenaLeaderboardPage() {
           <div className="mb-6 rounded-none border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {error}
             <br />
-            <span className="text-xs text-rose-600">Cần chạy tournament_schema.sql trong Neon console.</span>
+            <span className="text-xs text-rose-600">Cần chạy trueskill_migration.sql trong Neon console.</span>
           </div>
         )}
 
@@ -275,7 +230,7 @@ export default function ArenaLeaderboardPage() {
                       <th className="px-4 py-3">#</th>
                       <th className="px-4 py-3">Agent</th>
                       <th className="px-4 py-3">Tier</th>
-                      <th className="px-4 py-3 text-right">ELO</th>
+                      <th className="px-4 py-3 text-right">Rating</th>
                       <th className="px-4 py-3 text-right">W / L / D</th>
                       <th className="px-4 py-3 text-right">Win%</th>
                       <th className="px-4 py-3 text-right">Trận</th>
@@ -361,18 +316,6 @@ export default function ArenaLeaderboardPage() {
         {tab === "matches" && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <select
-                value={sessionFilter}
-                onChange={(e) => setSessionFilter(e.target.value)}
-                className="rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-semibold text-[#1a1e29] outline-none focus:border-[#253B80]"
-              >
-                <option value="">Tất cả sessions</option>
-                {(sessions ?? []).map((s) => (
-                  <option key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
               <button
                 onClick={reloadMatches}
                 className="rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-[#253B80] cursor-pointer"
@@ -398,7 +341,7 @@ export default function ArenaLeaderboardPage() {
                         <th className="px-4 py-3">Agent 2</th>
                         <th className="px-4 py-3">Kết quả</th>
                         <th className="px-4 py-3 text-right">Nước</th>
-                        <th className="px-4 py-3">ELO ±</th>
+                        <th className="px-4 py-3">Rating ±</th>
                         <th className="px-4 py-3 text-right">Ngày</th>
                         <th className="px-4 py-3"></th>
                       </tr>
@@ -470,7 +413,7 @@ export default function ArenaLeaderboardPage() {
                           <td className="px-4 py-2.5 text-right">
                             {m.status === "finished" && !m.is_infra_error && (
                               <Link
-                                href={`/arena/replay/${m.id}`}
+                                href={`/arena/replay/rating/${m.id}`}
                                 className="rounded-none border border-[#253B80] px-2.5 py-1 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
                               >
                                 ▶ Replay
@@ -487,63 +430,8 @@ export default function ArenaLeaderboardPage() {
           </div>
         )}
 
-        {/* ── Sessions ── */}
-        {tab === "sessions" && (
-          <div className="space-y-3">
-            {sessions === null ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="h-7 w-7 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
-              </div>
-            ) : sessions.length === 0 ? (
-              <p className="py-12 text-center text-slate-500">Chưa có session nào.</p>
-            ) : (
-              sessions.map((s) => {
-                const total = s.total_matches;
-                const done = s.finished_matches;
-                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-                return (
-                  <div key={s.id} className="rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-base text-[#1a1e29]">{s.name}</span>
-                          <span
-                            className={`rounded-none border px-2 py-0.5 text-xs font-bold ${
-                              STATUS_BADGE[s.status] ?? "bg-slate-100 text-slate-700 border-slate-300"
-                            }`}
-                          >
-                            {s.status}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-slate-500">
-                          Tạo {new Date(s.created_at).toLocaleString("vi-VN")}
-                          {s.completed_at &&
-                            ` · Hoàn thành ${new Date(s.completed_at).toLocaleString("vi-VN")}`}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right text-xs text-slate-600">
-                        <span className="font-bold text-emerald-600">{done}</span>/{total} trận
-                        {s.error_matches > 0 && (
-                          <span className="ml-1 text-amber-600 font-bold">({s.error_matches} lỗi)</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-3 h-2 w-full rounded-none bg-stone-200 overflow-hidden border border-[#ded8d3]">
-                      <div
-                        className="h-full bg-[#253B80] transition-all"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <p className="mt-1 text-right text-xs font-mono font-bold text-slate-600">{pct}%</p>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        )}
-
         <p className="mt-8 text-center text-xs text-slate-500">
-          Top 100 · ELO K=32 · Không tính trận lỗi hạ tầng · Nền tảng OTTv2 Arena
+          Top 100 · TrueSkill · Không tính trận lỗi hạ tầng · Nền tảng OTTv2 Arena
         </p>
       </main>
     </div>

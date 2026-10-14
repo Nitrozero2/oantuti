@@ -37,6 +37,16 @@ Mở http://localhost:3000
 
 Tài liệu Vercel về biến môi trường: https://vercel.com/docs/environment-variables
 
+## Chuyển sang TrueSkill
+
+Sau khi đã chạy `tournament_schema.sql`, mở Neon SQL Editor và chạy toàn bộ
+`trueskill_migration.sql`. Cấu hình `RATING_DISPATCH_SECRET` trên frontend với
+cùng giá trị `WORKER_SECRET` của backend và worker, rồi redeploy frontend.
+
+Lần đầu chuyển dữ liệu, scheduler sẽ giữ trạng thái tắt. Admin mở `/admin/rating`
+và chọn **Dựng lại từ lịch sử**. Thao tác này phát lại các trận tournament hợp lệ
+theo thời gian để khởi tạo `μ`, `σ`, rating hiện tại và bật queue sau cùng.
+
 ## Ghi chú bảo mật
 - Mật khẩu được hash bằng bcrypt, không lưu mật khẩu gốc.
 - Session dùng cookie `HttpOnly`, `SameSite=Lax`, và `Secure` trong production.

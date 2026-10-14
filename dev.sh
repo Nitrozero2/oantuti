@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
 # =============================================================================
-# dev.sh — Chạy development mode (có hot-reload)
-# Mở 2 terminal riêng: backend + frontend
+# dev.sh — Chạy development mode (hot-reload)
+# Mở terminal riêng cho từng thành phần:
+#   - Backend  (uvicorn --reload)
+#   - Worker   (python worker.py)
+#   - Frontend (npm run dev)
 # =============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$SCRIPT_DIR/backend"
+WORKER_DIR="$SCRIPT_DIR/worker"
 FRONTEND_DIR="$SCRIPT_DIR/Frontend"
 
-GREEN='\033[0;32m'; CYAN='\033[0;36m'; NC='\033[0m'
+GREEN='\033[0;32m'; CYAN='\033[0;36m'; YELLOW='\033[1;33m'; NC='\033[0m'
 info() { echo -e "${GREEN}[INFO]${NC}  $*"; }
 step() { echo -e "${CYAN}[STEP]${NC}  $*"; }
+warn() { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 
 # Phát hiện terminal emulator
 open_terminal() {
@@ -20,28 +25,51 @@ open_terminal() {
   elif command -v xterm >/dev/null 2>&1; then
     xterm -title "$title" -e bash -c "$cmd; exec bash" &
   else
-    # Fallback: chạy nền, hiện log
-    info "Không tìm thấy GUI terminal. Chạy nền..."
+    info "Không tìm thấy GUI terminal — chạy nền..."
     bash -c "$cmd" &
   fi
 }
 
-step "Khởi động Backend (dev mode)..."
-open_terminal "OTTv2 Backend" \
-  "cd '$BACKEND_DIR' && source venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+# ── Backend ───────────────────────────────────────────────────────────────────
+step "Backend..."
+if lsof -iTCP:8000 -sTCP:LISTEN -t >/dev/null 2>&1; then
+  info "Backend đã chạy trên port 8000, bỏ qua."
+else
+  if [ ! -f "$BACKEND_DIR/venv/bin/activate" ]; then
+    warn "Backend chưa setup. Chạy ./setup.sh trước."
+  else
+    open_terminal "OTTv2 Backend" \
+      "cd '$BACKEND_DIR' && source venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    sleep 1
+  fi
+fi
 
-sleep 1
+# ── Worker ────────────────────────────────────────────────────────────────────
+step "Worker..."
+if [ ! -f "$WORKER_DIR/venv/bin/activate" ]; then
+  warn "Worker chưa setup. Chạy ./setup.sh trước."
+elif [ ! -f "$WORKER_DIR/.env" ]; then
+  warn "worker/.env chưa có. Copy worker/.env.example → worker/.env rồi điền BACKEND_URL, WORKER_SECRET."
+else
+  open_terminal "OTTv2 Worker" \
+    "cd '$WORKER_DIR' && source venv/bin/activate && python worker.py"
+  sleep 1
+fi
 
-step "Khởi động Frontend (dev mode)..."
+# ── Frontend ──────────────────────────────────────────────────────────────────
+step "Frontend..."
 open_terminal "OTTv2 Frontend" \
-  "cd '$FRONTEND_DIR' && npm run dev"
+  "cd '$FRONTEND_DIR' && npm run dev -- -H 0.0.0.0"
 
+# ── Tóm tắt ──────────────────────────────────────────────────────────────────
 echo ""
-echo -e "${GREEN}Dev servers đang khởi động...${NC}"
+echo -e "${GREEN}Dev mode đang khởi động...${NC}"
 echo ""
 echo "  🌐 Frontend  →  http://localhost:3000  (hot-reload)"
 echo "  ⚙️  Backend   →  http://localhost:8000/docs (auto-reload)"
 echo "  🔧 Judge0    →  http://localhost:2358/about"
+echo "  🤖 Worker    →  terminal riêng, poll Redis"
 echo ""
-echo "Đảm bảo Judge0 đang chạy: cd judge0 && docker compose up -d"
+warn "Đảm bảo Judge0 đang chạy: cd judge0 && docker compose up -d"
+warn "Đảm bảo backend/.env có UPSTASH_REDIS_REST_URL và UPSTASH_REDIS_REST_TOKEN"
 echo ""

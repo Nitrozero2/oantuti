@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { backendFetch, backendOfflineResponse } from "@/lib/backend";
+import { backendFetch, isBackendOnline } from "@/lib/backend";
+
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 export const runtime = "nodejs";
 
@@ -41,7 +43,7 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: create and run a friendly match
+// POST: create and enqueue a friendly match → worker chạy local engine
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
@@ -57,7 +59,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Hai agent phải khác nhau." }, { status: 400 });
 
   try {
-    // Validate agents belong to different users
     const agentRows = await sql`
       SELECT id, user_id, code, status FROM arena_agents WHERE id IN (${agent1_id}, ${agent2_id})
     ` as { id: number; user_id: number; code: string; status: string }[];
@@ -74,90 +75,56 @@ export async function POST(request: Request) {
     if (a1.status !== "active" || a2.status !== "active")
       return NextResponse.json({ error: "Cả hai agent phải có status 'active'." }, { status: 400 });
 
-    // Insert friendly match record
+    // Kiểm tra backend online
+    const online = await isBackendOnline();
+    if (!online) {
+      return NextResponse.json(
+        { error: "Backend (worker) đang offline. Vui lòng thử lại sau.", backend_offline: true },
+        { status: 503 }
+      );
+    }
+
+    // Insert friendly match với status='scheduled'
     const fmRows = await sql`
       INSERT INTO friendly_matches (created_by, agent1_id, agent2_id, status)
-      VALUES (${session.id}, ${agent1_id}, ${agent2_id}, 'running')
+      VALUES (${session.id}, ${agent1_id}, ${agent2_id}, 'scheduled')
       RETURNING id
     `;
     const friendlyMatchId = (fmRows[0] as { id: number }).id;
 
-    // Run match on FastAPI backend (với timeout 8s cho create)
-    const createResult = await backendFetch("/matches/", {
+    // Enqueue vào worker queue — worker sẽ tự chạy local engine
+    const enqueueResult = await backendFetch("/friendly/enqueue", {
       method: "POST",
-      body: JSON.stringify({ agent1_code: a1.code, agent2_code: a2.code, max_moves: 300 }),
-      timeoutMs: 8_000,
+      body: JSON.stringify({
+        friendly_match_id: friendlyMatchId,
+        agent1_id,
+        agent1_code: a1.code,
+        agent2_id,
+        agent2_code: a2.code,
+        max_moves: 300,
+        callback_url: FRONTEND_URL,
+      }),
+      timeoutMs: 10_000,
     });
 
-    if (!createResult.ok) {
+    if (!enqueueResult.ok) {
+      // Rollback status
       await sql`UPDATE friendly_matches SET status = 'error', is_infra_error = true WHERE id = ${friendlyMatchId}`;
       return NextResponse.json(
-        { error: createResult.error, backend_offline: createResult.isOffline },
-        { status: createResult.isOffline ? 503 : 500 },
+        { error: enqueueResult.error, backend_offline: enqueueResult.isOffline },
+        { status: enqueueResult.isOffline ? 503 : 500 }
       );
     }
 
-    const matchData = createResult.data as { match_id: string };
-    const backendMatchId = matchData.match_id;
-
-    // Run to end (timeout dài hơn — tối đa 300 nước × ~1.5s = ~5 phút)
-    const runResult = await backendFetch(`/matches/${backendMatchId}/run`, {
-      method: "POST",
-      timeoutMs: 300_000, // 5 phút
+    // Trả về ngay — không chờ kết quả
+    return NextResponse.json({
+      ok: true,
+      friendly_match_id: friendlyMatchId,
+      status: "scheduled",
+      message: "Trận đấu đã được xếp hàng. Worker sẽ chạy và cập nhật kết quả tự động.",
     });
-
-    if (!runResult.ok) {
-      await sql`UPDATE friendly_matches SET status = 'error', is_infra_error = true, backend_match_id = ${backendMatchId} WHERE id = ${friendlyMatchId}`;
-      return NextResponse.json(
-        { error: runResult.error, backend_offline: runResult.isOffline },
-        { status: runResult.isOffline ? 503 : 500 },
-      );
-    }
-
-    const runData = runResult.data as {
-      total_moves: number; game_over: boolean; winner: number | null; win_reason: string;
-      steps: Array<{
-        step_number: number; player: number;
-        move?: { from_col: number; from_row: number; to_col: number; to_row: number; from_pos: string; to_pos: string };
-        captured?: { type: string }; game_over: boolean; error?: string;
-      }>;
-    };
-
-    const winner = runData.winner;
-    const outcome = winner === 1 ? "agent1" : winner === 2 ? "agent2" : "draw";
-    const winnerAgentId = winner === 1 ? agent1_id : winner === 2 ? agent2_id : null;
-
-    // Update friendly match
-    await sql`
-      UPDATE friendly_matches SET
-        status = 'finished', backend_match_id = ${backendMatchId},
-        outcome = ${outcome}, winner_agent_id = ${winnerAgentId},
-        win_reason = ${runData.win_reason ?? ""}, total_moves = ${runData.total_moves},
-        finished_at = NOW()
-      WHERE id = ${friendlyMatchId}
-    `;
-
-    // Insert move history
-    for (const step of runData.steps) {
-      if (step.move) {
-        await sql`
-          INSERT INTO friendly_match_history
-            (friendly_match_id, move_number, player, from_col, from_row, to_col, to_row, from_pos, to_pos, captured_type)
-          VALUES
-            (${friendlyMatchId}, ${step.step_number}, ${step.player},
-             ${step.move.from_col}, ${step.move.from_row}, ${step.move.to_col}, ${step.move.to_row},
-             ${step.move.from_pos}, ${step.move.to_pos}, ${step.captured?.type ?? null})
-          ON CONFLICT (friendly_match_id, move_number) DO NOTHING
-        `;
-      }
-    }
-
-    // Cleanup backend match (fire-and-forget, bỏ qua lỗi)
-    backendFetch(`/matches/${backendMatchId}`, { method: "DELETE", timeoutMs: 5_000 }).catch(() => {});
-
-    return NextResponse.json({ ok: true, friendly_match_id: friendlyMatchId, outcome, total_moves: runData.total_moves });
   } catch (error) {
-    console.error("Friendly match failed:", error);
-    return NextResponse.json({ error: "Lỗi khi chạy trận." }, { status: 500 });
+    console.error("Friendly enqueue failed:", error);
+    return NextResponse.json({ error: "Lỗi khi tạo trận." }, { status: 500 });
   }
 }

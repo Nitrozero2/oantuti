@@ -1,27 +1,29 @@
 """
 Tournament Service - Quản lý ghép trận tự động.
 
-Worker chạy asyncio, thực hiện các trận đấu song song.
-Kết quả được POST về callback URL (Next.js API).
+Thay vì asyncio worker chạy trong process, giờ enqueue job vào Redis.
+Worker bên ngoài (worker/worker.py) sẽ poll và thực thi.
 
-Vòng đời:
-  idle → running → paused ⇄ running → stopped/completed
+Tournament state lưu trong Redis:
+  tournament:session:{session_id}  → {status, config, callback_url, ...}
+  tournament:queue:{session_id}    → List[MatchTask JSON]  (LPUSH/RPOP)
 """
 
-import asyncio
+import json
 import logging
+import time
 import httpx
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
-from .match_service import MatchService, get_match_service
+from ..redis_client import get_redis
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class MatchTask:
-    """Một trận đấu cần chạy."""
+    """Một trận đấu cần chạy trong tournament."""
     match_id: int          # DB ID (tournament_matches.id)
     session_id: int
     agent1_id: int
@@ -29,6 +31,25 @@ class MatchTask:
     agent2_id: int
     agent2_code: str
     max_moves: int = 300
+    callback_url: str = ""
+
+    def to_dict(self) -> dict:
+        return {
+            "match_id": self.match_id,
+            "session_id": self.session_id,
+            "agent1_id": self.agent1_id,
+            "agent1_code": self.agent1_code,
+            "agent2_id": self.agent2_id,
+            "agent2_code": self.agent2_code,
+            "max_moves": self.max_moves,
+            "callback_url": self.callback_url,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "MatchTask":
+        # Chỉ lấy các field có trong dataclass để tránh lỗi unexpected keyword
+        known = {f.name for f in cls.__dataclass_fields__.values()}  # type: ignore
+        return cls(**{k: v for k, v in d.items() if k in known})
 
 
 @dataclass
@@ -42,31 +63,24 @@ class WorkerStatus:
     active_match_ids: list = field(default_factory=list)
 
 
-class TournamentWorker:
+def _session_key(session_id: int) -> str:
+    return f"tournament:session:{session_id}"
+
+def _queue_key(session_id: int) -> str:
+    return f"tournament:queue:{session_id}"
+
+def _active_key(session_id: int) -> str:
+    return f"tournament:active:{session_id}"
+
+
+class TournamentService:
     """
-    Asyncio-based tournament worker.
-    
-    - Chạy tối đa max_parallel trận cùng lúc
-    - Start/Pause/Resume/Stop an toàn với asyncio.Lock
-    - Kết quả POST về callback_url sau mỗi trận
+    Enqueue tournament matches vào Redis.
+    Worker ngoài sẽ poll và chạy.
     """
 
     def __init__(self):
-        self._status: Literal["idle", "running", "paused", "stopped"] = "idle"
-        self._session_id: Optional[int] = None
-        self._queue: asyncio.Queue = asyncio.Queue()
-        self._active: dict[str, asyncio.Task] = {}    # backend_match_id → Task
-        self._lock = asyncio.Lock()
-        self._max_parallel: int = 3
-        self._callback_url: str = ""
-        self._max_moves: int = 300
-        self._completed: int = 0
-        self._errors: int = 0
-        self._worker_task: Optional[asyncio.Task] = None
-        self._pause_event = asyncio.Event()
-        self._pause_event.set()   # Initially not paused (set = "go")
-
-    # ── Public API ──────────────────────────────────────────────────────────
+        self._redis = get_redis()
 
     async def start(
         self,
@@ -76,247 +90,119 @@ class TournamentWorker:
         max_moves: int = 300,
         callback_url: str = "",
     ) -> None:
-        async with self._lock:
-            if self._status == "running":
-                logger.warning("Worker already running, ignoring start.")
-                return
+        state = {
+            "session_id": session_id,
+            "status": "running",
+            "max_parallel": max_parallel,
+            "max_moves": max_moves,
+            "callback_url": callback_url,
+            "started_at": time.time(),
+            "completed": 0,
+            "errors": 0,
+        }
+        await self._redis.set_json(_session_key(session_id), state, ex=86400 * 7)
 
-            self._session_id = session_id
-            self._max_parallel = max(1, min(max_parallel, 10))
-            self._max_moves = max_moves
-            self._callback_url = callback_url
-            self._completed = 0
-            self._errors = 0
-
-            # Clear old queue and fill with new pairs
-            while not self._queue.empty():
-                try:
-                    self._queue.get_nowait()
-                except asyncio.QueueEmpty:
-                    break
-
-            for task in pairs:
-                await self._queue.put(task)
-
-            self._status = "running"
-            self._pause_event.set()
-
-        # Start worker loop in background
-        if self._worker_task is None or self._worker_task.done():
-            self._worker_task = asyncio.create_task(self._worker_loop())
-        logger.info(f"Tournament worker started: session={session_id}, {len(pairs)} pairs queued.")
-
-    async def add_pairs(self, pairs: list[MatchTask]) -> None:
-        """Thêm cặp đấu mới vào queue (dùng khi resume với agent mới)."""
+        # Enqueue tất cả pairs vào unified worker queue
         for task in pairs:
-            await self._queue.put(task)
-        logger.info(f"Added {len(pairs)} new pairs to queue.")
+            task_dict = task.to_dict()
+            task_dict["task_type"] = "tournament"
+            await self._redis.enqueue_worker_task(json.dumps(task_dict))
 
-    async def pause(self) -> None:
-        async with self._lock:
-            if self._status != "running":
-                return
-            self._status = "paused"
-            self._pause_event.clear()   # Worker loop sẽ block ở await pause_event.wait()
-        logger.info("Tournament worker paused.")
+        # Track session ID để worker có thể discover
+        known_raw = await self._redis.get_json("tournament:sessions:known")
+        known: list[int] = known_raw if isinstance(known_raw, list) else []
+        if session_id not in known:
+            known.append(session_id)
+        # Giữ 20 sessions gần nhất
+        if len(known) > 20:
+            known = known[-20:]
+        await self._redis.set_json("tournament:sessions:known", known, ex=86400 * 30)
 
-    async def resume(self, new_pairs: Optional[list[MatchTask]] = None) -> None:
-        async with self._lock:
-            if self._status not in ("paused", "stopped"):
-                return
-            self._status = "running"
-            self._pause_event.set()
-            if new_pairs:
-                for task in new_pairs:
-                    await self._queue.put(task)
+        logger.info(f"Tournament session {session_id} started: {len(pairs)} pairs enqueued")
 
-        # Restart worker loop if it stopped
-        if self._worker_task is None or self._worker_task.done():
-            self._worker_task = asyncio.create_task(self._worker_loop())
-        logger.info(f"Tournament worker resumed. Queue depth: {self._queue.qsize()}")
+    async def pause(self, session_id: int) -> None:
+        state = await self._redis.get_json(_session_key(session_id))
+        if state:
+            state["status"] = "paused"
+            await self._redis.set_json(_session_key(session_id), state, ex=86400 * 7)
 
-    async def stop(self) -> None:
-        async with self._lock:
-            self._status = "stopped"
-            self._pause_event.set()  # Unblock if paused so worker can exit
-            # Drain queue
-            drained = 0
-            while not self._queue.empty():
-                try:
-                    self._queue.get_nowait()
-                    drained += 1
-                except asyncio.QueueEmpty:
-                    break
+    async def resume(self, session_id: int, new_pairs: Optional[list[MatchTask]] = None) -> None:
+        state = await self._redis.get_json(_session_key(session_id))
+        if state:
+            state["status"] = "running"
+            await self._redis.set_json(_session_key(session_id), state, ex=86400 * 7)
+        if new_pairs:
+            for task in new_pairs:
+                task_dict = task.to_dict()
+                task_dict["task_type"] = "tournament"
+                await self._redis.enqueue_worker_task(json.dumps(task_dict))
 
-        # Wait for active matches to finish (don't cancel them)
-        if self._active:
-            logger.info(f"Waiting for {len(self._active)} active matches to finish...")
-            await asyncio.gather(*self._active.values(), return_exceptions=True)
+    async def stop(self, session_id: int) -> None:
+        state = await self._redis.get_json(_session_key(session_id))
+        if state:
+            state["status"] = "stopped"
+            await self._redis.set_json(_session_key(session_id), state, ex=86400 * 7)
+        # Drain queue
+        await self._redis.delete(_queue_key(session_id))
 
-        logger.info("Tournament worker stopped.")
-
-    def get_status(self) -> WorkerStatus:
+    async def get_status(self, session_id: Optional[int] = None) -> WorkerStatus:
+        if session_id is None:
+            return WorkerStatus(
+                status="idle", session_id=None,
+                queue_depth=0, active_count=0, completed=0, errors=0,
+            )
+        state = await self._redis.get_json(_session_key(session_id))
+        if not state:
+            return WorkerStatus(
+                status="idle", session_id=session_id,
+                queue_depth=0, active_count=0, completed=0, errors=0,
+            )
+        queue_depth = await self._redis.llen(_queue_key(session_id))
+        active_raw = await self._redis.get_json(_active_key(session_id)) or {}
         return WorkerStatus(
-            status=self._status,
-            session_id=self._session_id,
-            queue_depth=self._queue.qsize(),
-            active_count=len(self._active),
-            completed=self._completed,
-            errors=self._errors,
-            active_match_ids=list(self._active.keys()),
+            status=state.get("status", "idle"),
+            session_id=session_id,
+            queue_depth=queue_depth,
+            active_count=len(active_raw),
+            completed=state.get("completed", 0),
+            errors=state.get("errors", 0),
+            active_match_ids=list(active_raw.keys()),
         )
 
-    # ── Internal worker loop ─────────────────────────────────────────────────
+    async def next_task(self, session_id: int) -> Optional[MatchTask]:
+        """Worker gọi để lấy task tiếp theo từ queue của session."""
+        state = await self._redis.get_json(_session_key(session_id))
+        if not state or state.get("status") != "running":
+            return None
+        raw = await self._redis.rpop(_queue_key(session_id))
+        if not raw:
+            return None
+        task_dict = json.loads(raw)
+        # Inject callback_url và max_moves từ session state vào task
+        task_dict["callback_url"] = state.get("callback_url", "")
+        if "max_moves" not in task_dict or not task_dict["max_moves"]:
+            task_dict["max_moves"] = state.get("max_moves", 300)
+        return MatchTask.from_dict(task_dict)
 
-    async def _worker_loop(self) -> None:
-        """Main loop: pull tasks from queue and run up to max_parallel concurrently."""
-        logger.info("Worker loop started.")
-        while True:
-            # Check stop
-            if self._status == "stopped":
-                break
-
-            # Wait if paused
-            await self._pause_event.wait()
-
-            if self._status == "stopped":
-                break
-
-            # Wait if at capacity
-            if len(self._active) >= self._max_parallel:
-                await asyncio.sleep(0.5)
-                continue
-
-            # Get next task
-            try:
-                task = self._queue.get_nowait()
-            except asyncio.QueueEmpty:
-                # Queue empty
-                if len(self._active) == 0:
-                    # All done
-                    if self._status == "running":
-                        self._status = "idle"
-                        logger.info("All matches completed, worker idle.")
-                    break
-                await asyncio.sleep(1.0)
-                continue
-
-            # Launch match
-            match_task = asyncio.create_task(self._run_match(task))
-            key = f"db_{task.match_id}"
-            self._active[key] = match_task
-            match_task.add_done_callback(lambda t, k=key: self._active.pop(k, None))
-
-        logger.info("Worker loop exited.")
-
-    async def _run_match(self, task: MatchTask) -> None:
-        """Chạy 1 trận đấu và POST kết quả về callback."""
-        logger.info(f"Starting match db_id={task.match_id} (a{task.agent1_id} vs a{task.agent2_id})")
-        match_service = get_match_service()
-
-        # Notify callback: match started
-        await self._post_callback("match-started", {
-            "match_id": task.match_id,
-            "session_id": task.session_id,
-        })
-
-        try:
-            # Tạo match trong MatchService
-            match_data = match_service.create_match(
-                agent1_code=task.agent1_code,
-                agent2_code=task.agent2_code,
-                max_moves=task.max_moves,
-            )
-            backend_match_id = match_data.match_id
-
-            # Chạy đến khi kết thúc
-            result = await match_service.run_to_end(backend_match_id)
-
-            # Parse moves history từ steps
-            moves_history = []
-            for step in result.get("steps", []):
-                if step.move:
-                    moves_history.append({
-                        "move_number": step.step_number,
-                        "player": step.player,
-                        "from_col": step.move.from_col,
-                        "from_row": step.move.from_row,
-                        "to_col": step.move.to_col,
-                        "to_row": step.move.to_row,
-                        "from_pos": step.move.from_pos,
-                        "to_pos": step.move.to_pos,
-                        "piece_type": None,   # Not tracked in current engine
-                        "captured_type": step.captured.type if step.captured else None,
-                    })
-
-            # Xác định outcome
-            winner = result.get("winner")
-            win_reason = result.get("win_reason", "")
-            is_infra_error = False
-
-            # Phân biệt lỗi hạ tầng vs thua bình thường
-            if winner is not None:
-                outcome = "agent1" if winner == 1 else "agent2"
-                winner_agent_id = task.agent1_id if winner == 1 else task.agent2_id
-            elif result.get("game_over"):
-                outcome = "draw"
-                winner_agent_id = None
+    async def record_completed(self, session_id: int, error: bool = False) -> None:
+        """Worker gọi sau khi hoàn thành 1 match."""
+        state = await self._redis.get_json(_session_key(session_id))
+        if state:
+            if error:
+                state["errors"] = state.get("errors", 0) + 1
             else:
-                # Không kết thúc bình thường → infra error
-                is_infra_error = True
-                outcome = None
-                winner_agent_id = None
+                state["completed"] = state.get("completed", 0) + 1
+            # Auto-complete session khi queue rỗng
+            qd = await self._redis.llen(_queue_key(session_id))
+            if qd == 0 and state.get("status") == "running":
+                state["status"] = "idle"
+            await self._redis.set_json(_session_key(session_id), state, ex=86400 * 7)
 
-            # Kiểm tra lỗi từ step cuối
-            last_step = result.get("steps", [{}])[-1] if result.get("steps") else {}
-            if hasattr(last_step, 'error') and last_step.error:
-                # Agent error - không phải infra error, đây là thua hợp lệ
-                pass
-
-            await self._post_callback("match-result", {
-                "match_id": task.match_id,
-                "session_id": task.session_id,
-                "backend_match_id": backend_match_id,
-                "agent1_id": task.agent1_id,
-                "agent2_id": task.agent2_id,
-                "outcome": outcome,
-                "winner_agent_id": winner_agent_id,
-                "win_reason": win_reason,
-                "total_moves": result.get("total_moves", 0),
-                "is_infra_error": is_infra_error,
-                "infra_error_detail": result.get("aborted_reason"),
-                "moves_history": moves_history,
-            })
-
-            self._completed += 1
-            logger.info(f"Match db_id={task.match_id} done. Outcome={outcome}, moves={result.get('total_moves',0)}")
-
-            # Cleanup backend match
-            match_service.delete_match(backend_match_id)
-
-        except Exception as e:
-            logger.error(f"Match db_id={task.match_id} FAILED: {e}", exc_info=True)
-            self._errors += 1
-            await self._post_callback("match-result", {
-                "match_id": task.match_id,
-                "session_id": task.session_id,
-                "backend_match_id": None,
-                "agent1_id": task.agent1_id,
-                "agent2_id": task.agent2_id,
-                "outcome": None,
-                "winner_agent_id": None,
-                "win_reason": "",
-                "total_moves": 0,
-                "is_infra_error": True,
-                "infra_error_detail": str(e),
-                "moves_history": [],
-            })
-
-    async def _post_callback(self, event: str, data: dict) -> None:
-        """POST kết quả về Next.js callback URL."""
-        if not self._callback_url:
+    async def post_callback(self, callback_url: str, event: str, data: dict) -> None:
+        """POST kết quả về Next.js."""
+        if not callback_url:
             return
-        url = f"{self._callback_url}/api/tournament/match-result"
+        url = f"{callback_url}/api/tournament/match-result"
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 resp = await client.post(url, json=data)
@@ -327,11 +213,16 @@ class TournamentWorker:
 
 
 # Singleton
-_worker: Optional[TournamentWorker] = None
+_tournament_service: Optional[TournamentService] = None
 
 
-def get_tournament_worker() -> TournamentWorker:
-    global _worker
-    if _worker is None:
-        _worker = TournamentWorker()
-    return _worker
+def get_tournament_service() -> TournamentService:
+    global _tournament_service
+    if _tournament_service is None:
+        _tournament_service = TournamentService()
+    return _tournament_service
+
+
+# Backward compat alias
+def get_tournament_worker() -> TournamentService:
+    return get_tournament_service()

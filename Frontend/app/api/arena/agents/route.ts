@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { dispatchNextRatingTask } from "@/lib/rating-scheduler";
 
 export const runtime = "nodejs";
 
@@ -39,17 +40,24 @@ export async function POST(request: Request) {
     `;
     const nextVersion = (versionRows[0] as { max_version: number }).max_version + 1;
 
-    // Deactivate agent cũ
-    await sql`UPDATE arena_agents SET is_active = false WHERE user_id = ${session.id} AND is_active = true`;
-
-    // Insert agent mới (status = 'pending', chờ validate)
+    // Each approved version remains an independently rated agent. A new submission
+    // validates itself in the worker before it may enter the rating queue.
     const rows = await sql`
       INSERT INTO arena_agents (user_id, agent_name, description, code, version, status, is_active)
-      VALUES (${session.id}, ${agent_name.trim()}, ${desc}, ${code}, ${nextVersion}, 'pending', false)
+      VALUES (${session.id}, ${agent_name.trim()}, ${desc}, ${code}, ${nextVersion}, 'validating', false)
       RETURNING id, agent_name, version, submitted_at
     `;
     const agent = rows[0] as { id: number; agent_name: string; version: number; submitted_at: string };
-    return NextResponse.json({ ok: true, agent_id: agent.id, agent_name: agent.agent_name, version: agent.version, submitted_at: agent.submitted_at });
+    await sql`
+      INSERT INTO rated_matches (kind, agent1_id, agent2_id)
+      VALUES ('validation', ${agent.id}, ${agent.id})
+    `;
+    // The task remains safely scheduled if the worker/backend is temporarily down.
+    await dispatchNextRatingTask().catch((error) => console.error("Could not dispatch validation:", error));
+    return NextResponse.json({
+      ok: true, agent_id: agent.id, agent_name: agent.agent_name, version: agent.version,
+      submitted_at: agent.submitted_at, status: "validating",
+    });
   } catch (error) {
     console.error("Arena submit failed:", error);
     return NextResponse.json({ error: "Không thể lưu agent." }, { status: 500 });
@@ -64,7 +72,7 @@ export async function GET() {
   try {
     const rows = await sql`
       SELECT id, agent_name, description, code, version, status, validation_error,
-             is_active, wins, losses, draws, error_matches, elo, submitted_at
+             is_active, wins, losses, draws, error_matches, rating AS elo, submitted_at
       FROM arena_agents
       WHERE user_id = ${session.id}
       ORDER BY version DESC

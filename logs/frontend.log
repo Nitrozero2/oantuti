@@ -1,242 +1,52 @@
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
    ▲ Next.js 15.5.27
    - Local:        http://localhost:3000
-   - Network:      http://10.11.153.109:3000
+   - Network:      http://10.11.220.222:3000
+   - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 380ms
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
- ⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
-    at new Promise (<anonymous>) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
-}
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
- ⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
-    at new Promise (<anonymous>) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
-}
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
- ⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
-    at new Promise (<anonymous>) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
-}
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
-   ▲ Next.js 15.5.27
-   - Local:        http://localhost:3000
-   - Network:      http://10.11.113.192:3000
-
- ✓ Starting...
- ✓ Ready in 382ms
-Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
-    at bj.execute (.next/server/chunks/608.js:30:2423)
-    at async y (.next/server/app/api/tournament/match-result/route.js:13:33)
-    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
-    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
-    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
-  severity: undefined,
-  code: undefined,
-  detail: undefined,
-  hint: undefined,
-  position: undefined,
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: undefined,
-  line: undefined,
-  routine: undefined,
-  sourceError: [TypeError: fetch failed] {
-    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
-  }
-}
-Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
-    at bj.execute (.next/server/chunks/608.js:30:2423)
-    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
-    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
-    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
-    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
-  severity: undefined,
-  code: undefined,
-  detail: undefined,
-  hint: undefined,
-  position: undefined,
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: undefined,
-  line: undefined,
-  routine: undefined,
-  sourceError: [TypeError: fetch failed] {
-    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
-  }
-}
-Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
-    at bj.execute (.next/server/chunks/608.js:30:2423)
-    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
-    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
-    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
-    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
-  severity: undefined,
-  code: undefined,
-  detail: undefined,
-  hint: undefined,
-  position: undefined,
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: undefined,
-  line: undefined,
-  routine: undefined,
-  sourceError: [TypeError: fetch failed] {
-    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
-  }
-}
-Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
-    at bj.execute (.next/server/chunks/608.js:30:2423)
-    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
-    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
-    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
-    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
-  severity: undefined,
-  code: undefined,
-  detail: undefined,
-  hint: undefined,
-  position: undefined,
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: undefined,
-  line: undefined,
-  routine: undefined,
-  sourceError: [TypeError: fetch failed] {
-    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
-  }
-}
-Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
-    at bj.execute (.next/server/chunks/608.js:30:2423)
-    at async y (.next/server/app/api/tournament/match-result/route.js:1:2071)
-    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
-    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
-    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
-  severity: undefined,
-  code: undefined,
-  detail: undefined,
-  hint: undefined,
-  position: undefined,
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: undefined,
-  line: undefined,
-  routine: undefined,
-  sourceError: [TypeError: fetch failed] {
-    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
-  }
-}
-Match result callback failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
-    at bj.execute (.next/server/chunks/608.js:30:2423)
-    at async y (.next/server/app/api/tournament/match-result/route.js:13:33)
-    at async k (.next/server/app/api/tournament/match-result/route.js:44:3039)
-    at async g (.next/server/app/api/tournament/match-result/route.js:44:4042)
-    at async E (.next/server/app/api/tournament/match-result/route.js:44:5164) {
-  severity: undefined,
-  code: undefined,
-  detail: undefined,
-  hint: undefined,
-  position: undefined,
-  internalPosition: undefined,
-  internalQuery: undefined,
-  where: undefined,
-  schema: undefined,
-  table: undefined,
-  column: undefined,
-  dataType: undefined,
-  constraint: undefined,
-  file: undefined,
-  line: undefined,
-  routine: undefined,
-  sourceError: [TypeError: fetch failed] {
-    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
-  }
-}
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
- ⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
-    at new Promise (<anonymous>) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
-}
-
-> neon-vercel-auth@1.0.0 start
-> next start --port 3000
-
-   ▲ Next.js 15.5.27
-   - Local:        http://localhost:3000
-   - Network:      http://10.11.184.106:3000
-
- ✓ Starting...
-[Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+ ✓ Ready in 1341ms
+ ○ Compiling / ...
+ ✓ Compiled / in 772ms (701 modules)
+ GET / 200 in 1054ms
+ ✓ Compiled /api/tournament/match-result in 249ms (723 modules)
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ POST /api/tournament/match-result 200 in 1225ms
+ ✓ Compiled /dashboard in 352ms (752 modules)
+ GET /dashboard 200 in 588ms
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ POST /api/tournament/match-result 200 in 3643ms
+ POST /api/tournament/match-result 200 in 2671ms
+ GET / 307 in 67ms
+ GET /dashboard 200 in 48ms
+ ✓ Compiled /middleware in 141ms (161 modules)
+ ✓ Compiled /admin/tournament in 270ms (738 modules)
+ GET /admin/tournament 200 in 375ms
+ ✓ Compiled /api/tournament/sessions in 299ms (761 modules)
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ GET /api/auth/me 200 in 419ms
+ GET /api/auth/me 200 in 10ms
+ GET /api/tournament/sessions 200 in 805ms
+ GET /api/tournament/sessions 200 in 54ms
+ ✓ Compiled /api/tournament/sessions/[id]/control in 133ms (764 modules)
+The `fetchConnectionCache` option is deprecated (now always `true`)
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ GET /api/tournament/sessions 200 in 57ms
+ POST /api/tournament/sessions/6/control 200 in 1477ms
+ GET /api/tournament/sessions 200 in 63ms
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ POST /api/tournament/sessions/6/control 200 in 2215ms
+ GET /api/tournament/sessions 200 in 62ms
+ ✓ Compiled /admin/settings in 181ms (771 modules)
+ GET /admin/settings 200 in 257ms
+ GET /api/auth/me 200 in 33ms
+ ✓ Compiled /api/admin/system-status in 221ms (773 modules)
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ GET /api/auth/me 200 in 264ms
+ GET /api/admin/system-status 200 in 1260ms
+ GET /api/admin/system-status 200 in 728ms
+ GET /api/admin/system-status 200 in 915ms
+ GET /api/admin/system-status 200 in 1377ms
+ ✓ Compiled /api/tournament/match-result in 117ms (520 modules)
+The `fetchConnectionCache` option is deprecated (now always `true`)
+ POST /api/tournament/match-result 200 in 2484ms
+ GET /api/admin/system-status 200 in 1102ms

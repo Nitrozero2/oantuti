@@ -16,7 +16,7 @@ export async function GET() {
         a.description,
         a.version,
         a.status,
-        a.elo,
+        a.rating AS elo,
         a.wins,
         a.losses,
         a.draws,
@@ -31,7 +31,7 @@ export async function GET() {
       FROM arena_agents a
       JOIN users u ON u.id = a.user_id
       WHERE a.status = 'active'
-      ORDER BY a.elo DESC, a.wins DESC, a.submitted_at ASC
+      ORDER BY a.rating DESC, a.wins DESC, a.submitted_at ASC
       LIMIT 100
     `;
     return NextResponse.json({ leaderboard: rows });

@@ -116,7 +116,7 @@ export default function ArenaSubmitPage() {
         return;
       }
       setSuccess(true);
-      setMessage(`✅ Agent "${data.agent_name}" v${data.version} đã nộp. Chờ admin duyệt.`);
+      setMessage(`✅ Agent "${data.agent_name}" v${data.version} đã nộp và đang tự kiểm tra.`);
       setAgentName("");
       setDescription("");
       setCode(AGENT_TEMPLATE);
@@ -164,7 +164,7 @@ export default function ArenaSubmitPage() {
             </span>
           </div>
           <p className="text-sm text-slate-600">
-            Viết agent Python để tham gia OTTv2 Arena. Agent cần được admin duyệt trước khi thi đấu tính ELO.
+            Nộp agent để tự kiểm tra bằng một ván self-play. Khi thành công, agent tự tham gia hàng đợi TrueSkill.
           </p>
         </div>
 
@@ -339,7 +339,7 @@ export default function ArenaSubmitPage() {
                       {a.description && <p className="mt-1 text-xs text-slate-600">{a.description}</p>}
                       <div className="mt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-600">
                         <span>
-                          ELO: <span className="font-bold text-[#253B80]">{a.elo}</span>
+                          Rating: <span className="font-bold text-[#253B80]">{a.elo}</span>
                         </span>
                         <span className="font-bold text-emerald-700">W:{a.wins}</span>
                         <span className="font-bold text-rose-700">L:{a.losses}</span>

@@ -3,23 +3,28 @@ Router: /health - Health check.
 """
 
 from fastapi import APIRouter
-from ..models import HealthResponse
+from pydantic import BaseModel
 from ..config import get_settings
-from ..services.judge0_service import Judge0Service
+from ..redis_client import get_redis
 
 router = APIRouter(tags=["Health"])
 
 
+class HealthResponse(BaseModel):
+    status: str
+    redis_connected: bool
+    version: str
+
+
 @router.get("/health", response_model=HealthResponse, summary="Health check")
 async def health_check():
-    """Kiểm tra trạng thái API và kết nối Judge0."""
+    """Kiểm tra trạng thái API và kết nối Redis."""
     settings = get_settings()
-    judge0 = Judge0Service()
-    connected = await judge0.check_connection()
+    redis = get_redis()
+    redis_ok = await redis.ping()
     return HealthResponse(
-        status="ok",
-        judge0_connected=connected,
-        judge0_url=settings.judge0_url,
+        status="ok" if redis_ok else "degraded",
+        redis_connected=redis_ok,
         version=settings.app_version,
     )
 

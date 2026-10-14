@@ -4,24 +4,8 @@ import { getSession } from "@/lib/session";
 
 export const runtime = "nodejs";
 
-// ELO K factor
-const K = 32;
-
-function calcElo(
-  ratingA: number,
-  ratingB: number,
-  outcome: "win" | "loss" | "draw",
-): { newA: number; newB: number } {
-  const expectedA = 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
-  const scoreA = outcome === "win" ? 1 : outcome === "draw" ? 0.5 : 0;
-  const deltaA = Math.round(K * (scoreA - expectedA));
-  return {
-    newA: ratingA + deltaA,
-    newB: ratingB - deltaA,
-  };
-}
-
-// POST: ghi nhận kết quả trận arena
+// Legacy arena matches are retained for replay only. TrueSkill rating updates
+// are exclusively performed by /api/rating/match-result.
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) {
@@ -58,9 +42,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Lấy ELO hiện tại của 2 agent
     const agentRows = await sql`
-      SELECT id, elo, wins, losses, draws
+      SELECT id
       FROM arena_agents
       WHERE id IN (${agent1_id}, ${agent2_id})
     `;
@@ -68,20 +51,6 @@ export async function POST(request: Request) {
     if (agentRows.length !== 2) {
       return NextResponse.json({ error: "Không tìm thấy agent." }, { status: 404 });
     }
-
-    const a1 = agentRows.find((r) => r.id === agent1_id) as {
-      id: number; elo: number; wins: number; losses: number; draws: number;
-    };
-    const a2 = agentRows.find((r) => r.id === agent2_id) as {
-      id: number; elo: number; wins: number; losses: number; draws: number;
-    };
-
-    // Tính ELO mới
-    let outcome: "win" | "loss" | "draw" = "draw";
-    if (winner_agent_id === agent1_id) outcome = "win";
-    else if (winner_agent_id === agent2_id) outcome = "loss";
-
-    const { newA, newB } = calcElo(a1.elo, a2.elo, outcome);
 
     const winnerId =
       typeof winner_agent_id === "number" ? winner_agent_id : null;
@@ -97,30 +66,7 @@ export async function POST(request: Request) {
         (${backend_match_id}, ${agent1_id}, ${agent2_id}, ${winnerId}, ${winReason}, ${moves}, 'finished', NOW())
     `;
 
-    // Cập nhật stats agent 1
-    await sql`
-      UPDATE arena_agents SET
-        elo = ${newA},
-        wins = wins + ${outcome === "win" ? 1 : 0},
-        losses = losses + ${outcome === "loss" ? 1 : 0},
-        draws = draws + ${outcome === "draw" ? 1 : 0}
-      WHERE id = ${agent1_id}
-    `;
-
-    // Cập nhật stats agent 2
-    await sql`
-      UPDATE arena_agents SET
-        elo = ${newB},
-        wins = wins + ${outcome === "loss" ? 1 : 0},
-        losses = losses + ${outcome === "win" ? 1 : 0},
-        draws = draws + ${outcome === "draw" ? 1 : 0}
-      WHERE id = ${agent2_id}
-    `;
-
-    return NextResponse.json({
-      ok: true,
-      elo: { agent1: { old: a1.elo, new: newA }, agent2: { old: a2.elo, new: newB } },
-    });
+    return NextResponse.json({ ok: true, rated: false });
   } catch (error) {
     console.error("Arena record match failed:", error);
     return NextResponse.json({ error: "Không thể lưu kết quả trận." }, { status: 500 });

@@ -17,14 +17,14 @@ export async function GET() {
       SELECT
         a.id,
         a.agent_name,
-        a.elo,
+        a.rating AS elo,
         a.status,
         a.user_id,
         u.username
       FROM arena_agents a
       JOIN users u ON u.id = a.user_id
       WHERE a.status = 'active'
-      ORDER BY u.username ASC, a.elo DESC
+      ORDER BY u.username ASC, a.rating DESC
     `;
     return NextResponse.json({ agents: rows });
   } catch (error) {

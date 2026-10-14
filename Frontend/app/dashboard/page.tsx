@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   const features = [
     {
       title: "Bảng Xếp Hạng",
-      description: "Theo dõi thứ hạng ELO, vinh danh các cao thủ và xem lại các ván đấu đỉnh cao.",
+      description: "Theo dõi thứ hạng TrueSkill, vinh danh các cao thủ và xem lại các ván đấu đỉnh cao.",
       href: "/arena/leaderboard",
       image: leaderboardImg,
     },
@@ -89,11 +89,11 @@ export default async function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <Link
-                href="/admin/tournament"
+                href="/admin/rating"
                 className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
               >
                 <span className="text-xl">🎮</span>
-                <span className="text-xs font-bold text-[#1a1e29]">Tournament</span>
+                <span className="text-xs font-bold text-[#1a1e29]">TrueSkill Queue</span>
                 <span className="text-[10px] text-slate-500">Bật/tắt worker giải</span>
               </Link>
 

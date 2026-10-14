@@ -44,14 +44,14 @@ export async function GET(request: Request) {
         uc.username AS challenger_username,
         ca.id::int AS challenger_agent_id,
         ca.agent_name AS challenger_agent_name,
-        ca.elo AS challenger_agent_elo,
+        ca.rating AS challenger_agent_elo,
 
         -- Opponent info
         fc.opponent_id::int,
         uo.username AS opponent_username,
         oa.id::int AS opponent_agent_id,
         oa.agent_name AS opponent_agent_name,
-        oa.elo AS opponent_agent_elo,
+        oa.rating AS opponent_agent_elo,
 
         -- Match result (nếu đã accepted và chạy xong)
         fm.status AS match_status,

@@ -1,307 +1,384 @@
-# Hướng dẫn Deploy: Vercel (Frontend) + Cloudflare Tunnel (Backend)
+# Hướng dẫn Deploy — OTTv2 (Redis Queue + Worker)
 
-## Kiến trúc tổng quan
+## Kiến trúc
 
 ```
 Người dùng (browser)
-      │
-      ▼
-┌─────────────────────────┐
-│   Vercel (Frontend)     │  ← Always online, free tier
-│   Next.js App           │
-│   - Auth, DB, Leaderboard│
-│   - Submit Agent        │
-│   - Replay xem lại      │
-└────────────┬────────────┘
-             │  khi cần chạy trận
-             ▼
-┌─────────────────────────┐
-│  Cloudflare Tunnel      │  ← Public HTTPS từ máy cá nhân
-│  https://ott.domain.com │
-└────────────┬────────────┘
-             │
-             ▼
-┌─────────────────────────┐
-│  Máy cá nhân (PC/laptop)│  ← Có thể tắt bất cứ lúc nào
-│  FastAPI :8000          │
-│  Judge0  :2358          │
-└─────────────────────────┘
-             │
-             ▼
-┌─────────────────────────┐
-│  Neon PostgreSQL        │  ← Always online, serverless
-└─────────────────────────┘
+        │
+        ▼
+┌──────────────────┐
+│  Frontend        │  Vercel (Next.js)
+│  /api/...        │  ← Auth, DB, bảng xếp hạng
+└────────┬─────────┘
+         │ HTTPS
+         ▼
+┌──────────────────┐
+│  FastAPI         │  Vercel Serverless
+│  /matches        │  ← Tạo job, quản lý state
+│  /jobs           │
+└────────┬─────────┘
+         │ Upstash REST API
+         ▼
+┌──────────────────┐
+│  Redis           │  Upstash (luôn online)
+│  job queue       │  ← Queue, match state, heartbeat
+│  match state     │
+└────────┬─────────┘
+         │ poll qua HTTPS (outbound)
+         ▼
+┌──────────────────┐
+│  Worker          │  Máy cá nhân
+│  worker.py       │  ← Nhận job, chạy Judge0
+└────────┬─────────┘
+         │ localhost
+         ▼
+┌──────────────────┐
+│  Judge0          │  Docker (máy cá nhân)
+│  :2358           │  ← Sandbox thực thi Python
+└──────────────────┘
+         │
+┌──────────────────┐
+│  Neon PostgreSQL │  Serverless (luôn online)
+└──────────────────┘
 ```
 
-**Khi máy tắt:** Đăng nhập, nộp agent, bảng xếp hạng, replay vẫn hoạt động bình thường.
-Chỉ "Đấu đối kháng", "Validate agent", "Tournament" bị disable với thông báo rõ ràng.
+**Ưu điểm so với kiến trúc cũ:**
+- Không cần Cloudflare Tunnel
+- FastAPI serverless trên Vercel, không cần máy chạy liên tục
+- Worker chỉ cần kết nối **outbound** — không cần mở port inbound
+- Thêm máy worker mới không cần sửa code
 
 ---
 
-## Phần 1: Deploy Frontend lên Vercel
+## Phần 1: Test local (làm trước)
 
-### Bước 1: Chuẩn bị repo
+Test toàn bộ trên máy local trước khi deploy Vercel.
 
-Push toàn bộ thư mục `Frontend/` lên GitHub (hoặc GitLab/Bitbucket):
+### Bước 1: Setup lần đầu
 
 ```bash
 cd /home/tuan/Oantuti
-git init   # nếu chưa có git
-git add Frontend/
-git commit -m "Initial frontend"
-git remote add origin https://github.com/<username>/<repo>.git
-git push -u origin main
+./setup.sh
 ```
 
-> **Lưu ý:** Chọn `Frontend/` là thư mục gốc khi deploy trên Vercel (xem Bước 3).
+Script sẽ tạo venv cho backend và worker, cài npm cho frontend.
 
-### Bước 2: Tạo tài khoản Vercel
+### Bước 2: Điền biến môi trường
 
-Truy cập [vercel.com](https://vercel.com) → Sign up với GitHub account.
+**`backend/.env`** — đã được tạo từ `.env.example`:
+```env
+UPSTASH_REDIS_REST_URL=https://factual-stingray-170088.upstash.io
+UPSTASH_REDIS_REST_TOKEN=<token>
+WORKER_SECRET=my-local-secret
+JUDGE0_URL=http://localhost:2358
+```
 
-### Bước 3: Import project
-
-1. Vercel Dashboard → **Add New Project** → **Import Git Repository**
-2. Chọn repo vừa tạo
-3. **Root Directory**: đặt là `Frontend` (quan trọng — Vercel sẽ build từ đây)
-4. **Framework Preset**: Next.js (tự detect)
-5. Chưa nhấn Deploy — vào Bước 4 trước
-
-### Bước 4: Cài Environment Variables trên Vercel
-
-Trong mục **Environment Variables** của project settings (hoặc trong flow import):
-
-| Tên biến | Giá trị | Ghi chú |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://...neon.tech/...` | Copy từ Neon dashboard |
-| `SESSION_SECRET` | chuỗi ngẫu nhiên ≥ 32 ký tự | Tạo bằng lệnh bên dưới |
-| `BACKEND_URL` | `https://ott-backend.yourdomain.com` | URL Cloudflare Tunnel (Phần 2) |
-| `NEXT_PUBLIC_FRONTEND_URL` | `https://your-app.vercel.app` | URL Vercel của bạn |
-
-**Tạo SESSION_SECRET ngẫu nhiên:**
+**`worker/.env`** — tạo từ `.env.example`:
 ```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-# Hoặc:
-openssl rand -base64 32
+cp worker/.env.example worker/.env
+```
+```env
+BACKEND_URL=http://localhost:8000
+WORKER_SECRET=my-local-secret     # phải khớp với backend
+JUDGE0_URL=http://localhost:2358
+MAX_CONCURRENT=2
 ```
 
-> **Quan trọng:** `BACKEND_URL` là server-side only (không có `NEXT_PUBLIC_` prefix).
-> Vercel gọi backend từ server → URL Cloudflare Tunnel, không phải localhost.
+**`Frontend/.env.local`**:
+```env
+DATABASE_URL=postgresql://...neon.tech/...
+SESSION_SECRET=<random string>
+BACKEND_URL=http://localhost:8000
+```
 
-### Bước 5: Deploy
+### Bước 3: Khởi động Judge0
 
-Nhấn **Deploy**. Vercel sẽ chạy `npm run build` và deploy tự động.
+```bash
+cd judge0 && docker compose up -d
+# Chờ ~30s rồi kiểm tra:
+curl http://localhost:2358/about
+```
 
-Sau đó mỗi khi push code mới lên GitHub, Vercel tự deploy lại.
+### Bước 4: Khởi động tất cả (dev mode)
 
-### Bước 6: Chạy SQL Schema trên Neon
+```bash
+./dev.sh
+```
 
-Nếu chưa chạy, vào Neon Dashboard → SQL Editor, chạy lần lượt:
+Sẽ mở 3 terminal:
+- **OTTv2 Backend** — uvicorn với hot-reload tại `:8000`
+- **OTTv2 Worker** — python worker.py, poll Redis
+- **OTTv2 Frontend** — npm run dev tại `:3000`
 
-```sql
--- 1. Bảng users + submissions
--- (nội dung file Frontend/database.sql)
+### Bước 5: Kiểm tra
 
--- 2. Bảng arena + tournament
--- (nội dung file Frontend/tournament_schema.sql)
+```bash
+# 1. Backend health
+curl http://localhost:8000/health
+# → {"status":"ok","redis_connected":true,"version":"1.0.0"}
+
+# 2. Tạo match
+curl -X POST http://localhost:8000/matches/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent1_code": "import random\ndef agent(obs, cfg): return random.choice(obs[\"valid_moves\"])",
+    "agent2_code": "import random\ndef agent(obs, cfg): return random.choice(obs[\"valid_moves\"])"
+  }'
+# → {"match_id":"abc123","status":"running","message":"..."}
+
+# 3. Enqueue nước đi
+curl -X POST http://localhost:8000/matches/abc123/step
+# → {"match_id":"abc123","job_id":"uuid...","status":"queued","message":"..."}
+
+# 4. Poll job (chờ worker chạy, ~2-5s)
+curl http://localhost:8000/jobs/<job_id>
+# → {"status":"completed","result":{"success":true,"move":{...},...}}
+
+# 5. Apply nước đi
+curl -X POST http://localhost:8000/matches/abc123/apply-job \
+  -H "Content-Type: application/json" \
+  -d '{"job_id":"<job_id>"}'
+# → StepResult với move, game_over, ...
+
+# 6. Worker status
+curl http://localhost:8000/workers/status
+# → {"workers":[{"worker_id":"hostname","active_jobs":0,...}],"queue_depth":0}
+```
+
+### Bước 6: Test từ Frontend
+
+Mở `http://localhost:3000`, đăng nhập, vào Arena → tạo trận friendly.
+
+Lưu ý: Frontend (`/api/friendly/live`) hiện vẫn dùng flow cũ (`/matches/{id}/step` blocking). Nếu chỉ test backend + worker thì dùng `curl` ở Bước 5 là đủ.
+
+---
+
+## Phần 2: Deploy FastAPI lên Vercel
+
+Sau khi test local thành công.
+
+### Bước 1: Cài Vercel CLI
+
+```bash
+npm install -g vercel
+```
+
+### Bước 2: Deploy backend
+
+```bash
+cd backend
+vercel deploy --prod
+```
+
+Vercel sẽ hỏi:
+- **Set up and deploy?** → Y
+- **Which scope?** → chọn account của bạn
+- **Link to existing project?** → N (lần đầu)
+- **Project name?** → `ottv2-backend` (hoặc tên bất kỳ)
+- **In which directory?** → `.` (thư mục backend)
+
+### Bước 3: Cấu hình Environment Variables
+
+Vào **Vercel Dashboard → Project → Settings → Environment Variables**:
+
+| Key | Value |
+|-----|-------|
+| `UPSTASH_REDIS_REST_URL` | `https://factual-stingray-170088.upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | `<token từ Upstash>` |
+| `WORKER_SECRET` | `<openssl rand -hex 32>` |
+| `CORS_ORIGINS` | `["https://your-frontend.vercel.app"]` |
+| `JOB_TTL_SECONDS` | `3600` |
+| `MATCH_TTL_SECONDS` | `86400` |
+
+> `JUDGE0_URL` không cần trên Vercel — backend không gọi Judge0 trực tiếp.
+
+### Bước 4: Kiểm tra
+
+```bash
+curl https://your-backend.vercel.app/health
+# → {"status":"ok","redis_connected":true}
 ```
 
 ---
 
-## Phần 2: Expose Backend qua Cloudflare Tunnel
+## Phần 3: Deploy Frontend lên Vercel
 
-### Bước 1: Cài cloudflared trên máy cá nhân
-
-**Linux:**
-```bash
-# Download binary
-curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
-  -o /usr/local/bin/cloudflared
-chmod +x /usr/local/bin/cloudflared
-```
-
-**Windows:** Download từ https://github.com/cloudflare/cloudflared/releases → `cloudflared-windows-amd64.exe`
-
-### Bước 2: Đăng nhập Cloudflare
+### Bước 1: Deploy
 
 ```bash
-cloudflared tunnel login
-# Mở browser, chọn domain của bạn (cần có domain trên Cloudflare)
+cd Frontend
+vercel deploy --prod
 ```
 
-> **Nếu chưa có domain:** Có thể dùng tính năng **Quick Tunnels** (không cần domain, nhưng URL thay đổi mỗi lần — không tiện):
-> ```bash
-> cloudflared tunnel --url http://localhost:8000
-> # Sẽ in ra URL tạm như: https://random-word.trycloudflare.com
-> ```
+### Bước 2: Environment Variables
 
-### Bước 3: Tạo tunnel cố định (khuyên dùng)
+| Key | Value |
+|-----|-------|
+| `DATABASE_URL` | `postgresql://...neon.tech/...` |
+| `SESSION_SECRET` | `<random 32+ chars>` |
+| `BACKEND_URL` | `https://your-backend.vercel.app` |
+
+### Bước 3: Redeploy sau khi set env
 
 ```bash
-# Tạo tunnel với tên
-cloudflared tunnel create ott-backend
-
-# Lấy tunnel ID (ghi lại)
-cloudflared tunnel list
+vercel deploy --prod --force
 ```
-
-### Bước 4: Tạo config file
-
-Tạo file `~/.cloudflared/config.yml`:
-
-```yaml
-tunnel: <TUNNEL_ID_từ_bước_3>
-credentials-file: /home/<username>/.cloudflared/<TUNNEL_ID>.json
-
-ingress:
-  - hostname: ott-backend.yourdomain.com
-    service: http://localhost:8000
-  - service: http_status:404
-```
-
-Thay `ott-backend.yourdomain.com` bằng subdomain bạn muốn dùng (phải thuộc domain đang quản lý trên Cloudflare).
-
-### Bước 5: Tạo DNS record
-
-```bash
-cloudflared tunnel route dns ott-backend ott-backend.yourdomain.com
-```
-
-Lệnh này tự tạo CNAME record trên Cloudflare DNS.
-
-### Bước 6: Cập nhật BACKEND_URL trên Vercel
-
-Vào Vercel → Project Settings → Environment Variables → cập nhật:
-```
-BACKEND_URL = https://ott-backend.yourdomain.com
-```
-
-Redeploy Vercel để nhận env mới.
 
 ---
 
-## Phần 3: Chạy hệ thống
+## Phần 4: Chạy Worker trên máy có Judge0
 
-### Khi muốn bật backend (máy cá nhân)
+### Lần đầu
 
 ```bash
-# Terminal 1: Chạy toàn bộ
-cd /home/tuan/Oantuti
+cd worker
+cp .env.example .env
+nano .env
+```
+
+```env
+BACKEND_URL=https://your-backend.vercel.app
+WORKER_SECRET=<khớp với WORKER_SECRET trên Vercel>
+JUDGE0_URL=http://localhost:2358
+MAX_CONCURRENT=2
+WORKER_ID=my-machine-01   # tùy chọn, mặc định = hostname
+```
+
+```bash
+source venv/bin/activate
+python worker.py
+```
+
+### Chạy nền (khuyên dùng khi production)
+
+```bash
+./start.sh   # khởi động cả Judge0 + Backend (nếu cần local) + Worker
+```
+
+Hoặc chỉ khởi động worker:
+```bash
+cd worker && source venv/bin/activate && nohup python worker.py >> ../logs/worker.log 2>&1 &
+```
+
+### Xem log worker
+
+```bash
+tail -f logs/worker.log
+```
+
+Log bình thường:
+```
+2026-10-14 [INFO] worker: Worker my-machine-01 starting...
+2026-10-14 [INFO] worker:   Backend: https://your-backend.vercel.app
+2026-10-14 [INFO] worker:   Judge0:  http://localhost:2358
+2026-10-14 [INFO] worker: Claimed job abc-123 (match=935c, player=1)
+2026-10-14 [INFO] worker: Job abc-123 completed successfully, move={'from_col':4,...}
+```
+
+---
+
+## Phần 5: Thêm máy worker mới
+
+Không cần sửa code backend hay frontend:
+
+1. Copy thư mục `worker/` sang máy mới
+2. Tạo `worker/.env` với cùng `BACKEND_URL` và `WORKER_SECRET`
+3. Đặt `WORKER_ID` khác nhau (ví dụ `host-02`)
+4. Cài Judge0 Docker trên máy mới
+5. Chạy `python worker.py`
+
+Worker mới tự poll cùng Redis queue và nhận job.
+
+---
+
+## Phần 6: Dừng và khởi động lại
+
+```bash
+# Dừng tất cả
+./stop.sh
+
+# Khởi động lại
 ./start.sh
 
-# Hoặc thủ công:
-# Terminal 1 — Judge0
-cd judge0 && docker compose up -d
+# Chỉ dừng worker
+kill $(cat logs/worker.pid)
 
-# Terminal 2 — FastAPI backend
-cd backend && source venv/bin/activate
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Terminal 3 — Cloudflare Tunnel
-cloudflared tunnel run ott-backend
-```
-
-### Khi muốn tắt
-
-```bash
-./stop.sh
-# Hoặc Ctrl+C các terminal, rồi:
-cd judge0 && docker compose down
-```
-
-### Chạy tunnel tự động khi khởi động máy (Linux systemd)
-
-```bash
-# Cài service
-sudo cloudflared service install
-
-# Bật service
-sudo systemctl start cloudflared
-sudo systemctl enable cloudflared  # auto-start khi reboot
+# Chỉ dừng backend local
+kill $(cat logs/backend.pid)
 ```
 
 ---
 
-## Phần 4: Kiểm tra sau khi deploy
+## Phần 7: Debug thường gặp
 
-### Kiểm tra frontend (Vercel)
-
-```bash
-# Mở browser
-https://your-app.vercel.app
-
-# Test các tính năng không cần backend (phải hoạt động dù máy tắt):
-# ✅ /login  — đăng nhập
-# ✅ /register — đăng ký
-# ✅ /arena/leaderboard — bảng xếp hạng
-# ✅ /arena/submit — nộp agent (lưu DB, chờ duyệt)
-# ✅ /arena/replay/... — xem replay trận cũ
-# ✅ /dashboard — trang chính
-```
-
-### Kiểm tra backend offline
+### Worker không nhận job
 
 ```bash
-# Tắt backend, vào /arena/friendly — phải thấy banner cam:
-# "🔌 Máy chủ cá nhân đang offline"
-# Nút "⚔️ Bắt đầu" phải bị disable (mờ)
+# Kiểm tra kết nối backend
+curl https://your-backend.vercel.app/health
+
+# Kiểm tra worker secret khớp không
+grep WORKER_SECRET worker/.env
+grep WORKER_SECRET backend/.env
+
+# Kiểm tra Judge0
+curl http://localhost:2358/about
 ```
 
-### Kiểm tra khi backend online
+### Redis không kết nối
 
 ```bash
-# Bật tunnel + FastAPI + Judge0
-# Truy cập https://your-app.vercel.app/api/backend-status
-# Phải trả về: {"online": true}
-
-# Test validate agent từ /admin/agents — phải hoạt động
-# Test tạo trận /arena/friendly — phải chạy được
+cd backend && python3 -c "
+import asyncio
+from dotenv import load_dotenv; load_dotenv('.env')
+from app.redis_client import get_redis
+async def t():
+    r = get_redis()
+    print('PING:', await r.ping())
+asyncio.run(t())
+"
 ```
+
+### Job stuck ở trạng thái `queued`
+
+Worker chưa chạy hoặc đang crash. Kiểm tra:
+```bash
+tail -f logs/worker.log
+# Nếu không có log → worker chưa khởi động
+```
+
+### Job stuck ở trạng thái `claimed` mãi không complete
+
+Worker đã claim nhưng crash trước khi xong. Job sẽ tự hết hạn sau `JOB_TTL_SECONDS` (mặc định 1 giờ). Restart worker.
 
 ---
 
-## Phần 5: Cập nhật BACKEND_URL khi tunnel URL thay đổi
+## Tóm tắt file `.env` cho từng môi trường
 
-Nếu dùng **Quick Tunnels** (URL tạm, thay đổi mỗi lần):
+### Test local
 
-```bash
-# Lấy URL mới
-cloudflared tunnel --url http://localhost:8000
-# Output: https://abc-xyz-123.trycloudflare.com
+| File | Biến | Giá trị |
+|------|------|---------|
+| `backend/.env` | `UPSTASH_REDIS_REST_URL` | URL Upstash |
+| | `UPSTASH_REDIS_REST_TOKEN` | Token Upstash |
+| | `WORKER_SECRET` | bất kỳ (vd: `local-secret`) |
+| | `JUDGE0_URL` | `http://localhost:2358` |
+| `worker/.env` | `BACKEND_URL` | `http://localhost:8000` |
+| | `WORKER_SECRET` | phải khớp backend |
+| | `JUDGE0_URL` | `http://localhost:2358` |
+| `Frontend/.env.local` | `DATABASE_URL` | Neon URL |
+| | `BACKEND_URL` | `http://localhost:8000` |
 
-# Cập nhật trên Vercel
-# Project Settings → Environment Variables → BACKEND_URL → sửa giá trị mới
-# → Save → Redeploy
-```
+### Production
 
-Với **Tunnel cố định** (có domain riêng): không cần làm gì, URL không đổi.
-
----
-
-## Tóm tắt env vars cần thiết
-
-### Vercel (Production)
-
-```env
-DATABASE_URL=postgresql://neondb_owner:...@ep-....neon.tech/neondb?sslmode=require
-SESSION_SECRET=<random 32+ chars>
-BACKEND_URL=https://ott-backend.yourdomain.com
-NEXT_PUBLIC_FRONTEND_URL=https://your-app.vercel.app
-```
-
-### Máy cá nhân (.env.local — chỉ dùng khi dev local)
-
-```env
-DATABASE_URL=postgresql://...   # Cùng Neon DB hoặc local DB
-SESSION_SECRET=<same or different secret>
-BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_FRONTEND_URL=http://localhost:3000
-```
-
-### Backend (.env)
-
-```env
-JUDGE0_URL=http://localhost:2358
-# Không cần thay đổi gì thêm cho Cloudflare Tunnel
-# Backend lắng nghe localhost:8000, tunnel forward từ ngoài vào
-```
+| File | Biến | Giá trị |
+|------|------|---------|
+| Vercel Backend | `UPSTASH_REDIS_REST_URL` | URL Upstash |
+| | `UPSTASH_REDIS_REST_TOKEN` | Token Upstash |
+| | `WORKER_SECRET` | openssl rand -hex 32 |
+| | `CORS_ORIGINS` | `["https://your-frontend.vercel.app"]` |
+| Vercel Frontend | `DATABASE_URL` | Neon URL |
+| | `SESSION_SECRET` | random 32+ chars |
+| | `BACKEND_URL` | `https://your-backend.vercel.app` |
+| `worker/.env` | `BACKEND_URL` | `https://your-backend.vercel.app` |
+| | `WORKER_SECRET` | khớp Vercel backend |

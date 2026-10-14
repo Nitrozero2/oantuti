@@ -30,10 +30,26 @@ export async function POST(request: Request) {
     agent1_id, agent2_id,
     outcome, winner_agent_id, win_reason, total_moves,
     is_infra_error, infra_error_detail, moves_history,
+    event,
   } = body as Record<string, unknown>;
 
   if (typeof match_id !== "number" || typeof session_id !== "number")
     return NextResponse.json({ error: "match_id and session_id required." }, { status: 400 });
+
+  // Event = "started": worker vừa bắt đầu chạy trận → set running
+  if (event === "started") {
+    try {
+      await sql`
+        UPDATE tournament_matches
+        SET status = 'running', backend_match_id = ${typeof backend_match_id === "string" ? backend_match_id : null}
+        WHERE id = ${match_id} AND status = 'scheduled'
+      `;
+      return NextResponse.json({ ok: true, event: "started" });
+    } catch (err) {
+      console.error("match-result started failed:", err);
+      return NextResponse.json({ error: "DB error." }, { status: 500 });
+    }
+  }
 
   const isInfra = is_infra_error === true;
   const outcomeStr = typeof outcome === "string" ? outcome : null;

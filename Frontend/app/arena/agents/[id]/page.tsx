@@ -209,7 +209,7 @@ export default function AgentDetailPage() {
                   <tr className="border-b border-[#ded8d3] bg-stone-50 text-left text-xs font-bold text-slate-600">
                     <th className="px-4 py-3">Đối thủ</th>
                     <th className="px-4 py-3">Kết quả</th>
-                    <th className="px-4 py-3 text-right">ELO ±</th>
+                    <th className="px-4 py-3 text-right">Rating ±</th>
                     <th className="px-4 py-3 text-right">Nước</th>
                     <th className="px-4 py-3 text-right">Ngày</th>
                     <th className="px-4 py-3"></th>
@@ -279,7 +279,7 @@ export default function AgentDetailPage() {
                         <td className="px-4 py-2.5 text-right">
                           {m.status === "finished" && !m.is_infra_error && (
                             <Link
-                              href={`/arena/replay/${m.id}`}
+                              href={`/arena/replay/rating/${m.id}`}
                               className="rounded-none border border-[#253B80] px-2.5 py-1 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
                             >
                               ▶ Replay
@@ -308,7 +308,7 @@ export default function AgentDetailPage() {
                     <th className="px-4 py-3">Phiên bản</th>
                     <th className="px-4 py-3">Tên</th>
                     <th className="px-4 py-3">Trạng thái</th>
-                    <th className="px-4 py-3 text-right">ELO</th>
+                    <th className="px-4 py-3 text-right">Rating</th>
                     <th className="px-4 py-3 text-right">W / L / D</th>
                     <th className="px-4 py-3 text-right">Ngày nộp</th>
                   </tr>
