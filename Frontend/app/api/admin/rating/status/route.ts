@@ -8,7 +8,7 @@ export async function GET() {
   const session = await getSession();
   if (!session?.is_admin) return NextResponse.json({ error: "Không có quyền." }, { status: 403 });
   try {
-    const [summary, agents, matches, scheduler] = await Promise.all([
+    const [summary, agents, matches, scheduler, policy] = await Promise.all([
       sql`
         SELECT
           COUNT(*) FILTER (WHERE kind = 'rating' AND status = 'scheduled')::int AS rating_scheduled,
@@ -18,16 +18,25 @@ export async function GET() {
         FROM rated_matches
       `,
       sql`
-        SELECT a.id::int, a.agent_name, u.username, a.rating, a.trueskill_mu, a.trueskill_sigma,
-          a.wins, a.losses, a.draws
-        FROM arena_agents a
+        SELECT a.*, u.username, original.wins, original.losses, original.draws,
+          CASE WHEN a.schedule_state IN ('calibrating','uncertain','refresh_due') AND NOT EXISTS (
+            SELECT 1 FROM rating_agent_schedule opponent
+            WHERE opponent.id <> a.id AND opponent.user_id <> a.user_id AND NOT opponent.busy
+              AND opponent.budget_remaining > 0 AND (opponent.backoff_until IS NULL OR opponent.backoff_until <= NOW())
+              AND NOT EXISTS (
+                SELECT 1 FROM rated_matches recent WHERE recent.kind='rating' AND recent.status <> 'cancelled'
+                  AND LEAST(recent.agent1_id,recent.agent2_id)=LEAST(a.id,opponent.id)
+                  AND GREATEST(recent.agent1_id,recent.agent2_id)=GREATEST(a.id,opponent.id)
+                  AND COALESCE(recent.finished_at,recent.started_at,recent.scheduled_at) > NOW()-make_interval(secs => a.pair_cooldown_seconds)
+              )
+          ) THEN 'no_available_opponent' ELSE NULL END AS waiting_reason
+        FROM rating_agent_schedule a
+        JOIN arena_agents original ON original.id = a.id
         JOIN users u ON u.id = a.user_id
-        WHERE a.status = 'active' AND a.is_active = true
-        ORDER BY a.trueskill_sigma DESC, a.submitted_at ASC
-        LIMIT 30
+        ORDER BY a.games_24h, a.last_finished_at ASC NULLS FIRST, a.trueskill_sigma DESC, a.id
       `,
       sql`
-        SELECT m.id::int, m.status, m.outcome, m.is_infra_error, m.finished_at,
+        SELECT m.id::int, m.status, m.outcome, m.is_infra_error, m.finished_at, m.scheduling_reason, m.selection_mode,
           a1.agent_name AS agent1_name, a2.agent_name AS agent2_name,
           m.agent1_mu_before, m.agent1_sigma_before, m.agent1_mu_after, m.agent1_sigma_after,
           m.agent2_mu_before, m.agent2_sigma_before, m.agent2_mu_after, m.agent2_sigma_after,
@@ -40,8 +49,9 @@ export async function GET() {
         LIMIT 20
       `,
       sql`SELECT enabled FROM rating_scheduler_state WHERE id = true`,
+      sql`SELECT * FROM rating_scheduler_policy WHERE id = true`,
     ]);
-    return NextResponse.json({ summary: summary[0] ?? {}, agents, matches, scheduler_enabled: scheduler[0]?.enabled === true });
+    return NextResponse.json({ summary: summary[0] ?? {}, agents, matches, scheduler_enabled: scheduler[0]?.enabled === true, policy: policy[0] });
   } catch (error) {
     console.error("Rating admin status failed:", error);
     return NextResponse.json({ error: "Không thể tải trạng thái rating." }, { status: 500 });

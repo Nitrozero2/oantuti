@@ -77,7 +77,7 @@ export function rate1v1(a: TrueSkillRating, b: TrueSkillRating, outcome: TrueSki
     w = v * (v + t);
   }
 
-  const multiplier = rank / c;
+  const multiplier = (outcome === "draw" ? 1 : rank) / c;
   const shrink = w / (c * c);
   return {
     agent1: {

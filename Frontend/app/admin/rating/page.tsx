@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 
 type Status = {
   summary: { rating_scheduled?: number; rating_running?: number; validating?: number; rating_finished?: number };
-  agents: Array<{ id: number; agent_name: string; username: string; rating: number; trueskill_mu: number; trueskill_sigma: number; wins: number; losses: number; draws: number }>;
+  agents: Array<ScheduledAgent & { id: number; agent_name: string; username: string; rating: number; trueskill_mu: number; trueskill_sigma: number }>;
   matches: Array<{
     id: number; status: string; outcome: string | null; is_infra_error: boolean; finished_at: string | null;
     agent1_name: string; agent2_name: string;
@@ -15,7 +15,14 @@ type Status = {
     rating_delta_agent1: number | null; rating_delta_agent2: number | null;
   }>;
   scheduler_enabled: boolean;
+  policy?: { minimum_games: number; stable_sigma: number; daily_budget: number; refresh_hours: number };
 };
+
+const scheduleLabels: Record<string, string> = { busy: "Có trận chờ/đang chạy", budget_exhausted: "Hết ngân sách hôm nay",
+  infra_backoff: "Tạm nghỉ do lỗi hạ tầng", calibrating: "Đang hiệu chỉnh", uncertain: "Cần tăng độ tin cậy",
+  refresh_due: "Đến hạn kiểm tra", stable: "Đã ổn định" };
+type ScheduledAgent = { valid_games: number; games_24h: number; budget_remaining: number;
+  schedule_state: string; next_evaluation_at: string | null; waiting_reason?: string | null };
 
 function confidence(sigma: number) {
   return Math.max(0, Math.min(100, Math.round((1 - sigma / (25 / 3)) * 100)));
@@ -26,13 +33,24 @@ export default function AdminRatingPage() {
   const [error, setError] = useState("");
   const [rebuilding, setRebuilding] = useState(false);
   const [rebuildMessage, setRebuildMessage] = useState("");
+  const [changing, setChanging] = useState(false);
   const load = () => {
     fetch("/api/admin/rating/status")
       .then(async (response) => ({ ok: response.ok, body: await response.json() as Status & { error?: string } }))
-      .then(({ ok, body }) => ok ? setData(body) : setError(body.error ?? "Không có quyền."))
+      .then(({ ok, body }) => { if (ok) { setData(body); setError(""); } else setError(body.error ?? "Không có quyền."); })
       .catch(() => setError("Không thể tải trạng thái rating."));
   };
-  useEffect(load, []);
+  useEffect(() => { load(); const timer = setInterval(load, 15000); return () => clearInterval(timer); }, []);
+  async function toggleScheduler() {
+    setChanging(true);
+    try {
+      const response = await fetch("/api/admin/rating/control", { method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !data?.scheduler_enabled }) });
+      if (!response.ok) throw new Error("Không thể cập nhật scheduler.");
+      load();
+    } catch (err) { setError(err instanceof Error ? err.message : "Có lỗi xảy ra."); }
+    finally { setChanging(false); }
+  }
   async function rebuildHistory() {
     setRebuilding(true);
     setRebuildMessage("");
@@ -59,16 +77,18 @@ export default function AdminRatingPage() {
         <div className="mb-6 flex items-start justify-between border-b border-[#ded8d3] pb-5">
           <div>
             <h1 className="text-3xl font-extrabold">TrueSkill Queue</h1>
-            <p className="mt-1 text-sm text-slate-600">Agent có độ tin cậy thấp được ưu tiên ghép trận trước.</p>
+            <p className="mt-1 text-sm text-slate-600">Rating thích ứng · công bằng theo agent · kiểm tra lại mỗi {data?.policy?.refresh_hours ?? 24} giờ.</p>
           </div>
           <div className="flex gap-2">
+            <button disabled={!data || changing} onClick={toggleScheduler} className="border border-[#253B80] bg-white px-4 py-2 text-xs font-bold disabled:opacity-50">{changing ? "Đang lưu…" : data?.scheduler_enabled ? "Tạm dừng tạo rating" : "Bật tạo rating"}</button>
             <button onClick={rebuildHistory} disabled={rebuilding} className="border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50">{rebuilding ? "Đang dựng lại..." : "Dựng lại từ lịch sử"}</button>
             <button onClick={load} className="border border-[#ded8d3] bg-white px-4 py-2 text-xs font-bold hover:border-[#253B80]">Làm mới</button>
           </div>
         </div>
         {error && <p className="mb-4 border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
         {rebuildMessage && <p className="mb-4 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">{rebuildMessage}</p>}
-        {data && !data.scheduler_enabled && <p className="mb-4 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">Queue đang tắt để bảo toàn lịch sử. Chọn “Dựng lại từ lịch sử” để khởi tạo rating và bật queue.</p>}
+        {data && !data.scheduler_enabled && <p className="mb-4 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">Đang tạm dừng tạo rating. Validation và các job đã vào queue vẫn tiếp tục; không cần rebuild điểm để bật lại.</p>}
+        <p className="mb-4 text-xs text-slate-600">Ổn định khi đủ {data?.policy?.minimum_games ?? 10} trận hợp lệ và σ ≤ {data?.policy?.stable_sigma ?? 2.5}. Ngân sách {data?.policy?.daily_budget ?? 20} trận/agent/24 giờ, gồm lượt đã dành cho trận chờ/chạy. Agent ổn định vẫn có thể giúp đánh giá agent mới. Worker rảnh không đồng nghĩa phải tạo thêm rating.</p>
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             ["Đang self-play", summary?.validating ?? 0], ["Đang chờ", summary?.rating_scheduled ?? 0],
@@ -76,10 +96,21 @@ export default function AdminRatingPage() {
           ].map(([label, value]) => <div key={String(label)} className="border border-[#ded8d3] bg-white p-4"><p className="text-xs text-slate-500">{label}</p><p className="mt-1 text-2xl font-bold text-[#253B80]">{value}</p></div>)}
         </div>
         <div className="overflow-hidden border border-[#ded8d3] bg-white">
-          <div className="border-b border-[#ded8d3] px-4 py-3 text-sm font-bold">Ưu tiên tiếp theo</div>
-          <table className="w-full text-left text-sm"><thead className="bg-stone-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Agent</th><th className="px-4 py-3 text-right">Rating</th><th className="px-4 py-3 text-right">μ</th><th className="px-4 py-3 text-right">σ</th><th className="px-4 py-3 text-right">Tin cậy</th></tr></thead>
-            <tbody>{data?.agents.map((agent) => <tr key={agent.id} className="border-t border-[#eee]"><td className="px-4 py-3"><Link className="font-bold text-[#253B80] hover:underline" href={`/arena/agents/${agent.id}`}>{agent.agent_name}</Link><span className="ml-2 text-xs text-slate-500">@{agent.username}</span></td><td className="px-4 py-3 text-right font-mono">{agent.rating}</td><td className="px-4 py-3 text-right font-mono">{Number(agent.trueskill_mu).toFixed(2)}</td><td className="px-4 py-3 text-right font-mono">{Number(agent.trueskill_sigma).toFixed(2)}</td><td className="px-4 py-3 text-right font-mono">{confidence(Number(agent.trueskill_sigma))}%</td></tr>)}</tbody>
-          </table>
+          <div className="border-b border-[#ded8d3] px-4 py-3 text-sm font-bold">Nhu cầu đánh giá theo agent</div>
+          <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="bg-stone-50 text-xs text-slate-500"><tr><th className="px-4 py-3">Agent</th><th className="px-4 py-3">Trạng thái / đánh giá tiếp</th><th className="px-4 py-3 text-right">Trận hợp lệ</th><th className="px-4 py-3 text-right">Còn lượt/24h</th><th className="px-4 py-3 text-right">Rating</th><th className="px-4 py-3 text-right">μ / σ</th><th className="px-4 py-3 text-right">Tin cậy</th></tr></thead>
+            <tbody>{data?.agents.map((agent) => <tr key={agent.id} className="border-t border-[#eee]">
+              <td className="px-4 py-3"><Link className="font-bold text-[#253B80] hover:underline" href={`/arena/agents/${agent.id}`}>{agent.agent_name}</Link><span className="ml-2 text-xs text-slate-500">@{agent.username}</span></td>
+              <td className="px-4 py-3"><span>{scheduleLabels[agent.schedule_state] ?? agent.schedule_state}</span>
+                <p className="mt-1 text-xs text-slate-500">{agent.waiting_reason ? "Chờ đối thủ khác chủ, còn ngân sách và hết cooldown."
+                  : agent.next_evaluation_at ? new Date(agent.next_evaluation_at).toLocaleString("vi-VN") : "Sau khi trận hiện tại kết thúc"}</p>
+              </td>
+              <td className="px-4 py-3 text-right font-mono">{agent.valid_games}</td>
+              <td className="px-4 py-3 text-right font-mono">{agent.budget_remaining}</td>
+              <td className="px-4 py-3 text-right font-mono">{agent.rating}</td>
+              <td className="px-4 py-3 text-right font-mono">{Number(agent.trueskill_mu).toFixed(2)} / {Number(agent.trueskill_sigma).toFixed(2)}</td>
+              <td className="px-4 py-3 text-right font-mono">{confidence(Number(agent.trueskill_sigma))}%</td>
+            </tr>)}</tbody>
+          </table></div>
         </div>
         <div className="mt-6 overflow-hidden border border-[#ded8d3] bg-white">
           <div className="border-b border-[#ded8d3] px-4 py-3 text-sm font-bold">Lịch sử cập nhật TrueSkill</div>

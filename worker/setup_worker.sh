@@ -149,7 +149,7 @@ if [ ! -f ".env" ]; then
   exit 1
 fi
 echo "Starting worker $(hostname)..."
-./venv/bin/python3 worker.py
+exec ./venv/bin/python3 worker.py "$@"
 RUN
 chmod +x run_worker.sh
 info "Tạo run_worker.sh"

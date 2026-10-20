@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { sql, withRetry } from "@/lib/db";
-import { getSession } from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -21,20 +20,17 @@ function buildInitialBoard() {
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
-
   const { id } = await params;
   const matchId = Number(id);
-  if (!Number.isInteger(matchId)) return NextResponse.json({ error: "ID không hợp lệ." }, { status: 400 });
+  if (!Number.isSafeInteger(matchId) || matchId < 1) return NextResponse.json({ error: "ID không hợp lệ." }, { status: 400 });
 
   try {
     const matches = await withRetry(() => sql`
-      SELECT m.id, m.status, m.outcome, m.win_reason, m.total_moves, m.is_infra_error,
+      SELECT m.id, m.status, m.outcome, CASE WHEN m.is_infra_error THEN 'Lỗi hạ tầng' ELSE m.win_reason END AS win_reason, m.total_moves, m.is_infra_error,
         m.rating_delta_agent1 AS elo_delta_agent1, m.rating_delta_agent2 AS elo_delta_agent2,
         m.finished_at,
-        a1.id AS agent1_id, a1.agent_name AS agent1_name, u1.username AS agent1_username,
-        a2.id AS agent2_id, a2.agent_name AS agent2_name, u2.username AS agent2_username,
+        a1.id AS agent1_id, a1.agent_name AS agent1_name, (SELECT COALESCE((SELECT name FROM teams WHERE id=a1.team_id),u1.username)) AS agent1_username,
+        a2.id AS agent2_id, a2.agent_name AS agent2_name, (SELECT COALESCE((SELECT name FROM teams WHERE id=a2.team_id),u2.username)) AS agent2_username,
         winner.agent_name AS winner_name, NULL::text AS session_name
       FROM rated_matches m
       JOIN arena_agents a1 ON a1.id = m.agent1_id
@@ -42,9 +38,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       JOIN arena_agents a2 ON a2.id = m.agent2_id
       JOIN users u2 ON u2.id = a2.user_id
       LEFT JOIN arena_agents winner ON winner.id = m.winner_agent_id
-      WHERE m.id = ${matchId} AND m.kind = 'rating'
+      WHERE m.id = ${matchId} AND m.kind = 'rating' AND a1.is_public AND a2.is_public
     `);
     if (matches.length === 0) return NextResponse.json({ error: "Trận không tồn tại." }, { status: 404 });
+    if (matches[0].status !== 'finished' || matches[0].is_infra_error)
+      return NextResponse.json({ error: 'Trận chưa hoàn thành hoặc không có replay hợp lệ.' }, { status: 409 });
 
     const moves = await withRetry(() => sql`
       SELECT move_number, player, from_col, from_row, to_col, to_row,
@@ -53,6 +51,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       WHERE rated_match_id = ${matchId}
       ORDER BY move_number ASC
     `);
+    if (!moves.length) return NextResponse.json({ error: 'Trận này không có dữ liệu replay.' }, { status: 409 });
     return NextResponse.json({ match: matches[0], moves, initial_board: buildInitialBoard() });
   } catch (error) {
     console.error("Rating replay fetch failed:", error);

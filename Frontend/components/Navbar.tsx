@@ -18,28 +18,42 @@ export default function Navbar({ initialUser }: { initialUser?: UserSession | nu
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!user) {
-      fetch("/api/auth/me")
+    setUser(initialUser ?? null);
+    let controller = new AbortController();
+    const load = () => {
+      controller.abort(); controller = new AbortController();
+      const active = controller;
+      fetch("/api/auth/me", { signal: active.signal, cache: 'no-store' })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
-          if (data?.authenticated && data.user) {
-            setUser(data.user);
-          }
+          if (!active.signal.aborted) setUser(data?.authenticated && data.user ? data.user : null);
         })
         .catch(() => {});
-    }
-  }, [user]);
+    };
+    const authChanged = () => { setUser(null); load(); };
+    const visible = () => { if (document.visibilityState === 'visible') load(); };
+    load();
+    window.addEventListener('arena:auth-changed', authChanged);
+    window.addEventListener('pageshow', load);
+    document.addEventListener('visibilitychange', visible);
+    return () => {
+      controller.abort();
+      window.removeEventListener('arena:auth-changed', authChanged);
+      window.removeEventListener('pageshow', load);
+      document.removeEventListener('visibilitychange', visible);
+    };
+  }, [initialUser, pathname]);
 
   const navLinks = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Bảng Xếp Hạng", href: "/arena/leaderboard" },
     { label: "Nộp Agent", href: "/arena/submit" },
-    { label: "Đấu Đối Kháng", href: "/arena/friendly" },
+    { label: "Thử sức", href: "/arena/friendly" },
   ];
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#ded8d3] bg-[#F5F0ED]/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         {/* Nhóm bên trái: Logo trường + OTTv2 Arena + Menu links */}
         <div className="flex flex-wrap items-center gap-3 sm:gap-6">
           {/* Logo trường */}
@@ -98,7 +112,9 @@ export default function Navbar({ initialUser }: { initialUser?: UserSession | nu
 
           <div className="hidden h-5 w-px bg-[#ded8d3] sm:block" />
 
-          <LogoutButton className="inline-flex cursor-pointer items-center gap-1.5 rounded-none border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 hover:border-rose-400" />
+          <Link href="/team" className="border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-semibold text-[#253B80]">Team</Link>
+          {user ? <LogoutButton className="inline-flex cursor-pointer items-center gap-1.5 rounded-none border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 hover:border-rose-400" />
+            : <div className="flex flex-wrap gap-2"><Link href="/login" className="border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-semibold text-[#253B80]">Đăng nhập</Link><Link href="/register" className="border border-[#253B80] bg-[#253B80] px-3 py-1.5 text-xs font-semibold text-white">Đăng ký</Link></div>}
         </div>
       </div>
     </header>

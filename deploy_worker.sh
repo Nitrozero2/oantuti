@@ -11,7 +11,7 @@
 # Cài lần đầu (--setup):
 #   ./deploy_worker.sh --setup tuan@192.168.1.100
 #
-# Sau khi deploy, worker tự động restart nếu đang chạy.
+# Sau khi deploy, drain worker từ frontend rồi restart đúng supervisor service.
 # =============================================================================
 set -e
 
@@ -54,6 +54,8 @@ step "Syncing game_engine.py từ backend..."
 # Files cần deploy
 DEPLOY_FILES=(
   "worker.py"
+  "supervisor.py"
+  "runtime.py"
   "game_engine.py"
   "requirements.txt"
   ".env.example"
@@ -90,14 +92,10 @@ for HOST in "${HOSTS[@]}"; do
     ssh "$HOST" "cd $REMOTE_DIR && [ -d venv ] && ./venv/bin/pip install -q -r requirements.txt || true"
   fi
 
-  # Restart worker nếu đang chạy
-  WORKER_PID=$(ssh "$HOST" "pgrep -f 'python3 worker.py' 2>/dev/null | head -1" 2>/dev/null || true)
-  if [ -n "$WORKER_PID" ]; then
-    info "Restarting worker (PID=$WORKER_PID)..."
-    ssh "$HOST" "kill -9 \$(pgrep -f 'python3 worker.py' 2>/dev/null) 2>/dev/null; sleep 1; cd $REMOTE_DIR && nohup ./run_worker.sh >> worker.log 2>&1 & echo 'Worker restarted PID='\$!"
-  else
-    info "Worker chưa chạy. Để chạy: ssh $HOST 'cd $REMOTE_DIR && ./run_worker.sh'"
-  fi
+  # Do not kill every named supervisor on the host. Operators can drain workers
+  # in /admin/workers, then restart their exact service after updating files.
+  info "Files updated. Drain the target worker in /admin/workers before restarting its supervisor service."
+  info "Start command: ssh $HOST 'cd $REMOTE_DIR && ./run_worker.sh'"
 
   info "✅ $HOST done"
 done

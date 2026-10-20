@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import Navbar from "@/components/Navbar";
 import leaderboardImg from "@/source/images/leaderboard.png";
@@ -11,7 +10,6 @@ export const runtime = "nodejs";
 
 export default async function DashboardPage() {
   const session = await getSession();
-  if (!session) redirect("/login");
 
   const features = [
     {
@@ -27,8 +25,8 @@ export default async function DashboardPage() {
       image: submitImg,
     },
     {
-      title: "Đấu Đối Kháng",
-      description: "Chọn hai agent bất kỳ để so tài trực tiếp trên bàn cờ 9x9 không tính điểm rank.",
+      title: "Thử sức",
+      description: "Thử sức riêng tư với agent public của người khác, tối đa 10 trận/ngày và không ảnh hưởng rating.",
       href: "/arena/friendly",
       image: competeImg,
     },
@@ -76,7 +74,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* ─── KHU VỰC DÀNH CHO ADMIN (NẾU CÓ) ─────────────────────────── */}
-        {session.is_admin && (
+        {session?.is_admin && (
           <section className="mt-12 w-full rounded-none border border-[#ded8d3] bg-white p-6 shadow-md sm:p-7">
             <div className="mb-4 flex items-center justify-between border-b border-[#ded8d3] pb-3">
               <div className="flex items-center gap-2">
@@ -88,6 +86,7 @@ export default async function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              <Link href="/admin/teams" className="border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center text-sm font-bold">Quản lý teams</Link>
               <Link
                 href="/admin/rating"
                 className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"
@@ -113,6 +112,10 @@ export default async function DashboardPage() {
                 <span className="text-xl">⚙️</span>
                 <span className="text-xs font-bold text-[#1a1e29]">Cài Đặt</span>
                 <span className="text-[10px] text-slate-500">Backend Tunnel URL</span>
+              </Link>
+              <Link href="/admin/workers" className="flex flex-col items-center gap-1.5 border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80]">
+                <span className="text-xl">🖥️</span><span className="text-xs font-bold">Quản lý worker</span>
+                <span className="text-[10px] text-slate-500">Bật/dừng & giới hạn job</span>
               </Link>
             </div>
           </section>

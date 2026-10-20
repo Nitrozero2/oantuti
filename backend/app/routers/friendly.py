@@ -1,43 +1,43 @@
-"""
-Router: /friendly - Friendly match task queue cho worker.
-
-Worker poll endpoint này để lấy friendly match tasks và chạy local engine.
-Frontend enqueue task vào đây thay vì tự chạy step-by-step.
-"""
+"""Queue endpoints for friendly matches."""
 
 import json
 import logging
 from fastapi import APIRouter, Header, HTTPException
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
 
 from ..redis_client import get_redis
 from ..config import get_settings
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter(prefix="/friendly", tags=["Friendly"])
-
-FRIENDLY_TASK_TTL = 86400  # 24h
 
 
 class EnqueueFriendlyRequest(BaseModel):
     friendly_match_id: int
     agent1_id: int
-    agent1_code: str
+    agent1_code: str = Field(max_length=131072)
     agent2_id: int
-    agent2_code: str
-    max_moves: int = 300
-    callback_url: str = "http://localhost:3000"
+    agent2_code: str = Field(max_length=131072)
+    max_moves: int = Field(default=150, ge=50, le=1000)
 
 
-@router.post("/enqueue", summary="Enqueue friendly match task cho worker")
-async def enqueue_friendly_task(req: EnqueueFriendlyRequest):
+def _require_internal_secret(x_internal_secret: str | None) -> None:
+    settings = get_settings()
+    if x_internal_secret != settings.internal_backend_secret:
+        raise HTTPException(status_code=401, detail="Invalid internal secret.")
+
+
+@router.post("/enqueue", summary="[Internal] Enqueue a friendly match")
+async def enqueue_friendly_task(
+    req: EnqueueFriendlyRequest,
+    x_internal_secret: str | None = Header(None, alias="X-Internal-Secret"),
+):
     """
-    Frontend gọi để đẩy friendly match task vào unified worker queue.
-    Worker sẽ poll /worker/tasks/claim để nhận task và chạy local engine.
+    Next.js server → FastAPI để enqueue một trận friendly.
+    callback_url do worker tự biết qua FRONTEND_URL env; không nhận từ request.
     """
-    redis = get_redis()
+    _require_internal_secret(x_internal_secret)
+
     task = {
         "task_type": "friendly",
         "friendly_match_id": req.friendly_match_id,
@@ -45,45 +45,17 @@ async def enqueue_friendly_task(req: EnqueueFriendlyRequest):
         "agent1_code": req.agent1_code,
         "agent2_id": req.agent2_id,
         "agent2_code": req.agent2_code,
-        "max_moves": req.max_moves,
-        "callback_url": req.callback_url,
+        "max_moves": min(req.max_moves, 150),
+        # callback_url bỏ qua — worker dùng FRONTEND_URL env var
     }
-    await redis.enqueue_worker_task(json.dumps(task))
-    logger.info(f"Enqueued friendly task for match #{req.friendly_match_id} → unified queue")
+    await get_redis().enqueue_worker_task(json.dumps(task))
+    logger.info("Enqueued friendly task #%s", req.friendly_match_id)
     return {"ok": True, "queued": True, "friendly_match_id": req.friendly_match_id}
-
-
-@router.post("/tasks/claim", summary="[Worker] Lấy friendly task tiếp theo")
-async def claim_friendly_task(
-    worker_id: str,
-    x_worker_secret: str = Header(None, alias="X-Worker-Secret"),
-):
-    """
-    Worker poll endpoint này để lấy friendly match task.
-    Trả về task dict hoặc {"task": null} nếu queue rỗng.
-    """
-    settings = get_settings()
-    if x_worker_secret != settings.worker_secret:
-        raise HTTPException(status_code=401, detail="Worker secret không hợp lệ.")
-
-    redis = get_redis()
-    raw = await redis.dequeue_friendly_task()
-    if not raw:
-        return {"task": None}
-
-    try:
-        task = json.loads(raw)
-    except Exception:
-        logger.warning(f"Invalid friendly task JSON: {raw[:100]}")
-        return {"task": None}
-
-    logger.info(f"Worker {worker_id} claimed friendly task match#{task.get('friendly_match_id')}")
-    return {"task": task}
 
 
 @router.get("/queue/depth", summary="Độ sâu friendly task queue")
 async def friendly_queue_depth():
-    """Trả về số lượng friendly tasks đang chờ trong queue."""
+    """Số task friendly đang chờ trong unified queue (không phân biệt loại)."""
     redis = get_redis()
-    depth = await redis.friendly_queue_depth()
+    depth = await redis.worker_queue_depth()
     return {"queue_depth": depth}

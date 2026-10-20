@@ -50,3 +50,2498 @@ The `fetchConnectionCache` option is deprecated (now always `true`)
 The `fetchConnectionCache` option is deprecated (now always `true`)
  POST /api/tournament/match-result 200 in 2484ms
  GET /api/admin/system-status 200 in 1102ms
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+
+ ✓ Starting...
+ ✓ Ready in 388ms
+The `fetchConnectionCache` option is deprecated (now always `true`)
+Login failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async A (.next/server/app/api/auth/login/route.js:1:3836)
+    at async k (.next/server/app/api/auth/login/route.js:6:3063)
+    at async g (.next/server/app/api/auth/login/route.js:6:4066) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async h (.next/server/app/api/arena/agents/[id]/route.js:49:34)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:276)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8008)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+
+ ✓ Starting...
+ ✓ Ready in 437ms
+The `fetchConnectionCache` option is deprecated (now always `true`)
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8060)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:44:8060)
+    at async l (.next/server/app/api/arena/agents/[id]/route.js:81:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating admin status failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/agents/route.js:1:1414)
+    at async g (.next/server/app/api/admin/agents/route.js:1:875)
+    at async z (.next/server/app/api/admin/rating/status/route.js:1:3637)
+    at async k (.next/server/app/api/admin/rating/status/route.js:28:3039) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+
+ ✓ Starting...
+ ✓ Ready in 401ms
+The `fetchConnectionCache` option is deprecated (now always `true`)
+Login failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async A (.next/server/app/api/auth/login/route.js:1:3836)
+    at async k (.next/server/app/api/auth/login/route.js:6:3063)
+    at async g (.next/server/app/api/auth/login/route.js:6:4066) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Login failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async A (.next/server/app/api/auth/login/route.js:1:3836)
+    at async k (.next/server/app/api/auth/login/route.js:6:3063)
+    at async g (.next/server/app/api/auth/login/route.js:6:4066) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at execute (.next/server/chunks/9608.js:30:2423)
+    at async B (.next/server/app/api/rating/match-result/route.js:36:527)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938)
+    at async H (.next/server/app/api/rating/match-result/route.js:85:5060) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at execute (.next/server/chunks/9608.js:30:2423)
+    at async B (.next/server/app/api/rating/match-result/route.js:36:527)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938)
+    at async H (.next/server/app/api/rating/match-result/route.js:85:5060) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at execute (.next/server/chunks/9608.js:30:2423)
+    at async B (.next/server/app/api/rating/match-result/route.js:36:527)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938)
+    at async H (.next/server/app/api/rating/match-result/route.js:85:5060) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at execute (.next/server/chunks/9608.js:30:2423)
+    at async B (.next/server/app/api/rating/match-result/route.js:36:527)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938)
+    at async H (.next/server/app/api/rating/match-result/route.js:85:5060) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/rebuild/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/rebuild/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/route.js:1:2881)
+    at async l (.next/server/app/api/arena/agents/route.js:38:67)
+    at async z (.next/server/app/api/rating/dispatch/route.js:38:1378)
+    at async k (.next/server/app/api/rating/dispatch/route.js:38:4220) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+
+ ✓ Starting...
+ ✓ Ready in 399ms
+The `fetchConnectionCache` option is deprecated (now always `true`)
+Rating dispatcher failed: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async g (.next/server/app/api/arena/agents/[id]/route.js:1:628)
+    at async z (.next/server/app/api/rating/dispatch/route.js:3:3801)
+    at async k (.next/server/app/api/rating/dispatch/route.js:3:6643) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:1:5406)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at bj.execute (.next/server/chunks/9608.js:30:2423)
+    at async (.next/server/app/api/admin/rating/control/route.js:1:1414)
+    at async g (.next/server/app/api/admin/rating/control/route.js:1:875)
+    at async B (.next/server/app/api/rating/match-result/route.js:13:448)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}
+[rating/match-result] error: Error [NeonDbError]: Error connecting to database: TypeError: fetch failed
+    at execute (.next/server/chunks/9608.js:30:2423)
+    at async B (.next/server/app/api/rating/match-result/route.js:36:527)
+    at async k (.next/server/app/api/rating/match-result/route.js:85:2935)
+    at async g (.next/server/app/api/rating/match-result/route.js:85:3938)
+    at async H (.next/server/app/api/rating/match-result/route.js:85:5060) {
+  severity: undefined,
+  code: undefined,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined,
+  sourceError: [TypeError: fetch failed] {
+    [cause]: [AggregateError: ] { code: 'ETIMEDOUT' }
+  }
+}

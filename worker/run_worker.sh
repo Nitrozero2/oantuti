@@ -6,7 +6,7 @@ if [ ! -f ".env" ]; then
 fi
 echo "Starting worker $(hostname)..."
 if [ -d "venv" ]; then
-  ./venv/bin/python3 worker.py
+  exec ./venv/bin/python3 worker.py "$@"
 else
-  python3 worker.py
+  exec python3 worker.py "$@"
 fi

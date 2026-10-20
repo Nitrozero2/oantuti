@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import {
   TRUESKILL,
   confidence,
@@ -25,6 +25,16 @@ test("a draw leaves equal players equal while reducing uncertainty", () => {
   assert.ok(Math.abs(rated.agent1.mu - rated.agent2.mu) < 1e-10);
   assert.ok(rated.agent1.sigma < initial.sigma);
   assert.ok(rated.agent2.sigma < initial.sigma);
+});
+
+test("a draw brings unequal players' means closer together", () => {
+  const stronger = { mu: 30, sigma: 5 };
+  const weaker = { mu: 20, sigma: 5 };
+  const rated = rate1v1(stronger, weaker, "draw");
+  assert.ok(rated.agent1.mu < stronger.mu);
+  assert.ok(rated.agent2.mu > weaker.mu);
+  const reversed = rate1v1(weaker, stronger, "draw");
+  assert.ok(Math.abs(rated.agent1.mu - reversed.agent2.mu) < 1e-10);
 });
 
 test("match quality favors nearby ratings and confidence rises as sigma falls", () => {

@@ -1,439 +1,133 @@
-"use client";
+'use client';
+import { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import type { RankedAgent } from '@/lib/leaderboard';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
-
-type LeaderboardEntry = {
-  agent_id: number;
-  agent_name: string;
-  description: string;
-  username: string;
-  version: number;
-  elo: number;
-  wins: number;
-  losses: number;
-  draws: number;
-  error_matches: number;
-  total_games: number;
-  win_rate: number;
-  submitted_at: string;
-};
-
-type RatingMatch = {
-  id: number;
-  status: string;
-  outcome: string | null;
-  win_reason: string;
-  total_moves: number;
-  is_infra_error: boolean;
-  elo_delta_agent1: number | null;
-  elo_delta_agent2: number | null;
-  scheduled_at: string;
-  finished_at: string | null;
-  agent1_id: number;
-  agent1_name: string;
-  agent1_username: string;
-  agent2_id: number;
-  agent2_name: string;
-  agent2_username: string;
-  winner_name: string | null;
-};
-
-const MEDALS = ["🥇", "🥈", "🥉"];
-
-function getTier(elo: number) {
-  if (elo >= 2000) return { label: "Grandmaster", color: "text-amber-700", bar: "bg-amber-500", emoji: "👑" };
-  if (elo >= 1800) return { label: "Master", color: "text-purple-700", bar: "bg-purple-600", emoji: "💎" };
-  if (elo >= 1600) return { label: "Expert", color: "text-[#253B80]", bar: "bg-[#253B80]", emoji: "🔷" };
-  if (elo >= 1400) return { label: "Intermediate", color: "text-teal-700", bar: "bg-teal-600", emoji: "🟢" };
-  return { label: "Novice", color: "text-slate-600", bar: "bg-slate-400", emoji: "⚪" };
-}
-
-function EloBar({ elo }: { elo: number }) {
-  const pct = Math.min(100, Math.max(0, ((elo - 800) / (2200 - 800)) * 100));
-  const tier = getTier(elo);
-  return (
-    <div className="flex items-center gap-1.5 mt-0.5">
-      <div className="h-1.5 w-16 rounded-none bg-stone-200 overflow-hidden border border-[#ded8d3]">
-        <div className={`h-full ${tier.bar}`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
-}
-
-export default function ArenaLeaderboardPage() {
-  const [tab, setTab] = useState<"rankings" | "matches">("rankings");
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[] | null>(null);
-  const [matches, setMatches] = useState<RatingMatch[] | null>(null);
-  const [error, setError] = useState("");
-  const router = useRouter();
-
-  // Load leaderboard
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/arena/leaderboard");
-        if (res.status === 401) {
-          router.push("/login");
-          return;
-        }
-        const data = (await res.json()) as { leaderboard?: LeaderboardEntry[]; error?: string };
-        if (data.error) {
-          setError(data.error);
-          return;
-        }
-        setLeaderboard(data.leaderboard ?? []);
-      } catch {
-        setError("Không thể kết nối máy chủ.");
+type Entry = { user_id: number; participant_key:string;team_id:number|null;kind:string;members:{id:number;username:string}[];recruiting:boolean;username: string; agent: RankedAgent; rank: number | null; approved_agents: number };
+type Data = { leaderboard: Entry[]; total: number; authenticated: boolean; me: (Entry & { page: number; eligible: boolean }) | null; counts: { rankings: number; calibrating: number } };
+const button = 'border border-[#ded8d3] bg-white px-4 py-2 text-sm hover:border-[#253B80] disabled:opacity-40';
+function AgentMenu({ entry }: { entry: Entry }) {
+  const [agents, setAgents] = useState<RankedAgent[] | null>(null);
+  const [error, setError] = useState('');
+  const [position, setPosition] = useState({ top: 160, left: 16 });
+  async function load() {
+    if (agents) return;
+    setError('');
+    try {
+      const res = await fetch(entry.team_id?`/api/arena/teams/${entry.team_id}/agents`:`/api/arena/users/${entry.user_id}/agents`);
+      if (!res.ok) throw new Error();
+      setAgents((await res.json()).agents);
+    } catch { setError('Không thể tải agents. Đóng và mở lại để thử.'); }
+  }
+  return <div className="flex items-center gap-2">
+    <Link aria-label={`Game History của ${entry.agent.agent_name}`} title="Game History của agent tốt nhất" href={`/arena/agents/${entry.agent.id}/history`} className="border border-[#ded8d3] px-2 py-1 text-[#253B80]">▣</Link>
+    {entry.approved_agents > 1 && <details className="relative" onKeyDown={e => { if (e.key === 'Escape') e.currentTarget.open = false; }} onToggle={e => {
+      if (e.currentTarget.open) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setPosition({ top: Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - 340)), left: Math.max(8, Math.min(rect.right - 288, window.innerWidth - 296)) });
+        void load();
       }
-    }
-    load();
-  }, [router]);
-
-  // Load matches
+    }}>
+      <summary aria-label={`Các agents của ${entry.username}`} className="cursor-pointer list-none px-2 py-1 text-xl">⋮</summary>
+      <div style={position} className="fixed z-50 max-h-80 w-72 overflow-y-auto border border-[#ded8d3] bg-white p-3 shadow-lg">
+        <p className="mb-2 text-xs text-slate-500">Agents đã qua validation</p>
+        {error && <p role="alert">{error}</p>}
+        {!agents && !error && <p>Đang tải…</p>}
+        {agents?.map(a => <Link key={a.id} href={`/arena/agents/${a.id}/history`} className="block border-b border-stone-100 py-3 hover:text-[#253B80]">
+          <strong>{a.agent_name}</strong><span className="block text-xs text-slate-500">v{a.version} · {a.elo} điểm · {a.scope_active===false?'Tạm ngừng rating':a.is_active ? Number(a.valid_games) >= 10 ? 'Đủ điều kiện' : `Hiệu chỉnh ${a.valid_games}/10` : 'Đã ngừng'} · Xem lịch sử →</span>
+        </Link>)}
+      </div>
+    </details>}
+  </div>;
+}
+type RecentMatch = { id: number; agent1_name: string; agent2_name: string; status: string; outcome: string | null };
+export default function ArenaLeaderboardPage() {
+  const [tab, setTab] = useState<'rankings' | 'calibrating' | 'matches'>('rankings');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [data, setData] = useState<Data | null>(null);
+  const [matches, setMatches] = useState<RecentMatch[]>([]);
+  const [error, setError] = useState('');
+  const [refresh, setRefresh] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [restored, setRestored] = useState(false);
+  const restoreScroll = useRef<number | null>(null);
   useEffect(() => {
-    if (tab !== "matches") return;
-    setMatches(null);
-    fetch("/api/rating/matches")
-      .then((r) => r.json())
-      .then((d: { matches?: RatingMatch[] }) => setMatches(d.matches ?? []))
-      .catch(() => setMatches([]));
-  }, [tab]);
-
-  function reloadMatches() {
-    setMatches(null);
-    fetch("/api/rating/matches")
-      .then((r) => r.json())
-      .then((d: { matches?: RatingMatch[] }) => setMatches(d.matches ?? []))
-      .catch(() => setMatches([]));
-  }
-
-  function reloadLeaderboard() {
-    setLeaderboard(null);
-    fetch("/api/arena/leaderboard")
-      .then((r) => r.json())
-      .then((d: { leaderboard?: LeaderboardEntry[] }) => setLeaderboard(d.leaderboard ?? []))
-      .catch(() => setLeaderboard([]));
-  }
-
-  return (
-    <div className="min-h-screen bg-[#F5F0ED] text-[#1a1e29]">
-      {/* Header đồng bộ */}
-      <Navbar />
-
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Tiêu đề & Các nút thao tác */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between border-b border-[#ded8d3] pb-6">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1e29] sm:text-4xl">
-              🏆 Bảng Xếp Hạng Arena
-            </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Xếp hạng liên tục bằng TrueSkill; điểm hiển thị đã tính đến độ tin cậy của agent.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2.5">
-            <Link
-              href="/arena/submit"
-              className="rounded-none bg-[#253B80] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#1d2e66]"
-            >
-              + Nộp agent
-            </Link>
-            <Link
-              href="/arena/friendly"
-              className="rounded-none border border-[#ded8d3] bg-white px-4 py-2 text-xs font-bold text-[#1a1e29] transition hover:border-[#253B80] hover:text-[#253B80]"
-            >
-              ⚔️ Đấu thử
-            </Link>
-            {tab === "rankings" && (
-              <button
-                onClick={reloadLeaderboard}
-                className="rounded-none border border-[#ded8d3] bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#253B80]"
-                title="Làm mới bảng xếp hạng"
-              >
-                🔄
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Tier legend: Khung thẳng */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {[
-            { emoji: "👑", label: "Grandmaster", min: 2000, c: "text-amber-800" },
-            { emoji: "💎", label: "Master", min: 1800, c: "text-purple-800" },
-            { emoji: "🔷", label: "Expert", min: 1600, c: "text-[#253B80]" },
-            { emoji: "🟢", label: "Intermediate", min: 1400, c: "text-teal-800" },
-            { emoji: "⚪", label: "Novice", min: 0, c: "text-slate-600" },
-          ].map((t) => (
-            <span
-              key={t.label}
-              className={`rounded-none border border-[#ded8d3] bg-white px-3 py-1 text-xs font-bold ${t.c}`}
-            >
-              {t.emoji} {t.label} {t.min > 0 ? `≥${t.min}` : "<1400"}
-            </span>
-          ))}
-        </div>
-
-        {/* Tabs: Khung thẳng */}
-        <div className="mb-6 flex gap-1 border border-[#ded8d3] bg-white p-1 w-fit rounded-none">
-          {(["rankings", "matches"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`rounded-none px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
-                tab === t
-                  ? "bg-[#253B80] text-white"
-                  : "text-slate-600 hover:text-[#253B80] hover:bg-stone-50"
-              }`}
-            >
-              {t === "rankings" ? "📊 Xếp hạng" : "📋 Lịch sử trận"}
-            </button>
-          ))}
-        </div>
-
-        {error && (
-          <div className="mb-6 rounded-none border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {error}
-            <br />
-            <span className="text-xs text-rose-600">Cần chạy trueskill_migration.sql trong Neon console.</span>
-          </div>
-        )}
-
-        {/* ── Rankings ── */}
-        {tab === "rankings" && (
-          <div className="overflow-hidden rounded-none border border-[#ded8d3] bg-white shadow-md">
-            {leaderboard === null && !error && (
-              <div className="flex items-center justify-center py-16">
-                <div className="h-8 w-8 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
-              </div>
-            )}
-            {leaderboard !== null && leaderboard.length === 0 && (
-              <div className="py-16 text-center">
-                <p className="mb-3 text-4xl">🤖</p>
-                <p className="mb-4 text-slate-500">Chưa có agent nào trong arena.</p>
-                <Link
-                  href="/arena/submit"
-                  className="rounded-none bg-[#253B80] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#1d2e66]"
-                >
-                  Nộp agent đầu tiên
-                </Link>
-              </div>
-            )}
-            {leaderboard !== null && leaderboard.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#ded8d3] bg-stone-50 text-left text-xs font-bold text-slate-600">
-                      <th className="px-4 py-3">#</th>
-                      <th className="px-4 py-3">Agent</th>
-                      <th className="px-4 py-3">Tier</th>
-                      <th className="px-4 py-3 text-right">Rating</th>
-                      <th className="px-4 py-3 text-right">W / L / D</th>
-                      <th className="px-4 py-3 text-right">Win%</th>
-                      <th className="px-4 py-3 text-right">Trận</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#ded8d3]">
-                    {leaderboard.map((e, i) => {
-                      const tier = getTier(e.elo);
-                      return (
-                        <tr key={e.agent_id} className="hover:bg-stone-50 transition">
-                          <td className="px-4 py-3 text-slate-600 font-bold">
-                            {i < 3 ? (
-                              <span className="text-base">{MEDALS[i]}</span>
-                            ) : (
-                              <span className="font-mono text-xs">{i + 1}</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <Link
-                              href={`/arena/agents/${e.agent_id}`}
-                              className="font-bold text-[#253B80] hover:underline"
-                            >
-                              {e.agent_name}
-                            </Link>
-                            <span className="ml-1.5 font-mono text-xs text-slate-500">v{e.version}</span>
-                            <span className="ml-1.5 text-xs text-slate-500">· {e.username}</span>
-                            {e.description && (
-                              <p className="max-w-[200px] truncate text-xs text-slate-500">
-                                {e.description}
-                              </p>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className={`text-xs font-bold ${tier.color}`}>
-                              {tier.emoji} {tier.label}
-                            </span>
-                            <EloBar elo={e.elo} />
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <span className={`font-mono font-bold text-base ${tier.color}`}>{e.elo}</span>
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-xs">
-                            <span className="font-bold text-emerald-600">{e.wins}</span>
-                            <span className="text-slate-400"> / </span>
-                            <span className="font-bold text-rose-600">{e.losses}</span>
-                            <span className="text-slate-400"> / </span>
-                            <span className="text-slate-600">{e.draws}</span>
-                            {e.error_matches > 0 && (
-                              <span className="ml-1 text-amber-600">⚠️{e.error_matches}</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            {e.total_games > 0 ? (
-                              <div className="flex items-center justify-end gap-1.5">
-                                <div className="h-1.5 w-12 rounded-none bg-stone-200 overflow-hidden border border-[#ded8d3]">
-                                  <div
-                                    className="h-full bg-emerald-600"
-                                    style={{ width: `${e.win_rate}%` }}
-                                  />
-                                </div>
-                                <span className="w-10 text-right font-mono text-xs font-bold text-emerald-700">
-                                  {e.win_rate}%
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-slate-400">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-right font-mono text-xs font-bold text-slate-600">
-                            {e.total_games}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Match history ── */}
-        {tab === "matches" && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={reloadMatches}
-                className="rounded-none border border-[#ded8d3] bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-[#253B80] cursor-pointer"
-              >
-                🔄 Làm mới
-              </button>
-            </div>
-
-            <div className="overflow-hidden rounded-none border border-[#ded8d3] bg-white shadow-md">
-              {matches === null ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="h-7 w-7 animate-spin rounded-none border-2 border-stone-300 border-t-[#253B80]" />
-                </div>
-              ) : matches.length === 0 ? (
-                <p className="py-12 text-center text-slate-500">Chưa có trận đấu nào.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-[#ded8d3] bg-stone-50 text-left text-xs font-bold text-slate-600">
-                        <th className="px-4 py-3">Agent 1</th>
-                        <th className="px-3 py-3 text-center">vs</th>
-                        <th className="px-4 py-3">Agent 2</th>
-                        <th className="px-4 py-3">Kết quả</th>
-                        <th className="px-4 py-3 text-right">Nước</th>
-                        <th className="px-4 py-3">Rating ±</th>
-                        <th className="px-4 py-3 text-right">Ngày</th>
-                        <th className="px-4 py-3"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#ded8d3]">
-                      {matches.map((m) => (
-                        <tr key={m.id} className="hover:bg-stone-50 transition">
-                          <td className="px-4 py-2.5">
-                            <Link
-                              href={`/arena/agents/${m.agent1_id}`}
-                              className="font-bold text-[#253B80] hover:underline"
-                            >
-                              {m.agent1_name}
-                            </Link>
-                            <p className="text-xs text-slate-500">{m.agent1_username}</p>
-                          </td>
-                          <td className="px-3 py-2.5 text-center text-xs font-bold text-slate-400">vs</td>
-                          <td className="px-4 py-2.5">
-                            <Link
-                              href={`/arena/agents/${m.agent2_id}`}
-                              className="font-bold text-rose-700 hover:underline"
-                            >
-                              {m.agent2_name}
-                            </Link>
-                            <p className="text-xs text-slate-500">{m.agent2_username}</p>
-                          </td>
-                          <td className="px-4 py-2.5">
-                            {m.is_infra_error ? (
-                              <span className="text-xs font-bold text-amber-600">⚠️ Lỗi hạ tầng</span>
-                            ) : m.winner_name ? (
-                              <span className="text-xs font-bold text-amber-700">🏆 {m.winner_name}</span>
-                            ) : m.outcome === "draw" ? (
-                              <span className="text-xs font-bold text-slate-600">Hòa</span>
-                            ) : (
-                              <span className="text-xs text-slate-400">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-2.5 text-right font-mono text-xs text-slate-600">
-                            {m.total_moves}
-                          </td>
-                          <td className="px-4 py-2.5 font-mono text-xs">
-                            {!m.is_infra_error && m.elo_delta_agent1 != null && (
-                              <span>
-                                <span
-                                  className={
-                                    m.elo_delta_agent1 >= 0 ? "font-bold text-emerald-600" : "font-bold text-rose-600"
-                                  }
-                                >
-                                  {m.elo_delta_agent1 >= 0 ? "+" : ""}
-                                  {m.elo_delta_agent1}
-                                </span>
-                                <span className="text-slate-400"> / </span>
-                                <span
-                                  className={
-                                    m.elo_delta_agent2 != null && m.elo_delta_agent2 >= 0
-                                      ? "font-bold text-emerald-600"
-                                      : "font-bold text-rose-600"
-                                  }
-                                >
-                                  {m.elo_delta_agent2 != null && m.elo_delta_agent2 >= 0 ? "+" : ""}
-                                  {m.elo_delta_agent2}
-                                </span>
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-2.5 text-right text-xs text-slate-500">
-                            {m.finished_at ? new Date(m.finished_at).toLocaleDateString("vi-VN") : "—"}
-                          </td>
-                          <td className="px-4 py-2.5 text-right">
-                            {m.status === "finished" && !m.is_infra_error && (
-                              <Link
-                                href={`/arena/replay/rating/${m.id}`}
-                                className="rounded-none border border-[#253B80] px-2.5 py-1 text-xs font-bold text-[#253B80] hover:bg-[#253B80] hover:text-white transition"
-                              >
-                                ▶ Replay
-                              </Link>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <p className="mt-8 text-center text-xs text-slate-500">
-          Top 100 · TrueSkill · Không tính trận lỗi hạ tầng · Nền tảng OTTv2 Arena
-        </p>
-      </main>
-    </div>
-  );
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('arena-leaderboard-view') ?? 'null');
+      if (saved && ['rankings', 'calibrating', 'matches'].includes(saved.tab)) {
+        setTab(saved.tab); setSearch(typeof saved.search === 'string' ? saved.search : '');
+        setPage(Number.isSafeInteger(saved.page) && saved.page > 0 ? saved.page : 1);
+        restoreScroll.current = Number(saved.scroll) || 0;
+      }
+    } catch { /* Storage is optional. */ }
+    setRestored(true);
+  }, []);
+  useEffect(() => {
+    if (!restored) return;
+    const save = () => { try { sessionStorage.setItem('arena-leaderboard-view', JSON.stringify({ tab, search, page, scroll: window.scrollY })); } catch { /* Storage is optional. */ } };
+    save(); window.addEventListener('scroll', save, { passive: true });
+    return () => window.removeEventListener('scroll', save);
+  }, [restored, tab, search, page]);
+  useEffect(() => {
+    if (!loading && restoreScroll.current !== null) { window.scrollTo(0, restoreScroll.current); restoreScroll.current = null; }
+  }, [loading]);
+  useEffect(() => {
+    const timer = setInterval(() => { if (document.visibilityState === 'visible') setRefresh(v => v + 1); }, 15000);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const url = tab === 'matches' ? `/api/rating/matches?page=${page}` : `/api/arena/leaderboard?tab=${tab}&page=${page}&search=${encodeURIComponent(search)}`;
+        const res = await fetch(url, { signal: controller.signal });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error);
+        if (tab === 'matches') setMatches(body.matches); else setData(body);
+        setError('');
+      } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : 'Không thể tải dữ liệu.'); }
+      finally { if (!controller.signal.aborted) setLoading(false); }
+    }, 200);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [tab, search, page, refresh]);
+  return <div className="min-h-screen bg-[#F5F0ED] text-[#1a1e29]"><Navbar />
+    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div><h1 className="text-3xl font-bold">Leaderboard</h1><p className="mt-2 text-sm text-slate-500">Arena · Xếp hạng TrueSkill liên tục</p></div>
+        <div className="flex gap-2"><Link href="/arena/submit" className={button}>+ Nộp agent</Link><button className={button} onClick={() => setRefresh(v => v + 1)}>↻ Làm mới</button></div>
+      </header>
+      <div className="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Bảng xếp hạng">
+        {(['rankings', 'calibrating', 'matches'] as const).map(t => <button role="tab" aria-selected={tab === t} key={t} className={`${button} ${tab === t ? 'font-bold text-[#253B80] border-[#253B80]' : ''}`} onClick={() => { setTab(t); setPage(1); setData(null); setMatches([]); }}>
+          {t === 'rankings' ? `Bảng xếp hạng (${data?.counts.rankings ?? '—'})` : t === 'calibrating' ? `Đang hiệu chỉnh (${data?.counts.calibrating ?? '—'})` : 'Trận gần đây'}
+        </button>)}
+      </div>
+      {tab !== 'matches' && <>
+        <input aria-label="Tìm leaderboard" placeholder="Tìm username hoặc agent…" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="mb-4 w-full rounded-full border border-[#ded8d3] bg-white px-5 py-3" />
+        <p className="mb-5 max-w-4xl text-sm text-slate-600">Mỗi cá nhân hoặc team được xếp hạng bằng agent tốt nhất có ít nhất 10 trận rating hợp lệ. Khi đang thuộc team, agent cá nhân được giữ riêng nhưng tạm ngừng rating và không tạo thêm vị trí cá nhân. Điểm tính theo μ − 3σ.</p>
+        {data?.me ? <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border border-[#ded8d3] bg-white p-3 text-sm">
+          <span>Vị trí của tôi: <strong>{data.me.rank ? `#${data.me.rank}` : 'Đang hiệu chỉnh'}</strong> · {data.me.agent.elo} điểm</span>
+          <button className="text-[#253B80] underline" onClick={() => { setSearch(''); setTab(data.me!.eligible ? 'rankings' : 'calibrating'); setPage(data.me!.page); }}>Vị trí của tôi →</button>
+        </div> : data && <p className="mb-4 text-sm"><Link className="text-[#253B80] underline" href={data.authenticated ? '/arena/submit' : '/login'}>{data.authenticated ? 'Nộp agent để tham gia xếp hạng' : 'Đăng nhập để nộp agent và xem vị trí của bạn'}</Link></p>}
+      </>}
+      {error && <p role="alert" className="mb-4 border border-rose-200 bg-white p-4 text-rose-700">{error}</p>}
+      {loading && <p role="status" className="mb-2 text-xs text-slate-500">Đang cập nhật…</p>}
+      {tab !== 'matches' ? <div className="min-h-64 rounded-xl border border-[#ded8d3] bg-white">
+        <div className="overflow-x-auto pb-3"><table className="w-full text-left text-sm">
+          <thead><tr className="border-b border-[#ded8d3] text-slate-500">{['#', 'Người chơi', 'Agent tốt nhất', 'Điểm', 'W / L / D', 'Lần đấu cuối', 'Agents'].map(h => <th key={h} className="px-5 py-4 whitespace-nowrap">{h}</th>)}</tr></thead>
+          <tbody>{data?.leaderboard.map(e => <tr key={e.participant_key} data-user-id={e.user_id} data-participant={e.participant_key} className={`border-b border-stone-100 ${e.participant_key === data.me?.participant_key ? 'bg-blue-50' : ''}`}>
+            <td className="px-5 py-5">{e.rank ?? '—'}</td><td aria-label={e.username} className="px-5 py-5 font-semibold"><span>{e.username}</span>{e.participant_key === data.me?.participant_key && <span className="ml-2 text-xs text-[#253B80]">Bạn</span>}<p className="text-xs font-normal text-slate-500">{e.kind==='team'?`Team · ${e.members.map(m=>m.username).join(', ')}`:'Cá nhân'}{e.recruiting&&' · Đang tìm đồng đội'}</p></td>
+            <td className="px-5 py-5"><Link className="text-[#253B80]" href={`/arena/agents/${e.agent.id}`}>{e.agent.agent_name}</Link><p className="text-xs text-slate-500">v{e.agent.version}{!e.rank && ` · Hiệu chỉnh ${e.agent.valid_games}/10`}</p></td>
+            <td className="px-5 py-5 font-mono">{e.agent.elo}</td><td className="px-5 py-5 whitespace-nowrap">{e.agent.wins} / {e.agent.losses} / {e.agent.draws}</td>
+            <td className="px-5 py-5 text-xs text-slate-500">{e.agent.last_finished_at ? new Date(e.agent.last_finished_at).toLocaleString('vi-VN') : 'Chưa đấu'}</td>
+            <td className="px-5 py-5"><AgentMenu entry={e} /></td>
+          </tr>)}</tbody>
+        </table></div>
+        {!loading && !data?.leaderboard.length && <p className="p-10 text-center text-slate-500">{search ? 'Không tìm thấy người chơi.' : tab === 'rankings' ? 'Chưa có người chơi đủ 10 trận rating. Xem tab Đang hiệu chỉnh.' : 'Không có người chơi đang hiệu chỉnh.'}</p>}
+      </div> : <div className="divide-y border border-[#ded8d3] bg-white">{matches.map(m => <div key={m.id} className="flex flex-wrap justify-between gap-2 p-4"><span>#{m.id} · {m.agent1_name} vs {m.agent2_name} · {m.status}</span><Link className="text-[#253B80]" href={`/arena/replay/rating/${m.id}`}>Xem trận →</Link></div>)}{!loading && !matches.length && <p className="p-8 text-slate-500">Chưa có trận đấu.</p>}</div>}
+      <div className="mt-5 flex items-center justify-end gap-3"><button className={button} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Trước</button><span className="text-sm">Trang {page}{tab !== 'matches' && data ? ` / ${Math.max(1, Math.ceil(data.total / 20))}` : ''}</span><button className={button} disabled={loading || (tab === 'matches' ? matches.length < 20 : page * 20 >= (data?.total ?? 0))} onClick={() => setPage(p => p + 1)}>Sau →</button></div>
+    </main>
+  </div>;
 }

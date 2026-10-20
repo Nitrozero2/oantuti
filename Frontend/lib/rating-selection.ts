@@ -7,7 +7,7 @@ export type RatingCandidate = {
   trueskill_sigma: number;
 };
 
-/** Pick the most informative eligible opponent for the selected focal agent. */
+/** Legacy quality-only helper; adaptive selection lives in reserve_rating_dispatch. */
 export function selectOpponent(
   focal: RatingCandidate,
   candidates: RatingCandidate[],
