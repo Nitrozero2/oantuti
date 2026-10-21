@@ -14,6 +14,11 @@ esac
 
 case "$action" in
   start)
+    if [[ -f .env.example && ! -f .env ]]; then
+      cp .env.example .env
+      echo 'Created .env. Fill WORKER_SECRET and WORKER_CALLBACK_SECRET, then run this command again.' >&2
+      exit 1
+    fi
     docker load -i worker-image.tar.gz
     docker compose run --rm --no-deps worker-python --check
     docker compose up -d --no-build worker-python

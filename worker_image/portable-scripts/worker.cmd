@@ -11,6 +11,11 @@ if /i "%~1"=="status" goto status
 goto usage
 
 :start
+if exist .env.example if not exist .env (
+  copy /y .env.example .env >nul
+  echo Created .env. Fill WORKER_SECRET and WORKER_CALLBACK_SECRET, then run this command again.
+  exit /b 1
+)
 docker load -i worker-image.tar.gz
 if errorlevel 1 exit /b 1
 docker compose run --rm --no-deps worker-python --check

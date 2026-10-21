@@ -36,13 +36,16 @@ USER 10001:10001
 ENTRYPOINT ["/opt/worker-venv/bin/python", "-B", "-m", "pytest", "-p", "no:cacheprovider", "-q"]
 CMD ["worker_image/tests", "backend/tests/test_worker.py", "backend/tests/test_supervisor.py", "backend/tests/test_queue.py", "backend/tests/test_worker_control.py"]
 
-# Optional portable image. The user explicitly chooses to include credentials.
-# A BuildKit secret prevents the source .env from entering the build context;
-# the installed copy intentionally remains in the resulting image.
-FROM runtime AS bundled
+# Portable identity support, without credentials: safe for public distribution.
+FROM runtime AS portable
 USER root
 RUN mkdir -p /var/lib/oantuti && chown 10001:10001 /var/lib/oantuti
 ENV WORKER_MACHINE_ID_FILE=/var/lib/oantuti/machine-id
+USER 10001:10001
+
+# Optional private image. The installed .env intentionally remains in this image.
+FROM portable AS bundled
+USER root
 ARG WORKER_ENV_SHA256
 RUN --mount=type=secret,id=worker_env,required=true \
     test -n "$WORKER_ENV_SHA256" \

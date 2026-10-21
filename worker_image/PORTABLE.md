@@ -5,7 +5,8 @@ Cần máy Intel/AMD 64-bit có Docker và Compose. Trên Windows, mở
 với WSL 2 / Linux containers. Trên Linux, cài
 [Docker Engine](https://docs.docker.com/engine/install/) và Compose plugin.
 
-Gói đã chứa image và cấu hình Vercel; người tải ZIP có thể đọc secrets đã nhúng.
+Gói đã chứa image và hai URL Vercel. Sau giải nén, mở `.env.example`, điền
+`WORKER_SECRET` và `WORKER_CALLBACK_SECRET`, rồi lưu thành `.env`. Chỉ làm một lần.
 
 ## Linux
 

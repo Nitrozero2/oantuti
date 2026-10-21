@@ -69,13 +69,18 @@ bash worker.sh
 
 Dừng: `bash worker.sh stop`. Windows: giải nén rồi chạy `worker.cmd`, dừng bằng
 `worker.cmd stop`. Script tự load image, kiểm tra sandbox rồi chạy nền.
-ZIP chứa secrets; người tải có thể đọc cấu hình đã nhúng.
+Bản ZIP công khai không chứa secrets: điền hai secret trong `.env.example` rồi lưu
+thành `.env` trước khi chạy. Xem [PORTABLE.md](PORTABLE.md).
 
-Để xuất gói mới từ source: `./dockerworker.sh export`. Kết quả gồm
-`worker_image/portable/` và `worker_image/oantuti-worker.zip`. Giữ secrets/tham số
-trong `.env`, thay hai URL sang frontend/backend Vercel, không sửa `.env` nguồn.
-Nếu chỉ cập nhật tài liệu/script và đóng ZIP từ image đã xuất, dùng
-`python3 worker_image/export-bundle.py --package-only`.
+Xuất ZIP công khai: `python3 worker_image/export-bundle.py --public`.
+Kết quả: `worker_image/public-portable/` và `worker_image/oantuti-worker.zip`.
+
+Xuất ZIP riêng có secrets: `./dockerworker.sh export`. Kết quả:
+`worker_image/portable/` và `worker_image/oantuti-worker-with-secrets.zip`.
+Gói này giữ secrets/tham số từ `.env` và hai URL Vercel; chỉ chia sẻ riêng.
+
+Chỉ cập nhật tài liệu/script và đóng ZIP từ image đã xuất:
+`python3 worker_image/export-bundle.py --package-only` (thêm `--public` cho bản công khai).
 
 ## Nhiều worker Python
 
