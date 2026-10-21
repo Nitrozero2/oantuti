@@ -4,29 +4,43 @@ Website đăng ký / đăng nhập bằng Next.js, Neon PostgreSQL, bcryptjs và
 
 ## Chung kết Top 16
 
-`/finals` công khai sơ đồ dự kiến và lịch sử các đợt giải. `/admin/finals` chốt
-đúng 16 đại diện đã có ít nhất 10 trận rating hợp lệ, snapshot tên/thành viên/code,
-khóa luật, mở từng vòng, công bố ván và xác nhận kết quả cặp. Leaderboard/rating
-thường vẫn hoạt động. Mỗi cặp hai ván đổi bên, thắng 1/hòa 0,5/thua 0; bằng điểm
-thì hạt giống cao hơn đi tiếp. Có tranh hạng ba: 16 cặp, 32 ván. Chỉ một giải mở.
+`/finals` hiển thị sơ đồ và lịch sử; `/admin/finals` chốt top 16 đủ điều kiện,
+thành viên đội, mở nhận bài/khóa bài/mở đấu riêng từng vòng. Trong trang Chung kết,
+người có suất mới được nộp agent của vòng đó. Bắt buộc nộp lại mỗi vòng, kể cả code
+giống vòng trước; bản mới nhất phải vượt self-play bằng đúng engine của vòng.
+Không tự lấy agent rating làm bài, không tạo rating hoặc sửa dữ liệu agent thường.
+Quyền đội dùng danh sách thành viên lúc chốt top 16.
 
-Migration bổ sung: `node scripts/migrate-finals.mjs --apply` từ `Frontend`;
-chỉ tạo schema `finals`, không dùng lại bảng tournament cũ. Runner kiểm tra bảo
-toàn dữ liệu thường và ghi `logs/finals-rollout.json`. Cấu hình `FINALS_SCHEMA`
-mặc định `finals`; có thể dùng schema `finals_*` riêng cho kiểm thử. App dùng cùng
-`DATABASE_URL`; không cần Redis hoặc backend queue cho chung kết.
+Năm worker riêng nằm trong [`worker_ck`](../worker_ck/README.md), mỗi vòng một
+thư mục engine và image: vòng 16, tứ kết, bán kết, chung kết, tranh hạng ba.
+Dùng sandbox Bubblewrap/seccomp riêng; không gọi Judge0, worker rating hoặc Redis.
+Frontend xác thực token riêng từng vòng; worker sai vòng không được nhận/ghi việc.
+Engine và giới hạn chạy được khóa bằng checksum khi mở nhận bài. Sau khi khóa bài
+không đổi code/engine. Nếu mở lại nhận bài trước khóa, mọi suất phải nộp mới.
+Ban đầu giữ luật OTT 9×9, 150 nước, hòa lặp ba lần; hỗ trợ dữ liệu obstacle/ô điểm
+và điểm số trong observation/replay để bổ sung luật riêng sau.
 
-Chương trình độc lập, luật/engine và hướng dẫn offline ở
-[`finals_runner/README.md`](../finals_runner/README.md). Không import worker/backend
-cũ. Luật v1 giữ bàn 9×9, giới hạn 150 nước và hòa lặp ba lần, chưa có tường/ô điểm.
-Lỗi agent/hạ tầng đều chờ admin, không tự xử thua hoặc thử lại; admin được chạy
-lại, chỉ định kết quả có lý do hoặc nhập bản ghi JSON tin cậy. Import chỉ kiểm tra
-cấu trúc hiển thị, không kiểm chứng nước đi đúng luật. Kết quả chỉ định/bản ghi nhập
-đều gắn nhãn và giữ lịch sử. Bundle code chỉ admin tải, không commit lên git.
+Từ `Frontend`, chạy `node scripts/migrate-finals.mjs` để kiểm tra chỉ đọc;
+`--apply` mới áp dụng migration và lưu backup. Nếu có vòng cũ đang mở hoặc lần chạy
+cũ còn hoạt động, migration dừng để chủ giải quyết định; không tự hủy/ngắt.
+Lịch sử, replay và kết quả cũ được giữ; vòng chưa mở phải dùng bài nộp mới.
+Cấu hình `FINALS_SCHEMA` mặc định `finals`, dùng chung `DATABASE_URL` cho frontend;
+worker chỉ có token API theo vòng. Xem hướng dẫn cài đặt và credential trong README worker.
 
-Trang ván lấy thêm từng nước đã lưu, mặc định phát 1,2 giây/nước, cho tua/chỉnh tốc
-độ độc lập và chế độ fullscreen. Khi admin công bố bản ghi, người xem có thể biết
-kết quả trước khi màn hình lớn phát xong; sơ đồ chỉ cập nhật sau xác nhận cặp.
+Mỗi cặp hai ván đổi bên, thắng 1/hòa 0,5/thua 0; bằng điểm thì hạt giống cao hơn
+đi tiếp. Kết quả cặp phải được admin xác nhận. Lỗi trận chính thức cần admin xử lý,
+không tự xử thua/retry. Bundle offline v2 chỉ chứa bài Chung kết đã khóa. Bản ghi
+nhập/chỉ định kết quả được gắn nhãn và lưu lịch sử; import tin admin, chỉ kiểm tra
+cấu trúc hiển thị. Bundle và bản ghi chứa code cần giữ kín.
+
+Replay giữ trạng thái ban đầu và trạng thái từng nước, hỗ trợ terrain/ô điểm,
+tốc độ mặc định 1,2 giây/nước, tua và fullscreen. Replay cũ tiếp tục hoạt động.
+Công bố bản ghi cho phép người xem tua tới kết quả; sơ đồ chỉ đổi sau xác nhận cặp.
+
+Xóa dữ liệu giải: `node scripts/reset-finals.mjs` chỉ đọc; `--apply` sao lưu rồi
+xóa cả bài nộp/job của các vòng, giữ đăng ký worker/engine và dữ liệu thường.
+Không reset ID. Kiểm thử `node scripts/e2e-finals.mjs` dùng PostgreSQL trong bộ nhớ
+và worker/sandbox thật, không kết nối database production.
 
 ## Dữ liệu demo bổ sung
 
@@ -38,7 +52,7 @@ Mỗi agent bắt đầu ở trạng thái validating và có một job validati
 
 ## Thách đấu riêng tư và public agent
 
-Giới hạn cho job mới: Validation 60 nước; Rating/Thách đấu 150 nước tổng hai bên (mỗi nước là một bên di chuyển). Hết giới hạn hoặc thế cờ giống nhau với cùng bên tới lượt xuất hiện lần thứ ba thì hòa, không phân thắng thua theo số quân. Validation hòa hợp lệ vẫn được duyệt. Backend và worker chặn payload vượt giới hạn; khởi động lại worker để nạp luật lặp thế cờ và giới hạn cho job cũ còn trong queue. Không sửa lịch sử hoặc ép dừng trận đang chạy.
+Giới hạn job: Validation 60 nước; Rating/Thách đấu 200 nước tổng hai bên (mỗi nước là một bên di chuyển). Không kết thúc sớm do lặp thế cờ. Đủ 200 nước chưa thắng thì hòa; rating bị trừ điểm theo bàn cuối, friendly không đổi điểm BXH. Validation hòa hợp lệ vẫn được duyệt. Backend và cả hai loại worker nâng payload rating/friendly cũ lên 200 nước; cần chạy worker bản mới để áp dụng.
 
 - `/arena/friendly` là thách đấu riêng tư, không còn gửi/nhận thách đấu. Chọn agent đang hoạt động của cá nhân/team hiện tại và agent public thuộc người/team khác. Máy chủ chọn bên đi trước ngẫu nhiên; kết quả không thay đổi rating hoặc thống kê ranked.
 - Chỉ người tạo trận cá nhân hoặc thành viên hiện tại của team nguồn được xem lịch sử/replay; đối thủ không được xem và không nhận thông báo. Admin giữ quyền truy cập kỹ thuật. Giao diện bàn cờ không thay đổi.
@@ -50,7 +64,7 @@ Giới hạn cho job mới: Validation 60 nước; Rating/Thách đấu 150 nư�
 
 Triển khai sau `teams_migration.sql`: dùng Node.js 24 chạy `node scripts/migrate-private-trials.mjs --apply` trong `Frontend`. Runner backfill hash code, giữ agent cũ public và kiểm tra bảo toàn user/code/điểm/lịch sử trong transaction; báo cáo tại `logs/private-trials-rollout.json`. Không chạy lại migration TrueSkill cũ vì có reset điểm. Nếu áp dụng lại migration scheduler/team, phải áp dụng private trials sau cùng. Migration mới không khởi động worker và không reset dữ liệu.
 
-Kiểm thử: `npm test`, `npm run lint`, `NEXT_BUILD_DIR=.next-leaderboard-test npm run build`, rồi `node scripts/e2e-leaderboard.mjs`. E2E dùng Chrome + schema Neon tạm, backend giả offline để tránh chạm Redis thật, và dọn schema khi xong; đây không phải kiểm thử chạy engine/Judge0 thật.
+Kiểm thử: `npm test`, `npm run lint`, `NEXT_BUILD_DIR=.next-leaderboard-test npm run build`, rồi `node scripts/e2e-leaderboard.mjs`. E2E dùng Chrome + schema Neon tạm, backend giả offline để tránh chạm Redis thật, và dọn schema khi xong; đây không phải kiểm thử chạy engine/Python sandbox thật.
 
 ## 1. Chuẩn bị Neon
 1. Tạo project tại https://console.neon.tech/
@@ -105,19 +119,18 @@ của dự án và không kết nối Neon thật. Các ca kiểm thử bao gồ
 rollback khi ghi replay thất bại, retry validation và chuyển quyền chạy sau khi worker crash.
 
 Tại thư mục gốc, chạy `python3 -B -m pytest -q -p no:cacheprovider backend/tests`
-sau khi cài dependencies trong `backend/requirements.txt` và `worker/requirements.txt`.
-Các test Python giả lập Redis/Judge0 và kiểm tra engine, queue, worker và lease.
+sau khi cài dependencies trong `backend/requirements.txt` và `worker_image/requirements.txt`.
+Các test Python giả lập Redis và thực thi agent và kiểm tra engine, queue, worker và lease.
 
 Khi triển khai bản sửa callback, cập nhật backend trước frontend và worker:
 frontend dùng `POST /worker/tasks/verify` với `X-Internal-Secret` để xác minh delivery
 trước khi chuyển execution token cho worker thay thế. Cần đã áp dụng
 `execution_token_migration.sql`; bước kiểm thử không tự chạy migration trên dữ liệu thật.
 
-### E2E với Neon, Upstash và Judge0 thật
+### E2E với Neon, Upstash và Python sandbox
 
 Chạy `NEXT_BUILD_DIR=.next-e2e npm run build`, sau đó `node scripts/e2e.mjs --run` trong `Frontend`.
-Script đọc `Frontend/.env.local`, `backend/.env` và `worker/.env`; Judge0 phải đang
-hoạt động tại `127.0.0.1:2358`. Backend và frontend E2E dùng cổng 8100 và 3100,
+Script đọc `Frontend/.env.local`, `backend/.env` và `worker_image/.env`; máy chạy native worker cần Bubblewrap, libseccomp và quyền tạo user namespaces. Backend và frontend E2E dùng cổng 8100 và 3100,
 tách khỏi stack mặc định 8000/3000 và thư mục build `.next`.
 
 Script tạo schema `ott_e2e_<timestamp>` trong chính database của env và dùng namespace
@@ -141,8 +154,8 @@ với `--verify` nếu cần áp dụng lại tuyến này cho frontend E2E đan
 
 Admin mở `/admin/workers` để bật, tạm dừng/tiếp tục, dừng an toàn/dừng ngay và
 đổi giới hạn job đồng thời (1–64). Supervisor vẫn online khi process xử lý dừng.
-Cấu hình được giữ trong Redis; mở hai console cùng tên bị chặn. Dùng `python worker.py --name alpha`
-và `--name beta` khi muốn chạy song song trên cùng máy. Xem `worker/README.md` ở thư mục gốc.
+Chạy worker đóng gói bằng `./dockerworker.sh` từ repository root. Cấu hình được giữ trong Redis; mở hai console cùng tên bị chặn. Dùng `python main.py --name alpha`
+và `--name beta` khi muốn chạy song song trên cùng máy. Xem `worker_image/README.md` ở thư mục gốc.
 
 Sau E2E cơ bản, chạy `node scripts/e2e-workers.mjs` để kiểm tra giao diện bằng Chrome
 headless đang cài tại `/opt/google/chrome/chrome`, concurrency khi có trận thật,
@@ -151,7 +164,7 @@ thu hồi job và chạy lại ở worker khác, crash/restart và cấu hình o
 
 Stack local mặc định: `node scripts/start-local.mjs` và kiểm tra bằng `--check`.
 Muốn tự mở console dev, chạy `./dev.sh` từ thư mục gốc: chỉ mở backend và frontend,
-không chạy worker. Khi cần worker, bật riêng bằng `cd worker && python3 -B worker.py`.
+không chạy worker. Khi cần worker, bật riêng bằng `./dockerworker.sh` từ repository root.
 Để cập nhật bản build, chờ worker hết job, chạy `node scripts/start-local.mjs --stop`,
 `npm run build`, rồi khởi động lại. Lệnh stop chỉ nhận các PID do script ghi nhận,
 kiểm tra danh tính tiến trình và từ chối khi worker đang bận. Database vẫn dùng schema
@@ -248,9 +261,27 @@ Khi cần đăng nhập, `redirect` giữ trang đích và query qua cả đăng
 chỉ chấp nhận đường dẫn trang nội bộ an toàn, mặc định `/dashboard`.
 
 `/arena/leaderboard` công khai, mỗi cá nhân đang độc lập hoặc team một dòng. Đại diện là agent active có ít
-nhất 10 trận rating hoàn thành, không lỗi hạ tầng, và điểm `1000 + 40 × (μ − 3σ)`
+nhất 10 trận rating hoàn thành, không lỗi hạ tầng, và điểm `1000 + 40 × (μ − 25)`
 cao nhất. User chưa đủ điều kiện nằm trong tab hiệu chỉnh; không cộng điểm giữa
 agents. Agent bị vô hiệu hóa không giữ hạng, nhưng lịch sử vẫn được lưu.
+
+Điểm bắt đầu ở 1000; σ chỉ thể hiện độ tin cậy, không cộng điểm khi giảm. Rating/friendly hòa khi đủ 200 nước chưa có người thắng; không kết thúc sớm do lặp
+thế cờ. Validation vẫn tối đa 60 nước và không tính điểm. Trận rating hòa trừ riêng
+mỗi bên `round(4 + 16 × quân_địch/10 + 12 × khoảng_cách_trung_bình/8)` điểm (4–32).
+Khoảng cách dùng bước Vua đến i9 cho P1, a1 cho P2. μ giảm tương ứng điểm phạt/40,
+σ giảm để tăng độ tin cậy, không cộng thêm điểm. Khi đủ tối thiểu 10 trận hợp lệ
+và σ ≤ 2.5, scheduler chuyển agent sang ổn định và chỉ hiệu chỉnh định kỳ
+(vẫn có thể làm đối thủ cho agent chưa ổn định). Frontend kiểm tra đủ 200 nước hợp lệ và dựng bàn cuối để tính phạt;
+friendly giữ nguyên điểm BXH. Vẫn ghi replay, thống kê hòa và tiêu thụ ngân sách trận. Mỗi cặp được hòa tối đa hai lần trong 24 giờ
+(có thể đổi bên sau lần đầu), rồi scheduler tìm đối thủ khác hoặc chờ.
+
+Deployment cũ cần cập nhật code frontend, tạm dừng tạo rating và đợi hết trận rating
+đang chờ/chạy, rồi chạy `node scripts/migrate-draw-rating.mjs --apply` từ `Frontend/`.
+Không có `--apply` chỉ kiểm tra số điểm cần sửa. Migration chiếu lại điểm hiện tại
+và delta lịch sử từ μ, giữ nguyên trận đấu, W/L/D, μ/σ và replay; lưu điểm cũ trong
+`rating_policy_migrations`. Đây không phải replay lại toàn bộ mô hình từ lịch sử:
+μ/σ của các trận cũ vẫn giữ nguyên. Không chạy lại `trueskill_migration.sql` trên dữ
+liệu có sẵn vì migration khởi tạo đó reset điểm.
 
 Cột Agents mở `/arena/agents/<id>/history?matchId=<id>`; dấu `⋮` chỉ hiện khi có
 nhiều agent đã qua validation và cho xem từng phiên bản, kể cả đã ngừng. Trang
@@ -286,3 +317,19 @@ tư và đã loại khỏi Git. Cookie cũ phải bị vô hiệu hóa trước 
 - Mật khẩu được hash bằng bcrypt, không lưu mật khẩu gốc.
 - Session dùng cookie `HttpOnly`, `SameSite=Lax`, và `Secure` trong production.
 - Đây là starter/demo. Trước khi dùng cho hệ thống công khai cần thêm rate limiting chống brute-force, xác minh email, quy trình quên mật khẩu, giám sát và chính sách bảo mật phù hợp.
+
+
+Để sao lưu và xếp lại các kết quả hòa rating/friendly trong 24 giờ gần nhất:
+
+```bash
+node scripts/replay-recent-draws.mjs          # audit, không ghi
+node scripts/replay-recent-draws.mjs --apply  # sau khi dừng worker và hết trận rating đang chạy
+```
+
+Script giữ backup trong `draw_replay_backups` và `logs/draw_replay_*/`, xóa kết quả
+/replay cũ của đúng các ID đã chọn, dựng lại μ/σ/điểm/W-L-D từ lịch sử còn lại và
+đưa cùng các trận về `scheduled`. Validation và trận ngoài phạm vi vẫn giữ kết quả.
+Các draw cũ dưới 200 nước ngoài phạm vi được tính như draw không phạt theo luật
+cũ. Scheduler được giữ trạng thái bật/tắt trước bảo trì; các trận chờ dùng chung
+agent được dispatch tuần tự. Không đổi scope/quyền sở hữu hay kích hoạt lại agent
+đã bị vô hiệu hóa. Node 24+ được dùng để import các hàm tính điểm TypeScript chung.

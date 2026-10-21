@@ -81,9 +81,8 @@ async function inspect() {
     body: JSON.stringify(["PING"]), signal: AbortSignal.timeout(10000),
   });
   const redisBody = await redis.json();
-  const judge = await fetch("http://127.0.0.1:2358/about", { signal: AbortSignal.timeout(5000) });
   console.log(JSON.stringify({ database: identity[0].database, schema: identity[0].schema, tables,
-    redis: redisBody.result, judge0: await judge.json() }, null, 2));
+    redis: redisBody.result }, null, 2));
   const schema = `ott_e2e_probe_${Date.now()}`;
   const [, scope] = await retry(() => sql.transaction(txn => [
     txn`SELECT set_config('search_path', ${schema}, true)`,
@@ -106,7 +105,7 @@ async function run() {
   const logDir = path.join(root, "logs", runId);
   mkdirSync(logDir, { recursive: true });
   const backendEnv = readEnv(path.join(root, "backend/.env"));
-  const workerEnv = readEnv(path.join(root, "worker/.env"));
+  const workerEnv = readEnv(path.join(root, "worker_image/.env"));
   const frontendPort = Number(process.env.E2E_FRONTEND_PORT || 3100);
   const backendPort = Number(process.env.E2E_BACKEND_PORT || 8100);
   if (![frontendPort, backendPort].every(port => Number.isInteger(port) && port > 1024 && port < 65536)) throw new Error('Invalid E2E ports');
@@ -164,8 +163,8 @@ async function run() {
   await waitFor("frontend ready", async () => {
     try { return (await fetch(`${state.frontend}/login`)).ok; } catch { return false; }
   });
-  launch("worker", "python3", ["-B", "worker.py"], path.join(root, "worker"), { ...workerEnv,
-    BACKEND_URL: state.backend, FRONTEND_URL: state.frontend, JUDGE0_URL: "http://127.0.0.1:2358",
+  launch("worker", "python3", ["-B", "main.py"], path.join(root, "worker_image"), { ...workerEnv,
+    BACKEND_URL: state.backend, FRONTEND_URL: state.frontend,
     WORKER_ID: `${runId}_worker`, MAX_CONCURRENT: "2", POLL_INTERVAL: "1", PYTHONUNBUFFERED: "1" });
   await waitFor("worker heartbeat", async () => {
     const response = await fetch(`${state.backend}/workers/status`);
@@ -210,7 +209,7 @@ async function run() {
     });
     const code = `def agent(observation, configuration):\n    target = (8, 8) if observation['current_player'] == 1 else (0, 0)\n    moves = observation['valid_moves']\n    return min(moves, key=lambda m: (max(abs(m['to_col']-target[0]), abs(m['to_row']-target[1])), -int(m.get('is_capture', False)))) if moves else None\n`;
     const ids = [];
-    await check("submit Python agents and execute self-play in real Judge0", async () => {
+    await check("submit Python agents and execute self-play in the Python sandbox", async () => {
       for (let index = 0; index < 3; index++) {
         const submitted = await api("/api/arena/agents", { method: "POST", cookie: sessions[index], body: {
           agent_name: `E2E ${index}`, is_public:true, code: index === 2 ? "def agent(observation, configuration):\n    raise ValueError('E2E deliberate agent error')" : code,
@@ -355,7 +354,7 @@ async function verify() {
   const validations = await scoped("SELECT a.status, m.status AS match_status, m.is_infra_error FROM rated_matches m JOIN arena_agents a ON a.id = m.agent1_id WHERE m.kind = 'validation' ORDER BY a.id");
   assert.deepEqual(validations.map(row => row.status), ["active", "active", "rejected"]);
   assert.ok(validations.every(row => row.match_status === "finished" && !row.is_infra_error));
-  checks.push("real Judge0 self-play accepts valid agents and rejects failing code");
+  checks.push("Python sandbox self-play accepts valid agents and rejects failing code");
   const ratings = await scoped("SELECT id, status, total_moves, agent1_mu_after, agent2_mu_after, is_infra_error FROM rated_matches WHERE kind = 'rating' ORDER BY id");
   assert.ok(ratings.length >= 1);
   for (const match of ratings) {

@@ -137,7 +137,7 @@ export default function WorkersPage() {
       </div><button className={button} onClick={() => void load()}>Làm mới</button></div>
       {error && <p role="alert" className="mb-6 border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error} Dữ liệu cũ được giữ lại.</p>}
       {loading ? <p>Đang tải worker…</p> : workers.length === 0 ? <div className="border bg-white p-8 text-center text-slate-600">
-        Chưa có worker. Chạy <code>python worker.py</code> trên máy có Judge0. Muốn chạy song song trên cùng máy, dùng <code>--name alpha</code> và <code>--name beta</code>.
+        Chưa có worker. Chạy <code>./dockerworker.sh</code> trên máy Linux có Docker. Worker xử lý agent bằng Python sandbox.
       </div> : [...machines.entries()].map(([id, group]) => <section key={id} className="mb-8">
         <h2 className="mb-1 text-xl font-bold">{group[0].hostname}</h2>
         <p className="mb-4 text-xs text-slate-500">{group.filter(w => w.online).length}/{group.length} supervisor online · {group.reduce((n, w) => n + (w.online ? w.active_jobs ?? 0 : 0), 0)} job đang chạy · tổng giới hạn đã cấu hình {group.reduce((n, w) => n + (w.control?.max_concurrent ?? w.max_concurrent ?? 0), 0)}</p>

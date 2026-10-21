@@ -13,6 +13,7 @@ vi.mock("@/lib/session", () => ({ getSession: session }));
 import { dispatchNextRatingTask } from "@/lib/rating-scheduler";
 import { PATCH } from "@/app/api/admin/rating/control/route";
 import { GET as status } from "@/app/api/admin/rating/status/route";
+import { rate1v1, TRUESKILL, type TrueSkillRating } from "@/lib/trueskill";
 
 type Reservation = { match_id?: number; kind?: string; reason: string; retry_after_seconds: number; agent1_id?: number; agent2_id?: number };
 const exec = (text: string) => database.current!.exec(text);
@@ -56,6 +57,13 @@ it("creates disjoint reservations for concurrent dispatchers without overlapping
   expect(created).toHaveLength(2);
   expect(new Set(created.flatMap(result => [result.agent1_id, result.agent2_id])).size).toBe(4);
 });
+it('serializes replayed scheduled matches sharing agents while allowing disjoint matches',async()=>{
+ await exec("INSERT INTO rated_matches(kind,agent1_id,agent2_id) VALUES('rating',1,2),('rating',1,3),('rating',3,4)");
+ const first=await reserve(),second=await reserve();
+ expect(first.match_id).toBe(1);expect(second.match_id).toBe(3);
+ expect(new Set([first.agent1_id,first.agent2_id,second.agent1_id,second.agent2_id]).size).toBe(4);
+ expect((await reserve()).match_id).toBeUndefined();
+});
 it("does not create rating without available capacity", async () => {
   expect((await reserve(0)).reason).toBe("no_capacity");
   expect(await rows("SELECT id FROM rated_matches")).toHaveLength(0);
@@ -88,6 +96,25 @@ it("lets stable agents anchor an uncertain new agent", async () => {
   await history(2, 5, 10); await history(3, 5, 10); await history(4, 5, 10);
   await exec("UPDATE arena_agents SET trueskill_sigma=2 WHERE id<>1");
   const match = await reserve(); expect([match.agent1_id, match.agent2_id]).toContain(1);
+});
+it('counts draws toward confidence and parks calibrated agents instead of repeatedly evaluating them', async () => {
+  await onlyTwo();
+  let model: TrueSkillRating = {mu:TRUESKILL.initialMu,sigma:TRUESKILL.initialSigma};
+  let games = 0;
+  while (games < 10 || model.sigma > 2.5) {
+    model = rate1v1(model, model, 'draw').agent1;
+    model.mu -= 29/40;
+    games++;
+    expect(games).toBeLessThanOrEqual(20);
+  }
+  // Spread completed draws across days: the budget and pair cap must not be
+  // what parks these agents; their newly calibrated confidence must do so.
+  await history(1,2,games,'48 hours');
+  await exec("UPDATE rated_matches SET outcome='draw',total_moves=200; UPDATE rated_matches SET finished_at=NOW()-INTERVAL '2 hours' WHERE id=1");
+  await database.current!.query('UPDATE arena_agents SET trueskill_mu=$1,trueskill_sigma=$2,rating=$3', [model.mu,model.sigma,Math.round(40*model.mu)]);
+  const agents = await rows('SELECT valid_games,schedule_state,budget_remaining FROM rating_agent_schedule WHERE id IN (1,2) ORDER BY id');
+  expect(agents).toEqual(Array.from({length:2},()=>({valid_games:games,schedule_state:'stable',budget_remaining:19})));
+  expect((await reserve()).reason).toBe('no_eligible_pair');
 });
 it("limits daily games and counts pending reservations without resetting history", async () => {
   await onlyTwo(); await history(1, 2, 20);
@@ -122,6 +149,25 @@ it("enforces pair cooldown but permits a two-agent pool to play again afterwards
   expect((await reserve()).match_id).toBeUndefined();
   await exec("UPDATE rated_matches SET finished_at=NOW()-INTERVAL '61 seconds'");
   const match = await reserve(); expect(match.agent1_id).toBe(2); expect(match.agent2_id).toBe(1);
+});
+it('parks a pair after two draws in 24 hours, even after normal cooldown expires', async () => {
+  await onlyTwo(); await history(1, 2, 2, '2 hours');
+  await exec("UPDATE rated_matches SET outcome='draw'");
+  expect((await reserve()).reason).toBe('no_eligible_pair');
+  await exec("UPDATE rated_matches SET finished_at=NOW()-INTERVAL '25 hours'");
+  expect((await reserve()).match_id).toBeDefined();
+});
+it('still allows the color-swapped rematch after a first draw', async () => {
+  await onlyTwo(); await history(1, 2, 1, '2 hours');
+  await exec("UPDATE rated_matches SET outcome='draw'");
+  const next = await reserve();
+  expect([next.agent1_id, next.agent2_id]).toEqual([2, 1]);
+});
+it('moves on to a different opponent when the closest pair keeps drawing', async () => {
+  await history(1, 2, 2, '2 hours');
+  await exec("UPDATE rated_matches SET outcome='draw'; UPDATE arena_agents SET is_active=false WHERE id=4");
+  const next = await reserve();
+  expect([next.agent1_id, next.agent2_id]).toContain(3);
 });
 it("never matches same-owner agents", async () => {
   await onlyTwo(); await exec("UPDATE arena_agents SET user_id=1 WHERE id=2");
@@ -160,7 +206,7 @@ it("retries failed enqueue with the original ID and never releases a newer dispa
   const second = await dispatchNextRatingTask(); expect(second).toMatchObject({ reason: "enqueue_failed", match_id: first.match_id });
   expect(await rows("SELECT id FROM rated_matches")).toHaveLength(1);
 });
-it('enqueues validation with sixty plies and rating with one hundred fifty',async()=>{
+it('enqueues validation with sixty plies and rating with two hundred',async()=>{
  await exec("UPDATE arena_agents SET status='validating',is_active=false WHERE id=5; INSERT INTO rated_matches(kind,agent1_id,agent2_id) VALUES('validation',5,5)");
  expect((await dispatchNextRatingTask()).kind).toBe('validation');
  let enqueue=backend.mock.calls.find(call=>call[0]==='/rating/enqueue');
@@ -168,7 +214,7 @@ it('enqueues validation with sixty plies and rating with one hundred fifty',asyn
  backend.mockClear();
  expect((await dispatchNextRatingTask()).kind).toBe('rating');
  enqueue=backend.mock.calls.find(call=>call[0]==='/rating/enqueue');
- expect(JSON.parse(enqueue![1].body).max_moves).toBe(150);
+ expect(JSON.parse(enqueue![1].body).max_moves).toBe(200);
 });
 it("does not create matches when backend is unreachable or queue already has jobs", async () => {
   backend.mockResolvedValueOnce({ ok: false });

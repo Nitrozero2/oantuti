@@ -12,7 +12,7 @@ import pytest
 
 @pytest.fixture
 def modules(monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / 'worker'))
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / 'worker_image'))
     return importlib.import_module('supervisor'), importlib.import_module('runtime')
 
 
@@ -34,7 +34,7 @@ def test_two_consoles_same_identity_are_blocked_before_network(modules, monkeypa
     monkeypatch.setenv('MACHINE_ID', 'console-lock-test')
     worker_id = supervisor.identity('alpha')['worker_id']
     with supervisor.WorkerLock(worker_id):
-        result = subprocess.run([sys.executable, '-B', str(Path(supervisor.__file__).with_name('worker.py')), '--name', 'alpha'],
+        result = subprocess.run([sys.executable, '-B', str(Path(supervisor.__file__).with_name('main.py')), '--name', 'alpha'],
             env={**os.environ, 'WORKER_SECRET': 'valid-worker-secret', 'WORKER_CALLBACK_SECRET': 'valid-callback-secret',
                  'BACKEND_URL': 'http://127.0.0.1:1'}, capture_output=True, text=True, timeout=5)
         assert result.returncode == 2

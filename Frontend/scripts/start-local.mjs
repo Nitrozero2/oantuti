@@ -74,9 +74,9 @@ try {
       assert.ok(env.includes("DATABASE_SCHEMA="));
       assert.ok(env.includes("REDIS_KEY_PREFIX="));
       const cwd = readlinkSync(`/proc/${service.pid}/cwd`);
-      assert.equal(cwd, service.name === "frontend" ? frontend : path.join(root, service.name));
+      assert.equal(cwd, service.name === "frontend" ? frontend : path.join(root, service.name === "worker" ? "worker_image" : service.name));
       const command = readFileSync(`/proc/${service.pid}/cmdline`, "utf8");
-      assert.ok(command.includes({ worker: "worker.py", backend: "uvicorn", frontend: "next" }[service.name]));
+      assert.ok(command.includes({ worker: "main.py", backend: "uvicorn", frontend: "next" }[service.name]));
     }
     if (!process.argv.includes("--force")) {
       const status = await (await fetch(`${urls.backend}/workers/status`)).json();
@@ -122,13 +122,13 @@ try {
     launch("frontend", "node", ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3000"], frontend,
       { BACKEND_URL: urls.backend, NEXT_PUBLIC_BACKEND_URL: urls.backend });
     await waitFor("backend", async () => (await fetch(`${urls.backend}/health`)).ok);
-    const workerEnv = readEnv(path.join(root, "worker/.env"));
-    const identity = spawnSync('python3', ['-B', '-c', 'import json, supervisor; print(json.dumps(supervisor.identity()))'], {
-      cwd: path.join(root, 'worker'), env: { ...baseEnv, ...workerEnv }, encoding: 'utf8',
+    const workerEnv = readEnv(path.join(root, "worker_image/.env"));
+    const identity = spawnSync('python3', ['-B', '-c', 'import json, main, supervisor; print(json.dumps(supervisor.identity()))'], {
+      cwd: path.join(root, 'worker_image'), env: { ...baseEnv, ...workerEnv }, encoding: 'utf8',
     });
     if (identity.status !== 0) throw new Error('Cannot determine worker identity');
     const workerId = JSON.parse(identity.stdout).worker_id;
-    launch("worker", "python3", ["-B", "worker.py"], path.join(root, "worker"), {
+    launch("worker", "python3", ["-B", "main.py"], path.join(root, "worker_image"), {
       ...workerEnv, BACKEND_URL: urls.backend, FRONTEND_URL: urls.frontend, PYTHONUNBUFFERED: "1",
     }, workerId);
     await check(state);

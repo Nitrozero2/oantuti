@@ -35,8 +35,8 @@ const readEnv = file => Object.fromEntries(readFileSync(file, 'utf8').split(/\r?
   const m = line.match(/^\s*([A-Z][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
   return m ? [[m[1], m[2].replace(/^(["'])(.*)\1$/, '$2')]] : [];
 }));
-const workerEnv = { ...process.env, ...readEnv(path.join(root, 'worker/.env')),
-  BACKEND_URL: state.backend, FRONTEND_URL: state.frontend, JUDGE0_URL: 'http://127.0.0.1:2358',
+const workerEnv = { ...process.env, ...readEnv(path.join(root, 'worker_image/.env')),
+  BACKEND_URL: state.backend, FRONTEND_URL: state.frontend,
   OTT_E2E_RUN_ID: state.runId, PYTHONUNBUFFERED: '1' };
 const account = JSON.parse(readFileSync(path.join(state.logDir, 'accounts.json'), 'utf8'))[0];
 const loggedIn = await fetch(`${state.frontend}/api/auth/login`, { method: 'POST',
@@ -73,8 +73,8 @@ async function applied(id, predicate) {
 function launch(name, role) {
   const log = path.join(state.logDir, `${role}.log`);
   const fd = openSync(log, 'a', 0o600);
-  const child = spawn('python3', ['-B', 'worker.py', '--name', name], {
-    cwd: path.join(root, 'worker'), env: workerEnv, detached: true, stdio: ['ignore', fd, fd],
+  const child = spawn('python3', ['-B', 'main.py', '--name', name], {
+    cwd: path.join(root, 'worker_image'), env: workerEnv, detached: true, stdio: ['ignore', fd, fd],
   });
   child.unref(); closeSync(fd);
   const previous = state.processes.findIndex(p => p.name === role);
@@ -98,8 +98,8 @@ try {
   assert.ok(alpha);
   let beta;
   await check('same console identity blocked before registration; named sibling independent', async () => {
-    const duplicate = spawnSync('python3', ['-B', 'worker.py', '--name', alpha.worker_name], {
-      cwd: path.join(root, 'worker'), env: workerEnv, encoding: 'utf8', timeout: 5000,
+    const duplicate = spawnSync('python3', ['-B', 'main.py', '--name', alpha.worker_name], {
+      cwd: path.join(root, 'worker_image'), env: workerEnv, encoding: 'utf8', timeout: 5000,
     });
     assert.equal(duplicate.status, 2);
     assert.ok(duplicate.stderr.includes('Worker đã chạy'));

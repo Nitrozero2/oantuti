@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {beforeAll,beforeEach,afterAll,it,expect,vi} from 'vitest';
 import {snapshotSQL} from './finals-snapshot';
+import {finalsDataTables,finalsResetQueries} from '../scripts/finals-reset-queries.mjs';
 const {state,session}=vi.hoisted(()=>({state:{db:null as PGlite|null},session:vi.fn()}));
 vi.mock('@/lib/session',()=>({getSession:session}));
 vi.mock('@/lib/finals-db',()=>({
@@ -23,6 +24,34 @@ const act=async(id:number,action:string,body:unknown={})=>{
 };
 const param=(id:number)=>({params:Promise.resolve({id:String(id)})});
 const req=(query='')=>new Request('http://localhost/api/finals/game'+query);
+it('backs up and clears finals atomically, retaining ordinary data and fencing stale runner IDs',async()=>{
+ const before=await q('SELECT * FROM public.arena_agents ORDER BY id');
+ const matches=await q('SELECT * FROM public.rated_matches ORDER BY id');
+ const id=Number(await create());await act(id,'lock_rules',{rules:FINALS_RULES});await act(id,'open_round',{round:1});
+ await q('CREATE TABLE IF NOT EXISTS finals.round_rules(edition_id bigint REFERENCES finals.editions(id),round integer,rules jsonb)');
+ await q("INSERT INTO finals.round_rules VALUES($1,1,'{}')",[id]);
+ const token=randomUUID();await finalsQuery('INSERT INTO workers VALUES($1,$2,now(),1)',['reset-test',token]);
+ const job=(await finalsQuery('SELECT claim_job($1,$2::uuid) AS job',['reset-test',token]))[0].job;
+ const reset=()=>state.db!.transaction(async tx=>{
+  for(const statement of finalsResetQueries('finals','test-reset',true))await tx.query(statement.text,statement.values??[]);
+ });
+ // A failure after truncation must restore both the data and backup transaction.
+ await expect(state.db!.transaction(async tx=>{
+  for(const statement of finalsResetQueries('finals','rollback-reset',true))await tx.query(statement.text,statement.values??[]);
+  throw Error('forced rollback');
+ })).rejects.toThrow('forced rollback');
+ expect((await q('SELECT count(*)::int AS n FROM finals.editions'))[0].n).toBe(1);
+ await reset();
+ for(const table of [...finalsDataTables,'round_rules'])expect((await q(`SELECT count(*)::int AS n FROM finals.${table}`))[0].n).toBe(0);
+ const backup=(await q("SELECT data FROM finals.reset_backups WHERE run_id='test-reset'"))[0].data as Record<string,unknown[]>;
+ expect(backup.editions).toHaveLength(1);expect(backup.entrants).toHaveLength(16);
+ expect(backup.games).toHaveLength(16);expect(backup.attempts).toHaveLength(1);
+ expect(backup.round_rules).toHaveLength(1);
+ expect(await q('SELECT * FROM public.arena_agents ORDER BY id')).toEqual(before);
+ expect(await q('SELECT * FROM public.rated_matches ORDER BY id')).toEqual(matches);
+ expect((await finalsQuery("SELECT record_step($1,$2::uuid,0,'{}','{}',NULL,'') AS ok",[job.attempt_id,token]))[0].ok).toBe(false);
+ expect(Number(await create())).toBeGreaterThan(id);
+});
 beforeAll(async()=>{
  state.db=new PGlite();
  for(const file of ['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','private_trials_migration.sql'])await state.db.exec(readFileSync(new URL('../'+file,import.meta.url),'utf8'));

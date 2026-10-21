@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { sql, sqlTransaction } from "@/lib/db";
 import { requireWorkerCallbackSecret } from "@/lib/worker-auth";
 import { isExecutionToken, isMatchId, isRecord, parseFinishedCallback, verifyDelivery } from "@/lib/match-callback";
-import { conservativeRating, rate1v1 } from "@/lib/trueskill";
+import { displayRating, rate1v1 } from "@/lib/trueskill";
+import { evaluateDraw } from '@/lib/draw-penalty';
 
 export const runtime = "nodejs";
 
@@ -65,7 +66,8 @@ export async function POST(request: Request) {
 
     const result = parseFinishedCallback(body);
     if (!result) return NextResponse.json({ error: "Invalid finished payload or missing execution_token." }, { status: 400 });
-    const { token, isInfra, outcome, winReason, infraDetail, totalMoves, moves, agentError } = result;
+    const { token, isInfra, outcome, infraDetail, totalMoves, moves, agentError } = result;
+    let winReason = result.winReason;
     const rows = await sql`
       SELECT id::int, kind, agent1_id::int, agent2_id::int, status, execution_token
       FROM rated_matches WHERE id = ${matchId}
@@ -105,6 +107,16 @@ export async function POST(request: Request) {
 
     let tsUpdate = null;
     if (!isInfra && outcome && match.kind === "rating") {
+      let draw = null;
+      if (outcome === 'draw') {
+        try {
+          if (totalMoves !== 200) throw new Error('A rated draw must last 200 plies; upgrade the worker');
+          draw = evaluateDraw(moves);
+        } catch(error) {
+          return NextResponse.json({error:error instanceof Error ? error.message : 'Invalid draw replay'}, {status:400});
+        }
+        winReason = `Hòa sau 200 nước. Phạt P1: -${draw.agent1.penalty}; P2: -${draw.agent2.penalty} điểm.`;
+      }
       const agents = await sql`
         SELECT id::int, trueskill_mu, trueskill_sigma, rating
         FROM arena_agents WHERE id IN (${match.agent1_id}, ${match.agent2_id})
@@ -115,7 +127,14 @@ export async function POST(request: Request) {
       const before1 = { mu: Number(a1.trueskill_mu), sigma: Number(a1.trueskill_sigma) };
       const before2 = { mu: Number(a2.trueskill_mu), sigma: Number(a2.trueskill_sigma) };
       const { agent1: after1, agent2: after2 } = rate1v1(before1, before2, outcome);
-      const rating1 = conservativeRating(after1), rating2 = conservativeRating(after2);
+      // Draws increase confidence; board penalties separately lower strength. Keep the point debit
+      // exact even while an existing deployment is switching score scales.
+      if (draw) {
+        after1.mu -= draw.agent1.penalty/40;
+        after2.mu -= draw.agent2.penalty/40;
+      }
+      const rating1 = draw ? Number(a1.rating)-draw.agent1.penalty : displayRating(after1);
+      const rating2 = draw ? Number(a2.rating)-draw.agent2.penalty : displayRating(after2);
       tsUpdate = { before1, before2, after1, after2, rating1, rating2,
         delta1: rating1 - Number(a1.rating), delta2: rating2 - Number(a2.rating) };
     }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { conservativeRating, rate1v1, TRUESKILL, type TrueSkillRating, type TrueSkillOutcome } from "@/lib/trueskill";
+import { displayRating, rate1v1, TRUESKILL, type TrueSkillRating, type TrueSkillOutcome } from "@/lib/trueskill";
 
 export const runtime = "nodejs";
 
@@ -42,7 +42,7 @@ export async function POST() {
       const rating = ratings.get(Number(agent.id))!, stat = stats.get(Number(agent.id))!;
       await sql`
         UPDATE arena_agents SET trueskill_mu = ${rating.mu}, trueskill_sigma = ${rating.sigma},
-          rating = ${conservativeRating(rating)}, wins = ${stat.wins}, losses = ${stat.losses}, draws = ${stat.draws}
+          rating = ${displayRating(rating)}, wins = ${stat.wins}, losses = ${stat.losses}, draws = ${stat.draws}
         WHERE id = ${agent.id}
       `;
     }

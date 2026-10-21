@@ -7,8 +7,7 @@ const BACKEND_URL =
 
 export interface HealthResponse {
   status: string;
-  judge0_connected: boolean;
-  judge0_url: string;
+  redis_connected: boolean;
   version: string;
 }
 

@@ -20,7 +20,7 @@ class EnqueueRatingRequest(BaseModel):
     agent1_code: str = Field(max_length=131072)   # 128 KB hard cap
     agent2_id: int
     agent2_code: str = Field(max_length=131072)
-    max_moves: int = Field(default=150, ge=50, le=1000)
+    max_moves: int = Field(default=200, ge=50, le=1000)
     callback_url: str = Field(default="", max_length=256)
 
 
@@ -52,7 +52,7 @@ async def enqueue_rating_task(
         "agent1_code": req.agent1_code,
         "agent2_id": req.agent2_id,
         "agent2_code": req.agent2_code,
-        "max_moves": min(req.max_moves, 60 if req.kind == 'validation' else 150),
+        "max_moves": min(req.max_moves, 60) if req.kind == 'validation' else 200,
         # callback_url bị bỏ qua — worker dùng FRONTEND_URL env var mình cấu hình
     }
     await get_redis().enqueue_worker_task(json.dumps(task))

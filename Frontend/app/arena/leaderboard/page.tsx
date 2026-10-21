@@ -106,7 +106,7 @@ export default function ArenaLeaderboardPage() {
       </div>
       {tab !== 'matches' && <>
         <input aria-label="Tìm leaderboard" placeholder="Tìm username hoặc agent…" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="mb-4 w-full rounded-full border border-[#ded8d3] bg-white px-5 py-3" />
-        <p className="mb-5 max-w-4xl text-sm text-slate-600">Mỗi cá nhân hoặc team được xếp hạng bằng agent tốt nhất có ít nhất 10 trận rating hợp lệ. Khi đang thuộc team, agent cá nhân được giữ riêng nhưng tạm ngừng rating và không tạo thêm vị trí cá nhân. Điểm tính theo μ − 3σ.</p>
+        <p className="mb-5 max-w-4xl text-sm text-slate-600">Mỗi cá nhân hoặc team được xếp hạng bằng agent tốt nhất có ít nhất 10 trận rating hợp lệ. Khi đang thuộc team, agent cá nhân được giữ riêng nhưng tạm ngừng rating và không tạo thêm vị trí cá nhân. Agent bắt đầu ở 1000 điểm. Hòa sau 200 nước bị trừ 4–32 điểm mỗi bên; ít quân địch hơn hoặc quân mình gần đích hơn thì bị trừ ít hơn.</p>
         {data?.me ? <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border border-[#ded8d3] bg-white p-3 text-sm">
           <span>Vị trí của tôi: <strong>{data.me.rank ? `#${data.me.rank}` : 'Đang hiệu chỉnh'}</strong> · {data.me.agent.elo} điểm</span>
           <button className="text-[#253B80] underline" onClick={() => { setSearch(''); setTab(data.me!.eligible ? 'rankings' : 'calibrating'); setPage(data.me!.page); }}>Vị trí của tôi →</button>

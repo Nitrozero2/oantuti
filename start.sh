@@ -2,7 +2,6 @@
 # =============================================================================
 # start.sh — Khởi động toàn bộ stack OTTv2 (production mode, chạy nền)
 #
-#   Judge0   → http://localhost:2358
 #   Backend  → http://localhost:8000
 #   Worker   → poll Redis queue
 #   Frontend → http://localhost:3000  (nếu có)
@@ -11,9 +10,8 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$SCRIPT_DIR/backend"
-WORKER_DIR="$SCRIPT_DIR/worker"
+WORKER_DIR="$SCRIPT_DIR/worker_image"
 FRONTEND_DIR="$SCRIPT_DIR/Frontend"
-JUDGE0_DIR="$SCRIPT_DIR/judge0"
 LOG_DIR="$SCRIPT_DIR/logs"
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; RED='\033[0;31m'; NC='\033[0m'
@@ -23,33 +21,8 @@ step()  { echo -e "${CYAN}[STEP]${NC}  $*"; }
 
 mkdir -p "$LOG_DIR"
 
-# ── 1. Judge0 ─────────────────────────────────────────────────────────────────
-step "1/4 Judge0..."
-if [ ! -d "$JUDGE0_DIR" ]; then
-  warn "  Chưa cài Judge0. Chạy ./setup.sh trước."
-else
-  if curl -sf http://localhost:2358/about >/dev/null 2>&1; then
-    info "  Judge0 đang chạy ✓"
-  else
-    info "  Khởi động Judge0..."
-    cd "$JUDGE0_DIR"
-    docker compose up -d db redis 2>&1 | tail -2
-    info "  Chờ DB + Redis (15s)..."
-    sleep 15
-    docker compose up -d 2>&1 | tail -3
-    info "  Chờ worker (20s)..."
-    sleep 20
-    if curl -sf http://localhost:2358/about >/dev/null 2>&1; then
-      info "  ✅ Judge0 sẵn sàng"
-    else
-      warn "  ⚠️  Judge0 chưa phản hồi. Kiểm tra: docker compose -f judge0/docker-compose.yml logs"
-    fi
-    cd "$SCRIPT_DIR"
-  fi
-fi
-
 # ── 2. Backend (FastAPI) ──────────────────────────────────────────────────────
-step "2/4 Backend..."
+step "1/3 Backend..."
 OLD_PID=$(lsof -ti :8000 2>/dev/null || true)
 if [ -n "$OLD_PID" ]; then
   warn "  Port 8000 đang bị chiếm (PID $OLD_PID), kill..."
@@ -78,42 +51,16 @@ else
   fi
 fi
 
-# ── 3. Worker ─────────────────────────────────────────────────────────────────
-step "3/4 Worker..."
-if [ ! -f "$WORKER_DIR/venv/bin/activate" ]; then
-  warn "  Worker chưa được cài. Chạy ./setup.sh trước."
-elif [ ! -f "$WORKER_DIR/.env" ]; then
-  warn "  worker/.env chưa được cấu hình. Bỏ qua."
+# ── Python sandbox worker ────────────────────────────────────────────────────
+step "2/3 Python worker..."
+if [ ! -f "$WORKER_DIR/.env" ]; then
+  warn "worker_image/.env chưa được cấu hình. Bỏ qua worker."
 else
-  # Kill worker cũ nếu có
-  if [ -f "$LOG_DIR/worker.pid" ]; then
-    OLD_WPID=$(cat "$LOG_DIR/worker.pid" 2>/dev/null || true)
-    if [ -n "$OLD_WPID" ] && kill -0 "$OLD_WPID" 2>/dev/null; then
-      kill "$OLD_WPID" 2>/dev/null || true
-      sleep 1
-    fi
-    rm -f "$LOG_DIR/worker.pid"
-  fi
-
-  cd "$WORKER_DIR"
-  source venv/bin/activate
-  nohup python worker.py \
-    >> "$LOG_DIR/worker.log" 2>&1 &
-  WORKER_PID=$!
-  echo $WORKER_PID > "$LOG_DIR/worker.pid"
-  deactivate
-  cd "$SCRIPT_DIR"
-
-  sleep 2
-  if kill -0 $WORKER_PID 2>/dev/null; then
-    info "  ✅ Worker (PID $WORKER_PID) đang poll Redis"
-  else
-    warn "  ⚠️  Worker không khởi động. Xem: tail -f $LOG_DIR/worker.log"
-  fi
+  bash "$SCRIPT_DIR/dockerworker.sh" up
 fi
 
 # ── 4. Frontend (tùy chọn) ────────────────────────────────────────────────────
-step "4/4 Frontend..."
+step "3/3 Frontend..."
 if [ ! -f "$FRONTEND_DIR/package.json" ]; then
   warn "  Không tìm thấy Frontend. Bỏ qua."
 else
@@ -152,12 +99,11 @@ echo -e "${GREEN}═════════════════════
 echo ""
 echo "  🌐 Frontend  →  http://localhost:3000"
 echo "  ⚙️  Backend   →  http://localhost:8000/docs"
-echo "  🔧 Judge0    →  http://localhost:2358/about"
-echo "  🤖 Worker    →  đang poll Redis (xem logs/worker.log)"
+echo "  🤖 Worker    →  Python sandbox (xem ./dockerworker.sh logs)"
 echo ""
 echo "  Logs:"
 echo "    tail -f $LOG_DIR/backend.log"
-echo "    tail -f $LOG_DIR/worker.log"
+echo "    ./dockerworker.sh logs"
 echo "    tail -f $LOG_DIR/frontend.log"
 echo ""
 echo "  Để dừng: ./stop.sh"

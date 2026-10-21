@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
-# setup.sh — Cài đặt OTTv2 (Judge0 + Backend + Worker + Frontend)
+# setup.sh — Cài đặt OTTv2 (Backend + Python Worker + Frontend)
 # Chạy 1 lần duy nhất trên máy mới.
 #
 # Kiến trúc:
 #   Frontend (Vercel) ←→ FastAPI (Vercel) ←→ Redis (Upstash) ←→ Worker (máy này)
 #                                                                      ↓
-#                                                                  Judge0 (Docker)
+#                                                                  Python sandbox (Docker)
 # =============================================================================
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$SCRIPT_DIR/backend"
-WORKER_DIR="$SCRIPT_DIR/worker"
+WORKER_DIR="$SCRIPT_DIR/worker_image"
 FRONTEND_DIR="$SCRIPT_DIR/Frontend"
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
@@ -58,25 +58,14 @@ else
   info "  backend/.env đã tồn tại."
 fi
 
-# ── 3. Worker: virtualenv + pip ───────────────────────────────────────────────
-step "3/5 Cài đặt worker dependencies..."
-cd "$WORKER_DIR"
-if [ ! -d "venv" ]; then
-  python3 -m venv venv
-  info "  Đã tạo worker virtualenv."
-fi
-source venv/bin/activate
-pip install --quiet --upgrade pip
-pip install --quiet -r requirements.txt
-deactivate
-info "  Worker dependencies OK."
-
-# Worker .env
+# ── 3. Worker configuration ───────────────────────────────────────────────────
+step "3/5 Cấu hình Python worker..."
 if [ ! -f "$WORKER_DIR/.env" ]; then
   cp "$WORKER_DIR/.env.example" "$WORKER_DIR/.env"
-  warn "  Đã tạo worker/.env — hãy điền BACKEND_URL và WORKER_SECRET!"
+  chmod 600 "$WORKER_DIR/.env"
+  warn "Đã tạo worker_image/.env — điền URL backend/frontend và secrets trước khi chạy."
 else
-  info "  worker/.env đã tồn tại."
+  info "worker_image/.env đã tồn tại."
 fi
 
 # ── 4. Frontend: npm install ──────────────────────────────────────────────────
@@ -98,30 +87,9 @@ else
   warn "  Node.js không có — bỏ qua frontend."
 fi
 
-# ── 5. Judge0 ─────────────────────────────────────────────────────────────────
-step "5/5 Kiểm tra Judge0..."
-JUDGE0_DIR="$SCRIPT_DIR/judge0"
-if [ ! -d "$JUDGE0_DIR" ]; then
-  info "  Tải Judge0 CE v1.13.1..."
-  mkdir -p "$JUDGE0_DIR"
-  cd "$JUDGE0_DIR"
-  if command -v wget >/dev/null 2>&1; then
-    wget -q "https://github.com/judge0/judge0/releases/download/v1.13.1/judge0-v1.13.1.zip" -O judge0.zip
-  else
-    curl -sL "https://github.com/judge0/judge0/releases/download/v1.13.1/judge0-v1.13.1.zip" -o judge0.zip
-  fi
-  unzip -q judge0.zip
-  mv judge0-v1.13.1/* .
-  rm -f judge0.zip
-  rmdir judge0-v1.13.1 2>/dev/null || true
-  REDIS_PASS=$(openssl rand -hex 32)
-  POSTGRES_PASS=$(openssl rand -hex 32)
-  echo "REDIS_PASSWORD=$REDIS_PASS"       >> judge0.conf
-  echo "POSTGRES_PASSWORD=$POSTGRES_PASS" >> judge0.conf
-  info "  Judge0 đã tải về."
-else
-  info "  Thư mục judge0/ đã tồn tại."
-fi
+# ── 5. Python sandbox image ──────────────────────────────────────────────────
+step "5/5 Build Python worker image..."
+docker compose -f "$WORKER_DIR/compose.yaml" build worker-python
 
 # ── Tóm tắt ──────────────────────────────────────────────────────────────────
 echo ""
@@ -134,14 +102,14 @@ echo "     UPSTASH_REDIS_REST_URL=https://..."
 echo "     UPSTASH_REDIS_REST_TOKEN=..."
 echo "     WORKER_SECRET=<chuỗi ngẫu nhiên>"
 echo ""
-echo "  📄 worker/.env"
-echo "     BACKEND_URL=http://localhost:8000   (local test)"
+echo "  📄 worker_image/.env"
+echo "     BACKEND_URL=http://host.docker.internal:8000   (local test)"
 echo "     WORKER_SECRET=<giống với backend>"
 echo ""
 echo "  📄 Frontend/.env.local"
 echo "     DATABASE_URL=postgresql://..."
 echo "     SESSION_SECRET=..."
-echo "     BACKEND_URL=http://localhost:8000   (local test)"
+echo "     BACKEND_URL=http://host.docker.internal:8000   (local test)"
 echo ""
 echo "  Sau khi điền xong:"
 echo "    ./start.sh   — khởi động toàn bộ"

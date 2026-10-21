@@ -1,3 +1,4 @@
+import {cleanDisplay} from '@/lib/finals-display';
 import {NextResponse} from 'next/server';
 import {getSession} from '@/lib/session';
 import {finalsQuery,snapshotFinals} from '@/lib/finals-db';
@@ -19,10 +20,10 @@ export async function POST(request:Request){
    if(typeof body.name!=='string'||!body.name.trim()||body.name.trim().length>100||typeof body.request_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.request_id))return NextResponse.json({error:'Cần tên giải và request_id UUID hợp lệ.'},{status:400});
    const id=await snapshotFinals(session.id,body.name.trim(),body.request_id);return NextResponse.json({ok:true,edition_id:id});
   }
-  if(!validFinalsId(body.edition_id)||!validFinalsId(body.revision)||!['lock_rules','cancel','open_round','confirm_pair','publish','retry','adjudicate','import','interrupt'].includes(body.action))return NextResponse.json({error:'Thao tác không hợp lệ.'},{status:400});
+  if(!validFinalsId(body.edition_id)||!validFinalsId(body.revision)||!['open_submissions','lock_round','lock_rules','cancel','open_round','confirm_pair','publish','retry','adjudicate','import','interrupt'].includes(body.action))return NextResponse.json({error:'Thao tác không hợp lệ.'},{status:400});
   const payload={...body};delete payload.action;delete payload.edition_id;delete payload.revision;
   if(payload.reason!==undefined&&(typeof payload.reason!=='string'||payload.reason.length>2000))return NextResponse.json({error:'Lý do tối đa 2000 ký tự.'},{status:400});
-  if(body.action==='import')payload.moves=cleanRecord(body.moves);
+  if(body.action==='import'){payload.moves=cleanRecord(body.moves);if(body.initial_state!==undefined)payload.initial_state=cleanDisplay(body.initial_state);}
   const rows=await finalsQuery('SELECT admin_action($1,$2,$3,$4,$5::jsonb) AS result',[session.id,body.edition_id,body.revision,body.action,JSON.stringify(payload)]);
   return NextResponse.json(rows[0].result);
  }catch(error){return finalsError(error);}

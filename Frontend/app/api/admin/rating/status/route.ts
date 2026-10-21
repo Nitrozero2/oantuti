@@ -23,6 +23,10 @@ export async function GET() {
             SELECT 1 FROM rating_agent_schedule opponent
             WHERE opponent.id <> a.id AND opponent.user_id <> a.user_id AND NOT opponent.busy
               AND opponent.budget_remaining > 0 AND (opponent.backoff_until IS NULL OR opponent.backoff_until <= NOW())
+              AND (SELECT COUNT(*) FROM rated_matches draws WHERE draws.kind='rating' AND draws.status='finished'
+                AND NOT draws.is_infra_error AND draws.outcome='draw' AND draws.finished_at>NOW()-INTERVAL '24 hours'
+                AND LEAST(draws.agent1_id,draws.agent2_id)=LEAST(a.id,opponent.id)
+                AND GREATEST(draws.agent1_id,draws.agent2_id)=GREATEST(a.id,opponent.id)) < 2
               AND NOT EXISTS (
                 SELECT 1 FROM rated_matches recent WHERE recent.kind='rating' AND recent.status <> 'cancelled'
                   AND LEAST(recent.agent1_id,recent.agent2_id)=LEAST(a.id,opponent.id)

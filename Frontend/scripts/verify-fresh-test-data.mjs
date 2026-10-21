@@ -113,8 +113,8 @@ for (const worker of state.workers.filter(w => w.previousMode !== 'running')) {
       assert.ok(attempt < 30, 'Temporary worker did not stop'); await sleep(1000);
     }
     const pid = worker.temporarySupervisorPid;
-    assert.equal(readlinkSync(`/proc/${pid}/cwd`), path.resolve('../worker'));
-    assert.ok(readFileSync(`/proc/${pid}/cmdline`, 'utf8').includes('worker.py'));
+    assert.equal(readlinkSync(`/proc/${pid}/cwd`), path.resolve('../worker_image'));
+    assert.ok(readFileSync(`/proc/${pid}/cmdline`, 'utf8').includes('main.py'));
     process.kill(pid, 'SIGTERM');
   }
 }

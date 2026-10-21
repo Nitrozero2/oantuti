@@ -1,293 +1,89 @@
-# Hướng dẫn Deploy — Kiến trúc Phân tán
+# Triển khai backend, frontend và Python worker
 
-## Tổng quan
+Backend FastAPI quản lý Redis queue và lease. Frontend Next.js lưu agent, rating,
+lịch sử và replay trong PostgreSQL. Worker Docker nhận cả trận rồi chạy engine
+và Python agents trong Bubblewrap; không có dịch vụ thực thi HTTP cho worker chính.
 
-```
-Frontend (Vercel/Next.js)
-    ↕ HTTPS
-FastAPI (Vercel Serverless)
-    ↕ Upstash REST API
-Redis Queue (Upstash)
-    ↕ Poll qua HTTPS
-Worker (máy local có Judge0)
-    ↓
-Judge0 (Docker, localhost)
-```
+## Backend
 
----
-
-## 1. Upstash Redis (đã có)
-
-Đã cấu hình:
-- URL: `https://factual-stingray-170088.upstash.io`
-- Token đã điền trong `backend/.env`
-
-**Không commit `.env` lên git.** Dùng Vercel Environment Variables thay thế.
-
----
-
-## 2. Deploy FastAPI lên Vercel
-
-### Chuẩn bị
+Cài dependencies trong `backend/requirements.txt`. Điền `backend/.env` hoặc các
+biến môi trường tương ứng: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`,
+`WORKER_SECRET`, `INTERNAL_BACKEND_SECRET`. Khởi động bằng:
 
 ```bash
 cd backend
-# Đảm bảo vercel.json và api/index.py tồn tại
-ls vercel.json api/index.py
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Deploy lần đầu
+Kiểm tra `/health` trả `redis_connected: true`.
+
+## Frontend
+
+Điền `Frontend/.env.local` khi chạy local hoặc cấu hình môi trường trên hosting:
+`DATABASE_URL`, `SESSION_SECRET`, `BACKEND_URL`, `INTERNAL_BACKEND_SECRET` và
+`WORKER_CALLBACK_SECRET`. Dùng migration phù hợp với database hiện tại; không
+chạy lại migration khởi tạo có reset dữ liệu trên database đang sử dụng.
 
 ```bash
-cd backend
-npx vercel deploy --prod
+cd Frontend
+npm ci
+npm run build
+npm start
 ```
 
-Vercel sẽ hỏi project name và settings. Chọn defaults, không override build command.
+## Worker Python
 
-### Cấu hình Environment Variables trên Vercel
+Máy worker cần Linux, Docker Engine, Compose và quyền tạo nested user namespaces.
+Copy `worker_image/.env.example` thành `worker_image/.env`, đặt:
 
-Vào **Vercel Dashboard → Project → Settings → Environment Variables**, thêm:
+- `BACKEND_URL`: URL backend mà container truy cập được.
+- `FRONTEND_URL`: URL frontend nhận callback.
+- `WORKER_SECRET`: khớp backend.
+- `WORKER_CALLBACK_SECRET`: khớp frontend.
+- `WORKER_ID`: tên ổn định; khác nhau nếu chạy nhiều worker trên cùng máy.
+- `AGENT_CPU_SECONDS`, `AGENT_WALL_SECONDS`, `AGENT_MEMORY_MB`: giới hạn mỗi lượt.
 
-| Key | Value |
-|-----|-------|
-| `UPSTASH_REDIS_REST_URL` | `https://factual-stingray-170088.upstash.io` |
-| `UPSTASH_REDIS_REST_TOKEN` | (token từ Upstash) |
-| `WORKER_SECRET` | (một chuỗi ngẫu nhiên, ví dụ: `openssl rand -hex 32`) |
-| `CORS_ORIGINS` | `["https://your-frontend.vercel.app"]` |
-| `MAX_MOVES_PER_MATCH` | `500` |
-| `JOB_TTL_SECONDS` | `3600` |
-| `MATCH_TTL_SECONDS` | `86400` |
+Nếu server chạy trên chính host Docker, dùng `host.docker.internal`; nếu ở máy
+khác, dùng địa chỉ server thật. `localhost` bên trong container trỏ về container.
 
-> `JUDGE0_URL` không cần thiết trên Vercel — FastAPI chỉ quản lý queue, không gọi Judge0 trực tiếp nữa.
-
-### Kiểm tra sau deploy
+Từ repository root:
 
 ```bash
-curl https://your-backend.vercel.app/health
-# Kỳ vọng: {"status":"ok","redis_connected":true,"version":"1.0.0"}
+./dockerworker.sh
+./dockerworker.sh status
+./dockerworker.sh logs
+./dockerworker.sh stop
 ```
 
----
+Lệnh mặc định build, self-check sandbox và tạo lại worker. Điều khiển xử lý trận
+và concurrency tại `/admin/workers`. Worker đã dừng trong admin cần bấm Bật worker
+để xử lý tiếp; recreate container không xóa trạng thái đã lưu.
 
-## 3. Chạy Worker trên máy có Judge0
-
-### Cài đặt lần đầu
+## Chuyển image có cấu hình sang máy khác
 
 ```bash
-cd worker
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+./dockerworker.sh export
 ```
 
-### Cấu hình
+Chuyển `worker-image.tar.gz` và `compose.yaml` trong thư mục xuất `logs/worker_bundle_*`.
+Máy nhận phải cùng kiến trúc CPU. Trong thư mục chứa hai file:
 
 ```bash
-cp .env.example .env
-nano .env
+gunzip -c worker-image.tar.gz | docker load
+docker compose run --rm --no-deps worker-python --check
+docker compose up -d
 ```
 
-Điền:
-```env
-BACKEND_URL=https://your-backend.vercel.app
-WORKER_SECRET=<khớp với WORKER_SECRET trên Vercel>
-JUDGE0_URL=http://localhost:2358
-MAX_CONCURRENT=2
-```
+Image này chứa secrets trong `.env`; chỉ chia sẻ cho máy/người tin cậy. Không cần
+source code, Dockerfile hoặc `.env` ngoài image. Thay cấu hình nhúng thì export lại.
 
-### Khởi động
+## Kiểm thử
 
 ```bash
-source venv/bin/activate
-python worker.py
+./dockerworker.sh test
+LOCAL_TEST_FRONTEND_PORT=3301 LOCAL_TEST_BACKEND_PORT=8301 node worker_image/test-local.mjs
 ```
 
-Log bình thường:
-```
-Worker my-host starting...
-  Backend: https://your-backend.vercel.app
-  Judge0:  http://localhost:2358
-  Max concurrent: 2
-```
-
-### Chạy nền với systemd (Linux)
-
-Tạo file `/etc/systemd/system/ottv2-worker.service`:
-
-```ini
-[Unit]
-Description=OTTv2 Worker
-After=network.target
-
-[Service]
-Type=simple
-User=<your-user>
-WorkingDirectory=/path/to/Oantuti/worker
-EnvironmentFile=/path/to/Oantuti/worker/.env
-ExecStart=/path/to/Oantuti/worker/venv/bin/python worker.py
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable ottv2-worker
-sudo systemctl start ottv2-worker
-sudo journalctl -u ottv2-worker -f  # xem log
-```
-
----
-
-## 4. Cập nhật Frontend
-
-Frontend cần cập nhật để dùng flow async mới.
-
-### Flow mới cho `friendly/live`
-
-Thay vì loop `POST /matches/{id}/step` (blocking), giờ phải:
-
-```typescript
-// 1. Tạo match
-const { match_id } = await backendFetch('/matches/', { method: 'POST', body: ... })
-
-// 2. Loop cho đến game_over
-while (!gameOver) {
-  // 2a. Enqueue step
-  const { job_id } = await backendFetch(`/matches/${match_id}/step`, { method: 'POST' })
-
-  // 2b. Poll job
-  let job
-  while (true) {
-    job = await backendFetch(`/jobs/${job_id}`)
-    if (job.status === 'completed' || job.status === 'failed') break
-    await sleep(1000)
-  }
-
-  // 2c. Apply result
-  const stepResult = await backendFetch(`/matches/${match_id}/apply-job`, {
-    method: 'POST',
-    body: JSON.stringify({ job_id })
-  })
-
-  gameOver = stepResult.game_over
-}
-```
-
-> **Lưu ý Vercel Hobby timeout 30s:** Mỗi request phải xong trong 30s.
-> - `POST /matches/{id}/step` → trả về ngay (~100ms)
-> - `GET /jobs/{job_id}` → trả về ngay (~100ms)
-> - `POST /matches/{id}/apply-job` → trả về ngay (~200ms)
-> - Chỉ Worker mới blocking khi chờ Judge0
-
-### Cập nhật `lib/api.ts` hoặc `lib/backend.ts`
-
-Thêm các hàm:
-- `stepMatchAsync(matchId)` → `{ job_id }`
-- `pollJob(jobId)` → `{ status, result }`
-- `applyJob(matchId, jobId)` → `StepResult`
-
----
-
-## 5. Thêm host Worker mới
-
-Không cần sửa backend hay frontend. Chỉ cần:
-
-1. Cài Judge0 trên máy mới
-2. Copy thư mục `worker/` sang máy mới
-3. Tạo `.env` với `BACKEND_URL` và `WORKER_SECRET` giống nhau
-4. Đặt `WORKER_ID` khác nhau (ví dụ `host-02`)
-5. Chạy `python worker.py`
-
-Worker mới sẽ tự poll cùng Redis queue và nhận job.
-
----
-
-## 6. Kiểm tra và debug
-
-### Xem queue depth
-
-```bash
-curl https://your-backend.vercel.app/tournament/status
-```
-
-### Xem trạng thái job
-
-```bash
-curl https://your-backend.vercel.app/jobs/<job_id>
-```
-
-### Xem log worker
-
-```bash
-tail -f /var/log/ottv2-worker.log
-# hoặc nếu chạy tay:
-python worker.py 2>&1 | tee worker.log
-```
-
-### Worker không nhận job?
-
-1. Kiểm tra `WORKER_SECRET` khớp với backend
-2. Kiểm tra `BACKEND_URL` đúng và accessible
-3. Kiểm tra Judge0: `curl http://localhost:2358/about`
-4. Kiểm tra log worker cho lỗi cụ thể
-
-### Job stuck ở trạng thái `claimed`?
-
-Job bị claim nhưng worker crash → sau `JOB_TTL_SECONDS` job sẽ tự hết hạn trong Redis.
-Worker mới sẽ không thấy job đó nữa → match sẽ timeout phía frontend.
-
-Để handle tốt hơn: implement timeout scanning (TODO trong `job_service.py`).
-
----
-
-## 7. Security checklist
-
-- [ ] `WORKER_SECRET` phải đủ mạnh (dùng `openssl rand -hex 32`)
-- [ ] Không commit `.env` lên git (đã có trong `.gitignore`)
-- [ ] `CORS_ORIGINS` trên Vercel chỉ cho phép domain frontend
-- [ ] Upstash token không expose ra frontend
-- [ ] Judge0 chỉ accessible từ localhost (không mở port ra ngoài)
-- [ ] Worker không cần inbound port — chỉ kết nối outbound
-
----
-
-## 8. Sơ đồ luồng đầy đủ
-
-```
-Frontend                FastAPI/Vercel           Redis            Worker         Judge0
-   |                         |                     |                |               |
-   |-- POST /matches ------->|                     |                |               |
-   |<-- {match_id} ----------|                     |                |               |
-   |                         |                     |                |               |
-   |-- POST /matches/        |                     |                |               |
-   |      {id}/step -------->|                     |                |               |
-   |                         |-- save job -------->|                |               |
-   |                         |-- LPUSH queue ----->|                |               |
-   |<-- {job_id, queued} ----|                     |                |               |
-   |                         |                     |                |               |
-   |                         |                     |<-- RPOP -------|               |
-   |                         |                     |-- job data --->|               |
-   |                         |                     |                |-- submit ---->|
-   |                         |                     |                |<-- result ----|
-   |                         |                     |                |               |
-   |-- GET /jobs/{job_id} -->|                     |                |               |
-   |                         |<-- load job --------|                |               |
-   |<-- {status: queued} ----|    (still queued)   |                |               |
-   |  (poll lại sau 1s)      |                     |                |               |
-   |                         |                     |<-- complete ---|               |
-   |                         |                     |-- job updated->|               |
-   |-- GET /jobs/{job_id} -->|                     |                |               |
-   |                         |<-- load job --------|                |               |
-   |<-- {status:completed} --|                     |                |               |
-   |                         |                     |                |               |
-   |-- POST /matches/        |                     |                |               |
-   |      {id}/apply-job --->|                     |                |               |
-   |                         |-- load job + match->|                |               |
-   |                         |-- apply move        |                |               |
-   |                         |-- save match ------>|                |               |
-   |<-- StepResult ----------|                     |                |               |
-```
+Test local tạo schema PostgreSQL và namespace Redis riêng, rồi dọn khi hoàn tất.
+Hướng dẫn chi tiết: [worker_image/README.md](worker_image/README.md).
+Năm worker Chung kết được quản lý riêng theo [worker_ck/README.md](worker_ck/README.md). Cần migration Chung kết mới và năm token API riêng; worker rating không nhận trận Chung kết.

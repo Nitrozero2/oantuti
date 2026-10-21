@@ -4,7 +4,6 @@
 # =============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/logs"
-JUDGE0_DIR="$SCRIPT_DIR/judge0"
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 info() { echo -e "${GREEN}[INFO]${NC}  $*"; }
@@ -33,21 +32,15 @@ kill_by_pid_file() {
   fi
 }
 
+# Stop the worker while backend/frontend are still available for lease recovery.
+if command -v docker >/dev/null 2>&1; then
+  docker compose -f "$SCRIPT_DIR/worker_image/compose.yaml" stop worker-python
+fi
+
 kill_by_pid_file "Frontend" "$LOG_DIR/frontend.pid" "3000"
 kill_by_pid_file "Backend"  "$LOG_DIR/backend.pid"  "8000"
 kill_by_pid_file "Worker"   "$LOG_DIR/worker.pid"   ""
 
-# Judge0 (hỏi trước vì docker down chậm)
-if [ -d "$JUDGE0_DIR" ]; then
-  read -rp "Dừng Judge0 Docker containers? (y/N): " CONFIRM
-  if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-    cd "$JUDGE0_DIR"
-    docker compose down
-    info "Judge0 đã dừng."
-  else
-    info "Judge0 vẫn đang chạy (bỏ qua)."
-  fi
-fi
 
 echo ""
 info "Đã dừng xong."

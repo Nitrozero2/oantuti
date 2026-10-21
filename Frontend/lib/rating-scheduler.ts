@@ -22,7 +22,7 @@ export async function dispatchNextRatingTask() {
     method: "POST", timeoutMs: 10_000,
     body: JSON.stringify({ rated_match_id: match.match_id, kind: match.kind,
       agent1_id: match.agent1_id, agent2_id: match.agent2_id,
-      agent1_code: match.agent1_code, agent2_code: match.agent2_code, max_moves: match.kind === 'validation' ? 60 : 150 }),
+      agent1_code: match.agent1_code, agent2_code: match.agent2_code, max_moves: match.kind === 'validation' ? 60 : 200 }),
   });
   if (!response.ok) {
     await sql`UPDATE rated_matches SET dispatch_token = NULL, dispatch_lease_until = NULL

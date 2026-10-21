@@ -257,7 +257,7 @@ export default function AdminSettingsPage() {
               {!ws || ws.workers.length === 0 ? (
                 <div className="px-5 py-8 text-center text-sm text-slate-500">
                   Không có worker nào đang online.{" "}
-                  <span className="text-xs">Chạy <code className="bg-stone-100 px-1 font-mono text-[#253B80]">python worker.py</code> trên máy có Judge0.</span>
+                  <span className="text-xs">Chạy <code className="bg-stone-100 px-1 font-mono text-[#253B80]">./dockerworker.sh</code> trên máy có Docker.</span>
                 </div>
               ) : (
                 <div className="divide-y divide-[#ded8d3]">

@@ -17,8 +17,17 @@ export async function GET(request:Request,{params}:{params:Promise<{id:string}>}
    LEFT JOIN attempts a ON a.id=g.active_attempt WHERE g.id=$1 AND ($2 OR g.published)`,[id,admin]);
   if(!rows.length)return NextResponse.json({error:'Ván chưa được công bố hoặc không tồn tại.'},{status:404});
   const game=rows[0];
+  const upgraded=(await finalsQuery("SELECT to_regclass('ck_rounds') IS NOT NULL AS present"))[0].present;
+  if(upgraded){
+   const metadata=await finalsQuery(`SELECT g.engine_digest,g.engine_version,g.round_rules,a.initial_state,
+    coalesce(one.name,$2::text) AS agent1_name,coalesce(two.name,$3::text) AS agent2_name
+    FROM games g LEFT JOIN attempts a ON a.id=g.active_attempt
+    LEFT JOIN ck_submissions one ON one.id=g.submission1 LEFT JOIN ck_submissions two ON two.id=g.submission2
+    WHERE g.id=$1`,[id,game.agent1_name,game.agent2_name]);
+   Object.assign(game,metadata[0]);
+  }
   const sameAttempt=query.get('attempt')===String(game.active_attempt);
-  const moves=game.active_attempt?await finalsQuery('SELECT seq,move FROM moves WHERE attempt_id=$1 AND seq>$2 ORDER BY seq',[game.active_attempt,sameAttempt?after:0]):[];
-  return NextResponse.json({game,moves: moves.map(m=>({...m.move,move_number:m.seq})),reset:!sameAttempt},{headers:{'Cache-Control':'no-store'}});
+  const moves=game.active_attempt?await finalsQuery('SELECT seq,move,state FROM moves WHERE attempt_id=$1 AND seq>$2 ORDER BY seq',[game.active_attempt,sameAttempt?after:0]):[];
+  return NextResponse.json({game,moves: moves.map(m=>({...m.move,move_number:m.seq,display:m.state})),reset:!sameAttempt},{headers:{'Cache-Control':'no-store'}});
  }catch(error){return finalsError(error);}
 }

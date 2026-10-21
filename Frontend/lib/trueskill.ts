@@ -43,8 +43,9 @@ function invCdf(p: number): number {
 
 function safeDiv(n: number, d: number) { return n / Math.max(d, 1e-12); }
 
-export function conservativeRating({ mu, sigma }: TrueSkillRating) {
-  return Math.round(1000 + 40 * (mu - 3 * sigma));
+// Strength and confidence are separate: shrinking sigma must never mint points.
+export function displayRating({ mu }: TrueSkillRating) {
+  return Math.round(1000 + 40 * (mu - TRUESKILL.initialMu));
 }
 
 export function confidence({ sigma }: TrueSkillRating) {
@@ -57,27 +58,31 @@ export function matchQuality(a: TrueSkillRating, b: TrueSkillRating) {
 }
 
 export function rate1v1(a: TrueSkillRating, b: TrueSkillRating, outcome: TrueSkillOutcome) {
+  if (outcome === 'draw') {
+    // A completed draw supplies confidence evidence, while board penalties decide
+    // strength separately. Use the centered draw variance update, independent of
+    // the mean gap, so neither side gains strength from drawing a stronger agent.
+    // Omit process noise here: observing a draw must not increase uncertainty.
+    const varianceA = a.sigma ** 2, varianceB = b.sigma ** 2;
+    const variance = 2 * TRUESKILL.beta ** 2 + varianceA + varianceB;
+    const margin = Math.SQRT2 * TRUESKILL.beta * invCdf((TRUESKILL.drawProbability + 1) / 2);
+    const width = margin / Math.sqrt(variance);
+    const information = Math.max(0, Math.min(1, safeDiv(2 * width * pdf(width), 2 * cdf(width) - 1)));
+    return {
+      agent1: { mu: a.mu, sigma: Math.sqrt(Math.max(0, varianceA * (1 - varianceA * information / variance))) },
+      agent2: { mu: b.mu, sigma: Math.sqrt(Math.max(0, varianceB * (1 - varianceB * information / variance))) },
+    };
+  }
   const sigmaA2 = a.sigma ** 2 + TRUESKILL.tau ** 2;
   const sigmaB2 = b.sigma ** 2 + TRUESKILL.tau ** 2;
   const c = Math.sqrt(2 * TRUESKILL.beta ** 2 + sigmaA2 + sigmaB2);
   const drawMargin = Math.SQRT2 * TRUESKILL.beta * invCdf((TRUESKILL.drawProbability + 1) / 2);
   const delta = a.mu - b.mu;
-  let v: number, w: number, rank = 0;
-
-  if (outcome === "draw") {
-    const lower = safeDiv(-drawMargin - delta, c);
-    const upper = safeDiv(drawMargin - delta, c);
-    const denom = Math.max(cdf(upper) - cdf(lower), 1e-12);
-    v = safeDiv(pdf(lower) - pdf(upper), denom);
-    w = v * v + safeDiv(upper * pdf(upper) - lower * pdf(lower), denom);
-  } else {
-    rank = outcome === "agent1" ? 1 : -1;
-    const t = safeDiv(rank * delta - drawMargin, c);
-    v = safeDiv(pdf(t), cdf(t));
-    w = v * (v + t);
-  }
-
-  const multiplier = (outcome === "draw" ? 1 : rank) / c;
+  const rank = outcome === "agent1" ? 1 : -1;
+  const t = safeDiv(rank * delta - drawMargin, c);
+  const v = safeDiv(pdf(t), cdf(t));
+  const w = v * (v + t);
+  const multiplier = rank / c;
   const shrink = w / (c * c);
   return {
     agent1: {

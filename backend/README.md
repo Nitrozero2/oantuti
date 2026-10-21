@@ -11,7 +11,7 @@ Luật chơi lấy trực tiếp từ repo gốc: [tuanngthuet/BT01INT3304](http
 - [Tổng quan kiến trúc](#tổng-quan-kiến-trúc)
 - [Luật chơi OTTv2](#luật-chơi-ottv2)
 - [Cài đặt và chạy](#cài-đặt-và-chạy)
-- [Cài đặt Judge0 bằng Docker](#cài-đặt-judge0-bằng-docker)
+- [Chạy Python worker](#chạy-python-worker)
 - [API Reference](#api-reference)
 - [Viết agent](#viết-agent)
 - [Kiểm thử](#kiểm-thử)
@@ -21,26 +21,17 @@ Luật chơi lấy trực tiếp từ repo gốc: [tuanngthuet/BT01INT3304](http
 
 ## Tổng quan kiến trúc
 
-```
-Frontend (Vercel)
-      │  HTTP/JSON
-      ▼
-FastAPI Backend (Ubuntu)
-  ├── Match Service      ← quản lý vòng đời trận đấu (in-memory)
-  ├── Game Engine        ← thuần Python, chính xác theo game.js
-  └── Judge0 Service     ← sandbox thực thi agent code
-            │
-            ▼
-      Judge0 (Docker)    ← Python 3 sandbox
+```text
+Frontend Next.js ── FastAPI backend ── Redis queue
+        ▲                                  │
+        │ callback                         ▼
+        └──────────────────── Python worker (Docker)
+                              Engine + Bubblewrap sandbox
 ```
 
-**Workflow một nước đi:**
-1. Frontend gọi `POST /matches/{id}/step`
-2. Backend lấy observation (trạng thái bàn cờ, nước đi hợp lệ)
-3. Gửi code agent + observation sang Judge0 qua HTTP
-4. Judge0 thực thi Python trong sandbox, trả về nước đi (JSON)
-5. Backend kiểm tra tính hợp lệ, áp dụng vào engine
-6. Trả về kết quả cho frontend
+Backend xác thực và quản lý queue/lease. Worker nhận một trận, chạy engine cùng
+Python agents trong sandbox rồi gửi kết quả/replay về frontend. Backend không
+thực thi code agent và không kết nối dịch vụ thực thi HTTP.
 
 ---
 
@@ -66,7 +57,7 @@ FastAPI Backend (Ubuntu)
 
 - Ubuntu 20.04+
 - Python 3.10+
-- Docker + Docker Compose (cho Judge0)
+- Docker Engine + Docker Compose (cho Python worker)
 
 ### 2. Clone và cài đặt
 
@@ -85,7 +76,7 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# Chỉnh sửa .env nếu cần (mặc định là Judge0 localhost:2358)
+# Điền Redis URL/token và worker/internal secrets
 ```
 
 ### 4. Khởi động server
@@ -104,59 +95,26 @@ API sẽ chạy tại `http://localhost:8000`
 
 ---
 
-## Cài đặt Judge0 bằng Docker
+## Chạy Python worker
 
-Judge0 là sandbox thực thi code an toàn. Cần chạy trước khi dùng `/step`.
-
-### Cài đặt nhanh (Judge0 CE)
+Từ repository root, điền `worker_image/.env` rồi chạy:
 
 ```bash
-# Tải docker-compose của Judge0
-wget https://github.com/judge0/judge0/releases/download/v1.13.1/judge0-v1.13.1.zip
-unzip judge0-v1.13.1.zip
-cd judge0-v1.13.1
-
-# Tạo mật khẩu ngẫu nhiên cho Redis và Postgres
-echo "REDIS_PASSWORD=$(openssl rand -hex 32)" >> judge0.conf
-echo "POSTGRES_PASSWORD=$(openssl rand -hex 32)" >> judge0.conf
-
-# Khởi động
-docker-compose up -d db redis
-sleep 10
-docker-compose up -d
-sleep 5
-
-# Kiểm tra
-curl http://localhost:2358/about
+./dockerworker.sh
+./dockerworker.sh logs
+./dockerworker.sh stop
 ```
 
-Judge0 sẽ chạy tại `http://localhost:2358`
+Worker dùng một image chứa engine, supervisor và Python sandbox. Mỗi lượt có giới
+hạn CPU, wall time, memory và output. Hướng dẫn đầy đủ ở
+[worker_image/README.md](../worker_image/README.md). Runner chung kết là chương trình
+độc lập, không thay đổi theo cấu hình worker chính.
 
-### Xác nhận Python 3 có sẵn
-
-```bash
-# Lấy danh sách ngôn ngữ
-curl http://localhost:2358/languages | python3 -m json.tool | grep -i python
-
-# Python 3 thường có language_id = 71
-# Nếu khác, cập nhật JUDGE0_LANGUAGE_ID trong .env
-```
-
-### Kiểm tra health
+Health API phản ánh kết nối Redis:
 
 ```bash
 curl http://localhost:8000/health
-# Kết quả mong đợi:
-# {"status":"ok","judge0_connected":true,"judge0_url":"http://localhost:2358","version":"1.0.0"}
-```
-
-### Dùng Judge0 trên RapidAPI (không cần Docker)
-
-Nếu không muốn cài Docker, dùng [Judge0 Extra CE trên RapidAPI](https://rapidapi.com/judge0-official/api/judge0-extra-ce):
-
-```env
-JUDGE0_URL=https://judge0-extra-ce.p.rapidapi.com
-JUDGE0_API_KEY=your_rapidapi_key_here
+# {"status":"ok","redis_connected":true,"version":"2.0.0"}
 ```
 
 ---
@@ -289,7 +247,7 @@ def agent(observation, configuration):
 ```
 
 **Lưu ý quan trọng:**
-- Agent chạy trong sandbox Judge0 với giới hạn CPU và RAM
+- Agent chạy trong Python sandbox Bubblewrap với giới hạn CPU và RAM
 - Import chỉ được dùng thư viện standard library (không có numpy, pandas, etc.)
 - Không đọc/ghi file, không gọi mạng
 - Timeout mặc định: 10 giây
@@ -336,10 +294,10 @@ curl -X POST http://localhost:8000/matches/ \
 # Chạy tất cả tests
 python3 -m pytest tests/ -v
 
-# Chỉ engine tests (không cần Judge0)
+# Chỉ engine tests (không cần sandbox)
 python3 -m pytest tests/test_engine.py -v
 
-# Chỉ API tests (không cần Judge0 thật, dùng mock)
+# Chỉ API tests (dùng mock Redis và thực thi agent)
 python3 -m pytest tests/test_api.py -v
 
 # Với coverage
@@ -362,7 +320,6 @@ ottv2-backend/
 │   ├── engine/
 │   │   └── game.py          # Game engine (chuyển dịch từ game.js)
 │   ├── services/
-│   │   ├── judge0_service.py # Thực thi agent qua Judge0
 │   │   └── match_service.py  # Quản lý trận đấu
 │   └── routers/
 │       ├── matches.py        # /matches endpoints
@@ -439,6 +396,6 @@ gunicorn app.main:app \
 ## Lưu ý triển khai
 
 - **Lưu trữ in-memory**: Match data lưu trong RAM, mất khi restart. Để production, thay bằng Redis.
-- **Judge0 timeout**: Mỗi nước đi ~1-2 giây (round-trip Judge0). Với trận 500 nước ≈ 15 phút.
+- **Giới hạn mỗi lượt**: Worker áp dụng CPU, wall time, memory và output theo cấu hình `AGENT_*`.
 - **Rate limiting**: Nên thêm rate limiter để tránh abuse `/run` endpoint.
-- **Agent security**: Judge0 đã sandbox code. Không cần validate thêm ở backend.
+- **Agent execution**: Chỉ worker Python thực thi code trong Bubblewrap; engine vẫn kiểm tra từng nước đi.

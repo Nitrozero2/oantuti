@@ -18,7 +18,7 @@ class EnqueueFriendlyRequest(BaseModel):
     agent1_code: str = Field(max_length=131072)
     agent2_id: int
     agent2_code: str = Field(max_length=131072)
-    max_moves: int = Field(default=150, ge=50, le=1000)
+    max_moves: int = Field(default=200, ge=50, le=1000)
 
 
 def _require_internal_secret(x_internal_secret: str | None) -> None:
@@ -45,7 +45,7 @@ async def enqueue_friendly_task(
         "agent1_code": req.agent1_code,
         "agent2_id": req.agent2_id,
         "agent2_code": req.agent2_code,
-        "max_moves": min(req.max_moves, 150),
+        "max_moves": 200,
         # callback_url bỏ qua — worker dùng FRONTEND_URL env var
     }
     await get_redis().enqueue_worker_task(json.dumps(task))

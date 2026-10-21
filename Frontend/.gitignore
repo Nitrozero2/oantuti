@@ -8,3 +8,5 @@ out
 .vercel
 *.log
 .next-finals-test/
+
+.next-ck-test/

@@ -34,6 +34,7 @@ import { POST as friendly } from "@/app/api/friendly/result/route";
 import { POST as reset } from "@/app/api/admin/matches/reset-stuck/route";
 import { POST as resetLost } from "@/app/api/worker/reset-lost/route";
 import { backendFetch } from "@/lib/backend";
+import {passiveDrawHistory} from './draw-fixtures';
 
 const move = { move_number: 1, player: 1, from_col: 1, from_row: 3, to_col: 0, to_row: 3,
   from_pos: "b4", to_pos: "a4", piece_type: "ROCK", captured_type: null };
@@ -83,6 +84,37 @@ function synchronizeMatchReads() {
 }
 
 describe("PostgreSQL callback transactions", () => {
+  it.each([
+    [25, 25 / 3, 25, 25 / 3],
+    [35, 2, 20, 8],
+  ])('debits both drawn agents from the verified final board exactly once (%s)', async (mu1, sigma1, mu2, sigma2) => {
+    type AgentRating = {id:number;rating:number;trueskill_mu:number;trueskill_sigma:number;wins:number;losses:number};
+    await database.current!.query('UPDATE arena_agents SET trueskill_mu=$1,trueskill_sigma=$2,rating=$3 WHERE id=1', [mu1, sigma1, Math.round(40 * mu1)]);
+    await database.current!.query('UPDATE arena_agents SET trueskill_mu=$1,trueskill_sigma=$2,rating=$3 WHERE id=2', [mu2, sigma2, Math.round(40 * mu2)]);
+    const before = (await database.current!.query<AgentRating>('SELECT id,rating,trueskill_mu,trueskill_sigma,wins,losses FROM arena_agents ORDER BY id')).rows;
+    await start();
+    const drawn={...finished,outcome:'draw',total_moves:200,moves_history:passiveDrawHistory()};
+    expect((await rating(request(drawn))).status).toBe(200);
+    const once = (await database.current!.query<AgentRating>('SELECT id,rating,trueskill_mu,trueskill_sigma,wins,losses FROM arena_agents ORDER BY id')).rows;
+    expect((await rating(request(drawn))).status).toBe(200);
+    const after = (await database.current!.query<AgentRating>('SELECT id,rating,trueskill_mu,trueskill_sigma,wins,losses FROM arena_agents ORDER BY id')).rows;
+    expect(after).toEqual(once);
+    for (let index=0; index<after.length; index++) {
+      expect(after[index]).toMatchObject({...before[index],rating:Number(before[index].rating)-29,
+        trueskill_mu:Number(before[index].trueskill_mu)-29/40,trueskill_sigma:expect.any(Number)});
+      expect(Number(after[index].trueskill_sigma)).toBeGreaterThan(0);
+      expect(Number(after[index].trueskill_sigma)).toBeLessThan(Number(before[index].trueskill_sigma));
+    }
+    expect((await database.current!.query('SELECT draws FROM arena_agents ORDER BY id')).rows).toEqual([{draws:1},{draws:1}]);
+    expect((await database.current!.query('SELECT rating_delta_agent1,rating_delta_agent2 FROM rated_matches')).rows[0])
+      .toEqual({rating_delta_agent1:-29,rating_delta_agent2:-29});
+  });
+  it('rejects a legacy short draw without finalizing or charging points',async()=>{
+    await start();
+    expect((await rating(request({...finished,outcome:'draw',total_moves:8,moves_history:passiveDrawHistory(8)}))).status).toBe(400);
+    expect((await database.current!.query('SELECT rating FROM arena_agents ORDER BY id')).rows).toEqual([{rating:1000},{rating:1000}]);
+    expect((await database.current!.query('SELECT status FROM rated_matches')).rows[0]).toEqual({status:'running'});
+  });
   it('executes a private source against a public opponent without changing rating or ranked counters',async()=>{
     await database.current!.exec(`INSERT INTO arena_agents(user_id,agent_name,code,status,is_active,is_public) VALUES(1,'private','code','active',true,false);
       UPDATE friendly_matches SET agent1_id=3,trial_agent_id=3 WHERE id=1;`);

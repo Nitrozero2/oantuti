@@ -187,7 +187,7 @@ export default function ArenaSubmitPage() {
             <li>• Bàn cờ 9×9. Quân: ✊ ROCK &gt; ✌️ SCISSORS, ✋ PAPER &gt; ✊ ROCK, ✌️ SCISSORS &gt; ✋ PAPER</li>
             <li>• P1 (Xanh) thắng khi chiếm ô i9 hoặc ăn hết 1 loại quân đối thủ. P2 ngược lại (chiếm a1).</li>
             <li>• Hàm <code className="bg-stone-100 px-1 py-0.5 font-mono text-[#253B80] font-bold">def agent(observation, configuration)</code> là bắt buộc.</li>
-            <li>• Chạy an toàn trên Judge0 sandbox (Python 3). Timeout 10s/nước đi. Giới hạn 65,536 ký tự.</li>
+            <li>• Chạy trong Python sandbox với giới hạn CPU, thời gian thực và bộ nhớ theo cấu hình worker. Code tối đa 65,536 ký tự.</li>
           </ul>
         </div>
 

@@ -162,7 +162,7 @@ it('does not return an empty replay as a playable board', async () => {
 it('builds score history from real per-agent snapshots only', async () => {
   const data = await (await points(request(), params(1))).json();
   expect(data.points).toHaveLength(10);
-  expect(data.points[0]).toMatchObject({ before: 1000, after: 1840 });
+  expect(data.points[0]).toMatchObject({ before: 1000, after: 1200 });
 });
 it('sanitizes infrastructure errors in public match lists', async () => {
   const data = await (await matches(request())).json();

@@ -45,8 +45,8 @@ vi.mock("@/lib/trueskill", () => ({
     agent1: { mu: 26, sigma: 8 },
     agent2: { mu: 24, sigma: 8 },
   }),
-  conservativeRating: vi.fn().mockImplementation(({ mu, sigma }: { mu: number; sigma: number }) =>
-    Math.round(1000 + 40 * (mu - 3 * sigma))
+  displayRating: vi.fn().mockImplementation(({ mu }: { mu: number; sigma: number }) =>
+    Math.round(1000 + 40 * (mu - 25))
   ),
 }));
 

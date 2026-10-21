@@ -1,4 +1,4 @@
-"""Worker regressions with mocked Judge0 and callbacks; no external services."""
+"""Worker regressions with mocked Python execution and callbacks; no external services."""
 
 import asyncio
 import importlib.util
@@ -12,7 +12,7 @@ import pytest
 
 @pytest.fixture
 def worker_module(monkeypatch):
-    directory = Path(__file__).resolve().parents[2] / "worker"
+    directory = Path(__file__).resolve().parents[2] / "worker_image"
     monkeypatch.syspath_prepend(str(directory))
     spec = importlib.util.spec_from_file_location("tested_worker", directory / "worker.py")
     module = importlib.util.module_from_spec(spec)
@@ -23,7 +23,7 @@ def worker_module(monkeypatch):
 @pytest.mark.parametrize("output", [0, True, [], "a1", {"from_col": 1.2, "from_row": 3, "to_col": 0, "to_row": 3},
     {"from_col": -1, "from_row": 3, "to_col": 0, "to_row": 3}, {"from_pos": "a10", "to_pos": "b2"}])
 def test_bad_agent_output_is_agent_error_not_infrastructure(worker_module, output):
-    parsed = worker_module._parse_judge0_result({"status": {"id": 3}, "stdout": json.dumps(output)})
+    parsed = worker_module.parse_agent_output(json.dumps(output))
     assert parsed["success"] is False
     assert parsed["is_infra_error"] is False
 
@@ -41,30 +41,30 @@ async def test_invalid_move_loses_match_without_infrastructure_retry(worker_modu
 
 @pytest.mark.parametrize('kind,requested,expected', [
     ('validation', None, 60), ('validation', 300, 60), ('validation', 50, 50),
-    ('rating', None, 150), ('rating', 300, 150), ('friendly', 300, 150),
-    ('friendly', 100, 100), ('validation', True, 60), ('rating', -1, 150),
+    ('rating', None, 200), ('rating', 300, 200), ('friendly', 300, 200),
+    ('friendly', 100, 200), ('validation', True, 60), ('rating', -1, 200), ('rating',150,200),
 ])
 def test_move_limits_include_old_queued_payloads(worker_module, kind, requested, expected):
     assert worker_module.match_move_limit(kind, requested) == expected
 
 
 @pytest.mark.asyncio
-async def test_threefold_repetition_draws_and_preserves_complete_history(worker_module, monkeypatch):
+async def test_repetition_continues_until_two_hundred_plies(worker_module, monkeypatch):
     cycle = [
         {'from_col': 1, 'from_row': 3, 'to_col': 0, 'to_row': 3},
         {'from_col': 7, 'from_row': 5, 'to_col': 8, 'to_row': 5},
         {'from_col': 0, 'from_row': 3, 'to_col': 1, 'to_row': 3},
         {'from_col': 8, 'from_row': 5, 'to_col': 7, 'to_row': 5},
     ]
-    execute = AsyncMock(side_effect=[{'success': True, 'move': move} for move in cycle * 2])
+    execute = AsyncMock(side_effect=[{'success': True, 'move': move} for move in cycle * 50])
     monkeypatch.setattr(worker_module, 'execute_agent', execute)
-    result = await worker_module.run_match_locally('a', 'b', 60)
-    assert execute.await_count == 8
+    result = await worker_module.run_match_locally('a', 'b', 200)
+    assert execute.await_count == 200
     assert result['winner'] is None
     assert not result['agent_error']
-    assert 'lần thứ 3' in result['win_reason']
+    assert '200' in result['win_reason']
     assert result['steps'][-1]['game_over'] is True
-    assert len(worker_module._build_moves_history(result['steps'])) == 8
+    assert len(worker_module._build_moves_history(result['steps'])) == 200
 
 
 def test_position_identity_includes_side_to_move_but_not_move_counter(worker_module):
@@ -77,7 +77,7 @@ def test_position_identity_includes_side_to_move_but_not_move_counter(worker_mod
     assert worker_module.position_key(state) != key
 
 
-@pytest.mark.parametrize('kind,requested,expected', [('validation',300,60),('rating',300,150),('validation',50,50),('friendly',300,150)])
+@pytest.mark.parametrize('kind,requested,expected', [('validation',300,60),('rating',300,200),('validation',50,50),('friendly',300,200),('rating',150,200)])
 @pytest.mark.asyncio
 async def test_enqueue_limits_are_enforced_before_redis(monkeypatch,kind,requested,expected):
     from app.routers import rating, friendly

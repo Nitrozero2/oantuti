@@ -76,6 +76,13 @@ BEGIN
     AND (m.kind = 'validation' OR (v_enabled AND p_capacity > 0))
     AND (m.dispatch_lease_until IS NULL OR m.dispatch_lease_until <= v_now)
     AND (m.dispatched_at IS NULL OR m.dispatched_at < v_now - INTERVAL '10 minutes')
+    -- serialize_pending_rating_agents
+    AND (m.kind='validation' OR NOT EXISTS (
+      SELECT 1 FROM rated_matches active WHERE active.id<>m.id AND active.kind='rating'
+        AND active.status IN ('scheduled','running')
+        AND (active.status='running' OR active.dispatched_at>=v_now-INTERVAL '10 minutes' OR active.dispatch_lease_until>v_now)
+        AND (active.agent1_id IN (m.agent1_id,m.agent2_id) OR active.agent2_id IN (m.agent1_id,m.agent2_id))
+    ))
   ORDER BY CASE m.kind WHEN 'validation' THEN 0 ELSE 1 END, m.scheduled_at, m.id LIMIT 1;
   IF v_match.id IS NULL THEN
     IF NOT v_enabled THEN RETURN jsonb_build_object('reason', 'paused', 'retry_after_seconds', 60); END IF;
@@ -95,6 +102,7 @@ BEGIN
       FROM rating_agent_schedule o
       CROSS JOIN LATERAL (
         SELECT COUNT(*) FILTER (WHERE m.status = 'finished' AND NOT m.is_infra_error AND m.finished_at > v_now - INTERVAL '24 hours') AS pair_games,
+          COUNT(*) FILTER (WHERE m.status = 'finished' AND NOT m.is_infra_error AND m.outcome = 'draw' AND m.finished_at > v_now - INTERVAL '24 hours') AS pair_draws,
           MAX(COALESCE(m.finished_at, m.started_at, m.scheduled_at)) FILTER (WHERE m.status <> 'cancelled') AS last_met,
           COUNT(*) FILTER (WHERE m.status = 'finished' AND NOT m.is_infra_error AND m.agent1_id = v_focal.id) AS focal_first,
           COUNT(*) FILTER (WHERE m.status = 'finished' AND NOT m.is_infra_error AND m.agent1_id = o.id) AS other_first
@@ -108,6 +116,7 @@ BEGIN
       ) q
       WHERE o.id <> v_focal.id AND o.user_id <> v_focal.user_id AND NOT o.busy AND o.budget_remaining > 0
         AND (o.backoff_until IS NULL OR o.backoff_until <= v_now)
+        AND h.pair_draws < 2 -- draw_pair_daily_limit
         AND (h.last_met IS NULL OR h.last_met <= v_now - make_interval(secs => v_focal.pair_cooldown_seconds))
       ORDER BY (o.id IN (
         SELECT CASE WHEN m.agent1_id = v_focal.id THEN m.agent2_id ELSE m.agent1_id END

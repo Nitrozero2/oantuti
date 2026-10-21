@@ -89,6 +89,7 @@ export default function AdminRatingPage() {
         {rebuildMessage && <p className="mb-4 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">{rebuildMessage}</p>}
         {data && !data.scheduler_enabled && <p className="mb-4 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">Đang tạm dừng tạo rating. Validation và các job đã vào queue vẫn tiếp tục; không cần rebuild điểm để bật lại.</p>}
         <p className="mb-4 text-xs text-slate-600">Ổn định khi đủ {data?.policy?.minimum_games ?? 10} trận hợp lệ và σ ≤ {data?.policy?.stable_sigma ?? 2.5}. Ngân sách {data?.policy?.daily_budget ?? 20} trận/agent/24 giờ, gồm lượt đã dành cho trận chờ/chạy. Agent ổn định vẫn có thể giúp đánh giá agent mới. Worker rảnh không đồng nghĩa phải tạo thêm rating.</p>
+        <p className="mb-4 text-xs text-slate-600">Agent bắt đầu ở 1000 điểm. Sau 200 nước chưa thắng thì hòa; mỗi bên bị trừ 4–32 điểm theo số quân địch còn lại và khoảng cách trung bình quân mình tới đích. Hòa vẫn giảm σ để tăng độ tin cậy; đủ số trận và đạt ngưỡng σ thì agent chuyển sang ổn định. Mỗi cặp tối đa 2 trận hòa trong 24 giờ; sau đó tìm đối thủ khác.</p>
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             ["Đang self-play", summary?.validating ?? 0], ["Đang chờ", summary?.rating_scheduled ?? 0],
