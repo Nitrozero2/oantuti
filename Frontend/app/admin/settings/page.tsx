@@ -94,7 +94,7 @@ function TaskTypeBadge({ type }: { type: string }) {
   };
   return (
     <span className={`rounded-none border px-1.5 py-0.5 text-[10px] font-bold ${map[type] ?? "border-slate-300 bg-slate-50 text-slate-500"}`}>
-      {icon[type] ?? "?"} {{rating:'Rating',friendly:'Thử sức riêng',validation:'Validation'}[type]??type}
+      {icon[type] ?? "?"} {{rating:'Rating',friendly:'Thách đấu riêng',validation:'Validation'}[type]??type}
     </span>
   );
 }
@@ -321,7 +321,7 @@ export default function AdminSettingsPage() {
             {/* ── Match Stats + Reset Stuck ── */}
             <div className="rounded-none border border-[#ded8d3] bg-white shadow-md">
               <div className="border-b border-[#ded8d3] px-5 py-3 flex items-center justify-between gap-4 flex-wrap">
-                <h2 className="text-sm font-bold text-[#1a1e29]">🎮 Tất cả tác vụ · Validation, Rating và Thử sức</h2>
+                <h2 className="text-sm font-bold text-[#1a1e29]">🎮 Tất cả tác vụ · Validation, Rating và Thách đấu</h2>
                 {/* Reset stuck buttons */}
                 <div className="flex items-center gap-2 flex-wrap">
                   {resetMsg && (
@@ -377,7 +377,7 @@ export default function AdminSettingsPage() {
               <div className="border-b border-[#ded8d3] px-5 py-3">
                 <h2 className="text-sm font-bold text-[#1a1e29]">📋 Trận gần đây (20 trận mới nhất)</h2>
                 <p className="mt-1 text-xs text-slate-500">Gồm cả self-play kiểm tra agent. Scheduled: đã tạo trận; “Đã gửi queue” chưa có nghĩa worker đã bắt đầu chạy.</p>
-                <p className="mt-1 text-xs text-slate-500">Luật mới: Validation tối đa 60 nước; Rating/Thử sức 150 nước tổng hai bên. Hòa khi hết nước hoặc cùng thế cờ, cùng bên tới lượt lặp lần thứ 3. Lịch sử cũ giữ nguyên.</p>
+                <p className="mt-1 text-xs text-slate-500">Luật mới: Validation tối đa 60 nước; Rating/Thách đấu 150 nước tổng hai bên. Hòa khi hết nước hoặc cùng thế cờ, cùng bên tới lượt lặp lần thứ 3. Lịch sử cũ giữ nguyên.</p>
               </div>
               {!sysStatus?.recent_matches.length ? (
                 <div className="px-5 py-8 text-center text-sm text-slate-500">Chưa có trận nào.</div>

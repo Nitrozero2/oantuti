@@ -299,7 +299,7 @@ try {
     assert.equal((await member.request.get(`${base}/api/friendly/${trial.friendly_match_id}/replay`)).status(),404);
     assert.equal((await fetch(`${base}/api/arena/agents/${outsiderAgent}`)).status,404);
     const outsiderPage=await outsider.newPage();await outsiderPage.goto(`${base}/arena/friendly`);
-    await outsiderPage.getByRole('heading',{name:'Thử sức riêng tư',exact:true}).waitFor();
+    await outsiderPage.getByRole('heading',{name:'Thách đấu riêng tư',exact:true}).waitFor();
     await outsiderPage.getByText('Outside agent vs Beta Best',{exact:false}).or(outsiderPage.getByText('Beta Best vs Outside agent',{exact:false})).waitFor();
     await outsiderPage.screenshot({path:path.join(logDir,'private-trials.png'),fullPage:true});
     for(let i=0;i<9;i++)assert.equal((await outsider.request.post(`${base}/api/friendly`,{data:{agent1_id:outsiderAgent,agent2_id:2,request_id:randomUUID()}})).status(),200);

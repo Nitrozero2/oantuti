@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import leaderboardImg from "@/source/images/leaderboard.png";
 import submitImg from "@/source/images/submit.png";
 import competeImg from "@/source/images/compete.png";
+import finalsImg from "@/source/images/finals.svg";
 
 export const runtime = "nodejs";
 
@@ -25,10 +26,16 @@ export default async function DashboardPage() {
       image: submitImg,
     },
     {
-      title: "Thử sức",
-      description: "Thử sức riêng tư với agent public của người khác, tối đa 10 trận/ngày và không ảnh hưởng rating.",
+      title: "Thách đấu",
+      description: "Thách đấu riêng tư với agent public của người khác, tối đa 10 trận/ngày và không ảnh hưởng rating.",
       href: "/arena/friendly",
       image: competeImg,
+    },
+    {
+      title: "Chung kết",
+      description: "Theo dõi nhánh đấu top 16, kết quả và replay các trận chung kết công khai.",
+      href: "/finals",
+      image: finalsImg,
     },
   ];
 
@@ -37,10 +44,9 @@ export default async function DashboardPage() {
       {/* ─── THANH HEADER TRÊN CÙNG ───────────────────────────────────── */}
       <Navbar initialUser={session} />
 
-      {/* ─── NỘI DUNG CHÍNH: 3 Ô TÍNH NĂNG KHUNG THẲNG ĐỐI XỨNG ───────── */}
-      <main className="mx-auto flex min-h-[calc(100vh-80px)] max-w-6xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
-        {/* Lưới 3 ô tính năng kích thước bằng nhau, khung thẳng, đối xứng qua trục dọc */}
-        <div className="grid grid-cols-1 items-stretch gap-6 sm:gap-8 md:grid-cols-3">
+      {/* Các tính năng công khai, hiển thị 1 / 2 / 4 cột theo kích thước màn hình. */}
+      <main className="mx-auto flex min-h-[calc(100vh-80px)] max-w-7xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 sm:gap-8 xl:grid-cols-4">
           {features.map((feature) => (
             <Link
               key={feature.href}
@@ -87,6 +93,7 @@ export default async function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <Link href="/admin/teams" className="border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center text-sm font-bold">Quản lý teams</Link>
+              <Link href="/admin/finals" className="border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center text-sm font-bold">🏆 Quản lý Chung kết</Link>
               <Link
                 href="/admin/rating"
                 className="flex flex-col items-center gap-1.5 rounded-none border border-[#ded8d3] bg-[#F5F0ED]/50 p-3.5 text-center transition hover:border-[#253B80] hover:bg-[#253B80]/5"

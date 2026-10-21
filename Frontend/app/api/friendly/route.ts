@@ -31,6 +31,6 @@ export async function POST(request:Request){
  const result=rows[0].result;
  const queued=await enqueuePrivateTrial(Number(result.id)).catch(()=>false);
  return NextResponse.json({ok:true,friendly_match_id:result.id,reused:result.reused,quota:result.quota,queued,
- message:queued?'Đã xếp trận thử sức vào queue.':'Trận đã được lưu; gửi lại cùng mã yêu cầu sẽ không trừ thêm lượt.'});
+ message:queued?'Đã xếp trận thách đấu vào queue.':'Trận đã được lưu; gửi lại cùng mã yêu cầu sẽ không trừ thêm lượt.'});
  }catch(error){return teamError(error);}
 }

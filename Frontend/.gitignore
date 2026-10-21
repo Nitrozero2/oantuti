@@ -7,3 +7,4 @@ out
 .env.local
 .vercel
 *.log
+.next-finals-test/

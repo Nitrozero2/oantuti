@@ -47,8 +47,9 @@ export default function Navbar({ initialUser }: { initialUser?: UserSession | nu
   const navLinks = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Bảng Xếp Hạng", href: "/arena/leaderboard" },
+    { label: "Chung kết", href: "/finals" },
     { label: "Nộp Agent", href: "/arena/submit" },
-    { label: "Thử sức", href: "/arena/friendly" },
+    { label: "Thách đấu", href: "/arena/friendly" },
   ];
 
   return (

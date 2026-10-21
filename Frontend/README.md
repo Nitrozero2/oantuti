@@ -2,11 +2,45 @@
 
 Website đăng ký / đăng nhập bằng Next.js, Neon PostgreSQL, bcryptjs và cookie session có chữ ký.
 
-## Thử sức riêng tư và public agent
+## Chung kết Top 16
 
-Giới hạn cho job mới: Validation 60 nước; Rating/Thử sức 150 nước tổng hai bên (mỗi nước là một bên di chuyển). Hết giới hạn hoặc thế cờ giống nhau với cùng bên tới lượt xuất hiện lần thứ ba thì hòa, không phân thắng thua theo số quân. Validation hòa hợp lệ vẫn được duyệt. Backend và worker chặn payload vượt giới hạn; khởi động lại worker để nạp luật lặp thế cờ và giới hạn cho job cũ còn trong queue. Không sửa lịch sử hoặc ép dừng trận đang chạy.
+`/finals` công khai sơ đồ dự kiến và lịch sử các đợt giải. `/admin/finals` chốt
+đúng 16 đại diện đã có ít nhất 10 trận rating hợp lệ, snapshot tên/thành viên/code,
+khóa luật, mở từng vòng, công bố ván và xác nhận kết quả cặp. Leaderboard/rating
+thường vẫn hoạt động. Mỗi cặp hai ván đổi bên, thắng 1/hòa 0,5/thua 0; bằng điểm
+thì hạt giống cao hơn đi tiếp. Có tranh hạng ba: 16 cặp, 32 ván. Chỉ một giải mở.
 
-- `/arena/friendly` là thử sức riêng tư, không còn gửi/nhận thách đấu. Chọn agent đang hoạt động của cá nhân/team hiện tại và agent public thuộc người/team khác. Máy chủ chọn bên đi trước ngẫu nhiên; kết quả không thay đổi rating hoặc thống kê ranked.
+Migration bổ sung: `node scripts/migrate-finals.mjs --apply` từ `Frontend`;
+chỉ tạo schema `finals`, không dùng lại bảng tournament cũ. Runner kiểm tra bảo
+toàn dữ liệu thường và ghi `logs/finals-rollout.json`. Cấu hình `FINALS_SCHEMA`
+mặc định `finals`; có thể dùng schema `finals_*` riêng cho kiểm thử. App dùng cùng
+`DATABASE_URL`; không cần Redis hoặc backend queue cho chung kết.
+
+Chương trình độc lập, luật/engine và hướng dẫn offline ở
+[`finals_runner/README.md`](../finals_runner/README.md). Không import worker/backend
+cũ. Luật v1 giữ bàn 9×9, giới hạn 150 nước và hòa lặp ba lần, chưa có tường/ô điểm.
+Lỗi agent/hạ tầng đều chờ admin, không tự xử thua hoặc thử lại; admin được chạy
+lại, chỉ định kết quả có lý do hoặc nhập bản ghi JSON tin cậy. Import chỉ kiểm tra
+cấu trúc hiển thị, không kiểm chứng nước đi đúng luật. Kết quả chỉ định/bản ghi nhập
+đều gắn nhãn và giữ lịch sử. Bundle code chỉ admin tải, không commit lên git.
+
+Trang ván lấy thêm từng nước đã lưu, mặc định phát 1,2 giây/nước, cho tua/chỉnh tốc
+độ độc lập và chế độ fullscreen. Khi admin công bố bản ghi, người xem có thể biết
+kết quả trước khi màn hình lớn phát xong; sơ đồ chỉ cập nhật sau xác nhận cặp.
+
+## Dữ liệu demo bổ sung
+
+Chạy từ `Frontend`: `node scripts/seed-demo-data.mjs` để xem trước, thêm `--apply` để ghi vào database trong env. Có thể dùng `--prefix demo` để đổi tiền tố tài khoản. Script chỉ thêm dữ liệu, không xóa hoặc cập nhật tài khoản cũ; trùng tên sẽ rollback toàn bộ.
+
+Mỗi lần tạo 30 người chơi (`demo01`–`demo30`, mật khẩu `12345678`, không có quyền admin), 5 team có 1/2/2/3/3 thành viên và 73 bài nộp (1–4/người), gồm public và riêng tư. Có 6 cấp chiến thuật từ chọn nước đơn giản, ngẫu nhiên, greedy đến tactical, beam alpha-beta và iterative deepening có transposition cache. Tìm kiếm được giới hạn thời gian/nút; độ phức tạp không bảo đảm sức mạnh thực tế.
+
+Mỗi agent bắt đầu ở trạng thái validating và có một job validation thật. Worker và scheduler hiện tại xử lý tiếp; không bịa rating, kết quả hay lịch sử trận. Script không bật/tắt worker hoặc scheduler. Báo cáo tài khoản và team được lưu riêng tại `logs/demo-data-*/report.json`. Chỉ dùng mật khẩu chung này trong môi trường phát triển/test.
+
+## Thách đấu riêng tư và public agent
+
+Giới hạn cho job mới: Validation 60 nước; Rating/Thách đấu 150 nước tổng hai bên (mỗi nước là một bên di chuyển). Hết giới hạn hoặc thế cờ giống nhau với cùng bên tới lượt xuất hiện lần thứ ba thì hòa, không phân thắng thua theo số quân. Validation hòa hợp lệ vẫn được duyệt. Backend và worker chặn payload vượt giới hạn; khởi động lại worker để nạp luật lặp thế cờ và giới hạn cho job cũ còn trong queue. Không sửa lịch sử hoặc ép dừng trận đang chạy.
+
+- `/arena/friendly` là thách đấu riêng tư, không còn gửi/nhận thách đấu. Chọn agent đang hoạt động của cá nhân/team hiện tại và agent public thuộc người/team khác. Máy chủ chọn bên đi trước ngẫu nhiên; kết quả không thay đổi rating hoặc thống kê ranked.
 - Chỉ người tạo trận cá nhân hoặc thành viên hiện tại của team nguồn được xem lịch sử/replay; đối thủ không được xem và không nhận thông báo. Admin giữ quyền truy cập kỹ thuật. Giao diện bàn cờ không thay đổi.
 - Mỗi user có 10 lượt/ngày, đặt lại lúc 00:00 Asia/Ho_Chi_Minh, không cấp hạn mức mới khi đổi team. Trận chờ/running giữ lượt; lỗi hạ tầng và hủy trước chạy hoàn lượt. Trận thua/lỗi agent vẫn tính lượt.
 - `POST /api/friendly` nhận `agent1_id` (agent nguồn), `agent2_id` (đối thủ), `request_id` UUID. Đây không phải thứ tự trên bàn cờ. Gửi lại cùng UUID trả lại trận cũ, kể cả hết lượt; backend offline vẫn lưu trận và có nút gửi lại vào queue.

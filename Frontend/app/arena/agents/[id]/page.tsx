@@ -155,7 +155,7 @@ export default function AgentDetailPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-2xl font-extrabold text-[#1a1e29]">{agent.agent_name}</h1>
                 <span className="font-mono text-xs text-slate-500">v{agent.version}</span>
-                <span className="border px-2.5 py-0.5 text-xs">{agent.is_public?'Public · tham gia rating':'Riêng tư · chỉ thử sức'}</span>
+                <span className="border px-2.5 py-0.5 text-xs">{agent.is_public?'Public · tham gia rating':'Riêng tư · chỉ thách đấu'}</span>
                 <span
                   className={`rounded-none border px-2.5 py-0.5 text-xs font-bold ${
                     STATUS_BADGE[agent.status] ?? "bg-slate-100 text-slate-700 border-slate-300"

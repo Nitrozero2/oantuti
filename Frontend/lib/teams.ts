@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 const messages: Record<string,string> = {
-  TRIAL_QUOTA_EXCEEDED:'Bạn đã dùng hết 10 trận thử sức hôm nay. Hạn mức đặt lại lúc 00:00 giờ Việt Nam.',
+  TRIAL_QUOTA_EXCEEDED:'Bạn đã dùng hết 10 trận thách đấu hôm nay. Hạn mức đặt lại lúc 00:00 giờ Việt Nam.',
   PUBLICATION_IRREVERSIBLE:'Agent đã public không thể chuyển lại riêng tư.',
-  FEATURE_RETIRED:'Chức năng thách đấu đã được thay bằng thử sức riêng tư.',
+  FEATURE_RETIRED:'Chức năng gửi lời thách đấu đã được thay bằng thách đấu riêng tư.',
   SCOPE_CHANGED:'Tư cách thi đấu đã thay đổi ở phiên khác. Hãy tải lại trang, kiểm tra cá nhân/team trước khi nộp code.',
   FORBIDDEN:'Bạn không có quyền thực hiện thao tác này.', ALREADY_IN_TEAM:'Người chơi đã thuộc một team. Phải rời đội trước khi được mời.',
   TEAM_FULL:'Team đã đủ 3 thành viên.', CREATOR_CANNOT_LEAVE:'Người tạo luôn là trưởng đội và không thể rời hoặc bị xóa. Chỉ admin được giải thể đội.',

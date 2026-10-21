@@ -176,7 +176,7 @@ export default function ArenaSubmitPage() {
             </span>
           </div>
           <p className="text-sm text-slate-600">
-            Agent luôn tự kiểm tra bằng self-play tối đa 60 nước. Hết giới hạn hoặc hòa lặp thế cờ mà không lỗi vẫn được duyệt. Chỉ agent public hợp lệ mới tham gia rating; agent riêng tư dùng để thử sức.
+            Agent luôn tự kiểm tra bằng self-play tối đa 60 nước. Hết giới hạn hoặc hòa lặp thế cờ mà không lỗi vẫn được duyệt. Chỉ agent public hợp lệ mới tham gia rating; agent riêng tư dùng để thách đấu.
           </p>
         </div>
 
@@ -334,7 +334,7 @@ export default function ArenaSubmitPage() {
                           {a.agent_name}
                         </Link>
                         <span className="font-mono text-xs text-slate-500">v{a.version}</span>
-                        <span className="border px-2 py-1 text-xs">{a.is_public?'Public · rating':'Riêng tư · thử sức'}</span>
+                        <span className="border px-2 py-1 text-xs">{a.is_public?'Public · rating':'Riêng tư · thách đấu'}</span>
                         {!a.is_public&&a.status==='active'&&a.is_active&&<button className="border px-2 py-1 text-xs text-blue-700" onClick={async()=>{
                           if(!window.confirm('Public agent để tham gia rating? Không thể chuyển lại riêng tư; mã nguồn vẫn được giữ kín.'))return;
                           try{const r=await fetch(`/api/arena/agents/${a.id}/publish`,{method:'POST'});const d=await r.json();if(!r.ok)throw Error(d.error);await loadAgents();}catch(e){setMessage(e instanceof Error?e.message:'Không thể public agent.');}
