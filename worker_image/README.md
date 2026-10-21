@@ -56,37 +56,26 @@ không swap và tối đa 4 CPU cho toàn worker; chỉnh cùng với giới h�
 Giới hạn tổng container cần bao gồm bộ nhớ worker, sandbox và các agent đồng thời.
 Nếu container hết RAM, job đang chạy được lease recovery thu hồi sau đó.
 
-## Đóng sẵn cấu hình để chuyển máy
+## Tải ZIP để chuyển máy
 
-Từ repository root chạy (máy xuất cần Python 3, gzip và Docker):
+Hướng dẫn ngắn cho Linux/Windows: [PORTABLE.md](PORTABLE.md).
 
 ```bash
-./dockerworker.sh export
+wget -O oantuti-worker.zip https://github.com/tuanngthuet/oantuti/releases/download/worker-portable-v1/oantuti-worker.zip
+unzip oantuti-worker.zip
+cd oantuti-worker
+bash worker.sh
 ```
 
-Kết quả ở `worker_image/portable/`, chỉ gồm `worker-image.tar.gz`, `compose.yaml`
-và `README.md` hướng dẫn Windows/Linux, chạy/dừng và xử lý lỗi. Gói giữ secrets và
-các tham số từ `worker_image/.env`, thay URL bằng
-`https://oantuti-backend.vercel.app` và `https://oantuti-three.vercel.app`;
-không sửa `.env` gốc. Mỗi máy nhận dùng Docker volume lưu worker identity riêng.
-Chuyển nguyên folder, máy nhận không cần source hay `.env` ngoài image.
-Image chứa secrets; chỉ chuyển riêng cho máy/người tin cậy, không upload công khai.
+Dừng: `bash worker.sh stop`. Windows: giải nén rồi chạy `worker.cmd`, dừng bằng
+`worker.cmd stop`. Script tự load image, kiểm tra sandbox rồi chạy nền.
+ZIP chứa secrets; người tải có thể đọc cấu hình đã nhúng.
 
-Máy nhận dùng Linux Docker Engine hoặc Windows Docker Desktop (WSL 2, Linux
-containers), cùng kiến trúc CPU với image. Lệnh cơ bản cho cả PowerShell và Bash:
-
-```text
-docker load -i worker-image.tar.gz
-docker compose run --rm --no-deps worker-python --check
-docker compose up -d --no-build
-docker compose logs -f --tail 100 worker-python
-docker compose stop worker-python
-```
-
-Chỉ chạy sau khi self-check báo `Python sandbox OK`. Xem đầy đủ tại
-[PORTABLE.md](PORTABLE.md). Export không ghi đè gói đã có; di chuyển gói cũ trước
-khi xuất lại. `MACHINE_ID`/`WORKER_MACHINE_ID_FILE` trong `.env` nguồn không được
-nhúng để tránh trùng định danh giữa máy gửi và máy nhận.
+Để xuất gói mới từ source: `./dockerworker.sh export`. Kết quả gồm
+`worker_image/portable/` và `worker_image/oantuti-worker.zip`. Giữ secrets/tham số
+trong `.env`, thay hai URL sang frontend/backend Vercel, không sửa `.env` nguồn.
+Nếu chỉ cập nhật tài liệu/script và đóng ZIP từ image đã xuất, dùng
+`python3 worker_image/export-bundle.py --package-only`.
 
 ## Nhiều worker Python
 

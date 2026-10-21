@@ -17,7 +17,7 @@ Usage: ./dockerworker.sh [command]
   status, ps         Xem trạng thái container.
   stop               Dừng container worker, trả job chưa xong về lịch chờ.
   test               Build và chạy bộ test worker trong Docker.
-  export             Xuất gói 3 file có sẵn secrets, URL Vercel và hướng dẫn Windows/Linux.
+  export             Xuất ZIP có sẵn image, secrets, URL Vercel và script Windows/Linux.
   help               Xem hướng dẫn.
 
 Cấu hình: worker_image/.env

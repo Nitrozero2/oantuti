@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Export a three-file, credential-bearing Docker deployment (stdlib only)."""
+"""Export a credential-bearing Docker deployment and ready-to-download ZIP."""
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -7,6 +8,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import zipfile
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -21,8 +23,43 @@ def run(*args, **kwargs):
     return subprocess.run(args, check=True, **kwargs)
 
 
+def package(output):
+    archive = output / 'worker-image.tar.gz'
+    hasher = hashlib.sha256()
+    with archive.open('rb') as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+            hasher.update(chunk)
+    guide = (HERE / 'PORTABLE.md').read_text()
+    guide += f'\nSHA256 image: `{hasher.hexdigest()}`\n'
+    (output / 'README.md').write_text(guide)
+    shutil.copyfile(HERE / 'compose.bundled.yaml', output / 'compose.yaml')
+    for filename in ('worker.sh', 'worker.cmd'):
+        data = (HERE / 'portable-scripts' / filename).read_text()
+        (output / filename).write_bytes(data.replace('\n', '\r\n').encode() if filename.endswith('.cmd') else data.encode())
+    (output / 'worker.sh').chmod(0o755)
+    destination = HERE / 'oantuti-worker.zip'
+    with tempfile.NamedTemporaryFile(dir=HERE, prefix='.portable-', suffix='.zip', delete=False) as temporary:
+        staging = Path(temporary.name)
+    try:
+        with zipfile.ZipFile(staging, 'w') as bundle:
+            for filename in ('README.md', 'compose.yaml', 'worker.sh', 'worker.cmd', 'worker-image.tar.gz'):
+                # The image is already gzip-compressed; storing it avoids double compression.
+                bundle.write(output / filename, 'oantuti-worker/' + filename,
+                             compress_type=zipfile.ZIP_STORED if filename.endswith('.gz') else zipfile.ZIP_DEFLATED)
+        staging.replace(destination)
+    finally:
+        staging.unlink(missing_ok=True)
+    print(f'ZIP: {destination} (~{destination.stat().st_size / 1024**2:.1f} MiB)')
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--package-only', action='store_true', help='Reuse exported image; refresh scripts/docs and ZIP without Docker.')
+    args = parser.parse_args()
     output = HERE / 'portable'
+    if args.package_only:
+        package(output)
+        return
     if output.exists():
         raise SystemExit(f'{output} đã tồn tại. Đổi tên/di chuyển gói cũ trước khi export lại.')
     config = (HERE / '.env').read_text()
@@ -74,6 +111,7 @@ def main():
         for file in stage.iterdir():
             file.rename(output / file.name)
     print(f'Đã xuất: {output}\nPlatform: {platform}\nDung lượng: {archive.name} ~{(output / archive.name).stat().st_size / 1024**2:.1f} MiB')
+    package(output)
 
 
 if __name__ == '__main__':
