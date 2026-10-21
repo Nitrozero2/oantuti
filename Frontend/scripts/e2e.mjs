@@ -124,7 +124,7 @@ async function run() {
   saveState();
   const statements = [];
   for (const file of ["database.sql", "arena_schema.sql", "tournament_schema.sql", "trueskill_migration.sql",
-    "friendly_challenge_migration.sql", "execution_token_migration.sql", "app_settings_migration.sql", "adaptive_rating_migration.sql", "teams_migration.sql", "private_trials_migration.sql"]) {
+    "friendly_challenge_migration.sql", "execution_token_migration.sql", "app_settings_migration.sql", "adaptive_rating_migration.sql", "teams_migration.sql", "team_join_requests_migration.sql", "private_trials_migration.sql"]) {
     statements.push(...splitSql(readFileSync(path.join(frontend, file), "utf8")));
   }
   await sql.transaction(txn => [txn`SELECT set_config('search_path', ${schema}, true)`, ...statements.map(stmt => txn.query(stmt))]);

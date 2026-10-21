@@ -99,7 +99,7 @@ async function setup(){
  const route=await routeDatabase();state.route=route;saveState();
  state.productionBefore={public:await fingerprint('public',['users','arena_agents','rated_matches','friendly_matches','rated_match_move_history']),finals:await fingerprint('finals',['editions','entrants','pairs','games','attempts','moves','audit'])};saveState();
  await sql.query(`CREATE SCHEMA ${state.source}`);await sql.query(`CREATE SCHEMA ${state.finals}`);
- const normal=['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','private_trials_migration.sql'];
+ const normal=['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','team_join_requests_migration.sql','private_trials_migration.sql'];
  for(const file of normal){const statements=splitSql(readFileSync(path.join(frontend,file),'utf8'));await sql.transaction(tx=>[tx`SELECT set_config('search_path',${state.source+',pg_catalog'},true)`,...statements.map(s=>tx.query(s))]);}
  for(const file of ['finals_migration.sql','finals_workers_migration.sql']){const statements=splitSql(readFileSync(path.join(frontend,file),'utf8').replaceAll('__FINALS_SCHEMA__',state.finals));await sql.transaction(tx=>statements.map(s=>tx.query(s)));}
  const hash=bcrypt.hashSync(secrets.password,10);

@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import TeamDirectory from '@/components/TeamDirectory';
 import type { RankedAgent } from '@/lib/leaderboard';
 
 type Entry = { user_id: number; participant_key:string;team_id:number|null;kind:string;members:{id:number;username:string}[];recruiting:boolean;username: string; agent: RankedAgent; rank: number | null; approved_agents: number };
@@ -43,7 +44,7 @@ function AgentMenu({ entry }: { entry: Entry }) {
 }
 type RecentMatch = { id: number; agent1_name: string; agent2_name: string; status: string; outcome: string | null };
 export default function ArenaLeaderboardPage() {
-  const [tab, setTab] = useState<'rankings' | 'calibrating' | 'matches'>('rankings');
+  const [tab, setTab] = useState<'rankings' | 'calibrating' | 'matches' | 'teams'>('rankings');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Data | null>(null);
@@ -56,7 +57,7 @@ export default function ArenaLeaderboardPage() {
   useEffect(() => {
     try {
       const saved = JSON.parse(sessionStorage.getItem('arena-leaderboard-view') ?? 'null');
-      if (saved && ['rankings', 'calibrating', 'matches'].includes(saved.tab)) {
+      if (saved && ['rankings', 'calibrating', 'matches', 'teams'].includes(saved.tab)) {
         setTab(saved.tab); setSearch(typeof saved.search === 'string' ? saved.search : '');
         setPage(Number.isSafeInteger(saved.page) && saved.page > 0 ? saved.page : 1);
         restoreScroll.current = Number(saved.scroll) || 0;
@@ -78,6 +79,7 @@ export default function ArenaLeaderboardPage() {
     return () => clearInterval(timer);
   }, []);
   useEffect(() => {
+    if (tab === 'teams') { setLoading(false); setError(''); return; }
     const controller = new AbortController();
     setLoading(true);
     const timer = setTimeout(async () => {
@@ -100,11 +102,11 @@ export default function ArenaLeaderboardPage() {
         <div className="flex gap-2"><Link href="/arena/submit" className={button}>+ Nộp agent</Link><button className={button} onClick={() => setRefresh(v => v + 1)}>↻ Làm mới</button></div>
       </header>
       <div className="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Bảng xếp hạng">
-        {(['rankings', 'calibrating', 'matches'] as const).map(t => <button role="tab" aria-selected={tab === t} key={t} className={`${button} ${tab === t ? 'font-bold text-[#253B80] border-[#253B80]' : ''}`} onClick={() => { setTab(t); setPage(1); setData(null); setMatches([]); }}>
-          {t === 'rankings' ? `Bảng xếp hạng (${data?.counts.rankings ?? '—'})` : t === 'calibrating' ? `Đang hiệu chỉnh (${data?.counts.calibrating ?? '—'})` : 'Trận gần đây'}
+        {(['rankings', 'calibrating', 'matches', 'teams'] as const).map(t => <button role="tab" aria-selected={tab === t} key={t} className={`${button} ${tab === t ? 'font-bold text-[#253B80] border-[#253B80]' : ''}`} onClick={() => { if (t !== tab && (t === 'teams' || tab === 'teams')) setSearch(''); setTab(t); setPage(1); setData(null); setMatches([]); }}>
+          {t === 'rankings' ? `Bảng xếp hạng (${data?.counts.rankings ?? '—'})` : t === 'calibrating' ? `Đang hiệu chỉnh (${data?.counts.calibrating ?? '—'})` : t === 'teams' ? 'Team 👋' : 'Trận gần đây'}
         </button>)}
       </div>
-      {tab !== 'matches' && <>
+      {tab !== 'matches' && tab !== 'teams' && <>
         <input aria-label="Tìm leaderboard" placeholder="Tìm username hoặc agent…" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="mb-4 w-full rounded-full border border-[#ded8d3] bg-white px-5 py-3" />
         <p className="mb-5 max-w-4xl text-sm text-slate-600">Mỗi cá nhân hoặc team được xếp hạng bằng agent tốt nhất có ít nhất 10 trận rating hợp lệ. Khi đang thuộc team, agent cá nhân được giữ riêng nhưng tạm ngừng rating và không tạo thêm vị trí cá nhân. Agent bắt đầu ở 1000 điểm. Hòa sau 200 nước bị trừ 4–32 điểm mỗi bên; ít quân địch hơn hoặc quân mình gần đích hơn thì bị trừ ít hơn.</p>
         {data?.me ? <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border border-[#ded8d3] bg-white p-3 text-sm">
@@ -114,7 +116,7 @@ export default function ArenaLeaderboardPage() {
       </>}
       {error && <p role="alert" className="mb-4 border border-rose-200 bg-white p-4 text-rose-700">{error}</p>}
       {loading && <p role="status" className="mb-2 text-xs text-slate-500">Đang cập nhật…</p>}
-      {tab !== 'matches' ? <div className="min-h-64 rounded-xl border border-[#ded8d3] bg-white">
+      {tab === 'teams' ? <TeamDirectory search={search} onSearchChange={value => { setSearch(value); setPage(1); }} page={page} onPageChange={setPage} refresh={refresh} /> : tab !== 'matches' ? <div className="min-h-64 rounded-xl border border-[#ded8d3] bg-white">
         <div className="overflow-x-auto pb-3"><table className="w-full text-left text-sm">
           <thead><tr className="border-b border-[#ded8d3] text-slate-500">{['#', 'Người chơi', 'Agent tốt nhất', 'Điểm', 'W / L / D', 'Lần đấu cuối', 'Agents'].map(h => <th key={h} className="px-5 py-4 whitespace-nowrap">{h}</th>)}</tr></thead>
           <tbody>{data?.leaderboard.map(e => <tr key={e.participant_key} data-user-id={e.user_id} data-participant={e.participant_key} className={`border-b border-stone-100 ${e.participant_key === data.me?.participant_key ? 'bg-blue-50' : ''}`}>
@@ -127,7 +129,7 @@ export default function ArenaLeaderboardPage() {
         </table></div>
         {!loading && !data?.leaderboard.length && <p className="p-10 text-center text-slate-500">{search ? 'Không tìm thấy người chơi.' : tab === 'rankings' ? 'Chưa có người chơi đủ 10 trận rating. Xem tab Đang hiệu chỉnh.' : 'Không có người chơi đang hiệu chỉnh.'}</p>}
       </div> : <div className="divide-y border border-[#ded8d3] bg-white">{matches.map(m => <div key={m.id} className="flex flex-wrap justify-between gap-2 p-4"><span>#{m.id} · {m.agent1_name} vs {m.agent2_name} · {m.status}</span><Link className="text-[#253B80]" href={`/arena/replay/rating/${m.id}`}>Xem trận →</Link></div>)}{!loading && !matches.length && <p className="p-8 text-slate-500">Chưa có trận đấu.</p>}</div>}
-      <div className="mt-5 flex items-center justify-end gap-3"><button className={button} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Trước</button><span className="text-sm">Trang {page}{tab !== 'matches' && data ? ` / ${Math.max(1, Math.ceil(data.total / 20))}` : ''}</span><button className={button} disabled={loading || (tab === 'matches' ? matches.length < 20 : page * 20 >= (data?.total ?? 0))} onClick={() => setPage(p => p + 1)}>Sau →</button></div>
+      {tab !== 'teams' && <div className="mt-5 flex items-center justify-end gap-3"><button className={button} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Trước</button><span className="text-sm">Trang {page}{tab !== 'matches' && data ? ` / ${Math.max(1, Math.ceil(data.total / 20))}` : ''}</span><button className={button} disabled={loading || (tab === 'matches' ? matches.length < 20 : page * 20 >= (data?.total ?? 0))} onClick={() => setPage(p => p + 1)}>Sau →</button></div>}
     </main>
   </div>;
 }

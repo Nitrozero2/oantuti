@@ -81,3 +81,13 @@ button, input {
   background: #253B80;
   color: #ffffff;
 }
+
+@keyframes team-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25%, 75% { transform: rotate(18deg); }
+  50% { transform: rotate(-12deg); }
+}
+.team-wave { display: inline-block; transform-origin: 70% 75%; }
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .team-wave, .group:focus-visible .team-wave { animation: team-wave 650ms ease-in-out 2; }
+}

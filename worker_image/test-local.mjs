@@ -140,7 +140,7 @@ try {
   schemaCreated = true;
   const statements = ['database.sql', 'arena_schema.sql', 'tournament_schema.sql', 'trueskill_migration.sql',
     'friendly_challenge_migration.sql', 'execution_token_migration.sql', 'app_settings_migration.sql',
-    'adaptive_rating_migration.sql', 'teams_migration.sql', 'private_trials_migration.sql', 'draw_rating_migration.sql','draw_200_migration.sql']
+    'adaptive_rating_migration.sql', 'teams_migration.sql', 'team_join_requests_migration.sql', 'private_trials_migration.sql', 'draw_rating_migration.sql','draw_200_migration.sql']
     .flatMap(file => splitSql(readFileSync(path.join(frontendDir, file), 'utf8')));
   await sql.transaction(txn => [txn`SELECT set_config('search_path', ${schema}, true)`, ...statements.map(text => txn.query(text))]);
   assert.equal((await scoped('SELECT current_schema() AS schema'))[0].schema, schema);

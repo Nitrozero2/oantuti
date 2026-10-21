@@ -32,7 +32,7 @@ const exec = (text: string) => database.current!.exec(text);
 const postBody=(body:unknown)=>new Request('http://localhost/api/test',{method:'POST',body:JSON.stringify(body)});
 beforeAll(async () => {
   database.current = new PGlite();
-  for (const name of ['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','private_trials_migration.sql'])
+  for (const name of ['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','team_join_requests_migration.sql','private_trials_migration.sql'])
     await exec(readFileSync(new URL(`../${name}`, import.meta.url), 'utf8'));
 }, 30000);
 afterAll(async () => { await database.current?.close(); });

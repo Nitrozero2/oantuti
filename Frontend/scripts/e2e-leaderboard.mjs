@@ -29,6 +29,7 @@ const schema = `ott_lb_e2e_${Date.now()}_${randomUUID().slice(0, 6)}`;
 assert.match(schema, /^ott_lb_e2e_\d+_[a-f0-9]{6}$/);
 const logDir = path.resolve('../logs', schema);
 mkdirSync(logDir, { recursive: true });
+writeFileSync(path.join(logDir,'.gitignore'),'*\n');
 // Next normalizes loopback redirects to localhost; keep auth cookies on that host.
 const base = 'http://localhost:3100';
 try { await fetch(base, { signal: AbortSignal.timeout(1500) }); throw new Error('Port 3100 is occupied'); }
@@ -38,10 +39,13 @@ const checks = [];
 const testPassword = `AuthTest_${randomUUID()}`;
 let child, browser, offlineBackend, created = false, passed = false;
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-async function check(name, fn) { await fn(); checks.push(name); console.log(`PASS ${name}`); }
+async function check(name, fn) {
+  if(process.argv.includes('--team-wave-only')&&!name.startsWith('Team tab'))return;
+  await fn(); checks.push(name); console.log(`PASS ${name}`);
+}
 try {
   await sql.query(`CREATE SCHEMA ${schema}`); created = true;
-  const statements = ['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','private_trials_migration.sql']
+  const statements = ['database.sql','arena_schema.sql','tournament_schema.sql','trueskill_migration.sql','friendly_challenge_migration.sql','execution_token_migration.sql','adaptive_rating_migration.sql','teams_migration.sql','team_join_requests_migration.sql','private_trials_migration.sql']
     .flatMap(file => splitSql(readFileSync(file, 'utf8')));
   await sql.transaction(tx => [tx`SELECT set_config('search_path', ${schema}, true)`, ...statements.map(s => tx.query(s))]);
   // Synthetic outcomes exist only in this disposable test schema, never in public.
@@ -246,6 +250,49 @@ try {
     await page.getByRole('heading',{name:'Lịch sử điểm rating',exact:true}).waitFor();
     await page.goto(`${base}/arena/replay/rating/1`);
     await page.getByRole('button',{name:'▶ Tự động phát',exact:true}).waitFor();
+  });
+  await check('Team tab wave requests reach the leader, cancel and approve across desktop/mobile',async()=>{
+    await scoped("INSERT INTO users(username,password_hash) VALUES('wave_leader',$1),('wave_applicant',$1),('wave_outsider',$1)",[bcrypt.hashSync(testPassword,4)]);
+    const leader=await browser.newContext({viewport:{width:1440,height:1000}});
+    const applicant=await browser.newContext({viewport:{width:390,height:844}});
+    const outsider=await browser.newContext();
+    let teamId;
+    try{
+      for(const [ctx,username] of [[leader,'wave_leader'],[applicant,'wave_applicant'],[outsider,'wave_outsider']])
+        assert.equal((await ctx.request.post(`${base}/api/auth/login`,{data:{username,password:testPassword}})).status(),200);
+      const created=await leader.request.post(`${base}/api/team`,{data:{action:'create',name:'Wave Pioneers'}});
+      assert.equal(created.status(),200);teamId=Number((await created.json()).team_id);
+      assert.equal((await leader.request.post(`${base}/api/team`,{data:{action:'update',name:'Wave Pioneers',recruiting:true}})).status(),200);
+      await page.setViewportSize({width:1440,height:1000});
+      await page.goto(`${base}/arena/leaderboard`);await page.getByRole('tab',{name:'Team 👋',exact:true}).click();
+      await page.getByRole('heading',{name:'Wave Pioneers',exact:true}).waitFor();
+      await page.getByRole('link',{name:'Đăng nhập để vẫy tay',exact:true}).waitFor();
+      await page.screenshot({path:path.join(logDir,'team-directory-desktop.png'),fullPage:true});
+      const applicantPage=await applicant.newPage();applicantPage.on('pageerror',e=>errors.push(e.message));
+      await applicantPage.goto(`${base}/arena/leaderboard`);await applicantPage.getByRole('tab',{name:'Team 👋',exact:true}).click();
+      await applicantPage.getByRole('button',{name:'Vẫy tay xin vào Wave Pioneers',exact:true}).click();
+      await applicantPage.getByText('👋 Đã gửi yêu cầu',{exact:true}).waitFor();
+      await applicantPage.getByRole('button',{name:'Hủy yêu cầu vào Wave Pioneers',exact:true}).click();
+      await applicantPage.getByRole('button',{name:'Vẫy tay xin vào Wave Pioneers',exact:true}).click();
+      await applicantPage.getByText('👋 Đã gửi yêu cầu',{exact:true}).waitFor();
+      assert.equal(await applicantPage.locator('body').evaluate(el=>el.scrollWidth<=window.innerWidth),true);
+      await applicantPage.screenshot({path:path.join(logDir,'team-wave-mobile.png'),fullPage:true});
+      const leaderPage=await leader.newPage();leaderPage.on('pageerror',e=>errors.push(e.message));
+      await leaderPage.goto(`${base}/team`);
+      const requests=leaderPage.getByRole('region',{name:'Yêu cầu xin vào đội'});
+      await requests.getByText('wave_applicant',{exact:true}).first().waitFor();
+      await leaderPage.screenshot({path:path.join(logDir,'team-wave-leader.png'),fullPage:true});
+      const incoming=(await(await leader.request.get(`${base}/api/team`)).json()).join_requests_received.find(r=>r.status==='pending');
+      assert.equal((await outsider.request.post(`${base}/api/team`,{data:{action:'approve_join',request_id:Number(incoming.id)}})).status(),403);
+      await requests.getByRole('button',{name:'Chấp nhận wave_applicant',exact:true}).click();
+      await leaderPage.getByRole('heading',{name:'Thành viên (2/3)',exact:true}).waitFor();
+      await applicantPage.reload();await applicantPage.getByRole('link',{name:'Đội của bạn →',exact:true}).waitFor();
+      assert.equal(Number((await(await applicant.request.get(`${base}/api/team`)).json()).team.id),teamId);
+      await applicantPage.screenshot({path:path.join(logDir,'team-wave-approved-mobile.png'),fullPage:true});
+    }finally{
+      await leader.close();await applicant.close();await outsider.close();
+      if(teamId)await scoped("SELECT manage_team(1,'archive',jsonb_build_object('team_id',$1::bigint))",[teamId]);
+    }
   });
   await check('team creation, invitations, current-scope ownership and admin-only dissolution in Chrome',async()=>{
     await page.setViewportSize({width:1440,height:1000});

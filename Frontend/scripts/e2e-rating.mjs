@@ -25,7 +25,7 @@ writeFileSync(statePath, JSON.stringify(state, null, 2), { mode: 0o600 });
 if (retry) await sql.query(`DROP SCHEMA ${schema} CASCADE`);
 await sql.query(`CREATE SCHEMA ${schema}`);
 const statements = ['database.sql', 'arena_schema.sql', 'tournament_schema.sql', 'trueskill_migration.sql',
-  'friendly_challenge_migration.sql','execution_token_migration.sql', 'adaptive_rating_migration.sql','teams_migration.sql','private_trials_migration.sql'].flatMap(file => splitSql(readFileSync(file, 'utf8')));
+  'friendly_challenge_migration.sql','execution_token_migration.sql', 'adaptive_rating_migration.sql','teams_migration.sql','team_join_requests_migration.sql','private_trials_migration.sql'].flatMap(file => splitSql(readFileSync(file, 'utf8')));
 await sql.transaction(txn => [txn`SELECT set_config('search_path', ${schema}, true)`, ...statements.map(text => txn.query(text))]);
 const scoped = async (text, values = [], target = schema) => (await sql.transaction(txn => [
   txn`SELECT set_config('search_path', ${target}, true)`, txn.query(text, values),

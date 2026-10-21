@@ -333,3 +333,24 @@ Các draw cũ dưới 200 nước ngoài phạm vi được tính như draw khô
 cũ. Scheduler được giữ trạng thái bật/tắt trước bảo trì; các trận chờ dùng chung
 agent được dispatch tuần tự. Không đổi scope/quyền sở hữu hay kích hoạt lại agent
 đã bị vô hiệu hóa. Node 24+ được dùng để import các hàm tính điểm TypeScript chung.
+
+### Xin vào đội từ leaderboard
+
+Tab **Team 👋** liệt kê đội đang hoạt động, kể cả đội chưa có agent. Người chưa có
+đội có thể gửi yêu cầu đến đội đang tuyển; trưởng đội xét duyệt ở **Your Team**.
+Yêu cầu hết hạn sau 7 ngày; giới hạn 3 người được kiểm tra trong database cùng
+transaction với lời mời và thay đổi tư cách thi đấu.
+
+Trước khi triển khai code mới, áp dụng riêng migration bổ sung (sau migration team):
+
+```bash
+cd Frontend
+node scripts/migrate-team-join-requests.mjs --apply
+```
+
+Không cần chạy lại các migration rating cũ. Script kiểm tra bảo toàn agent,
+điểm và thành viên trong cùng transaction; không khởi động Docker/worker.
+
+Kiểm thử tính năng: `npm test -- lib/team-join-requests.integration.test.ts`.
+Sau khi build với `NEXT_BUILD_DIR=.next-leaderboard-test`, chạy
+`node scripts/e2e-leaderboard.mjs --team-wave-only` để thử Chrome với schema Neon tạm.
