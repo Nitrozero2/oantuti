@@ -164,10 +164,9 @@ export default function ArenaSubmitPage() {
       <Navbar />
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <p className="mb-4 border border-[#ded8d3] bg-white p-3 text-sm">Tư cách nộp bài: <strong>{scopeName}</strong>. Agent nộp cho team là tài sản chung của đội.</p>
-        {!!personal.length&&<section className="mb-5 border border-amber-200 bg-white p-4"><h2 className="font-bold">Agent cá nhân giữ riêng · Tạm ngừng rating</h2><p className="my-2 text-xs text-slate-500">Không tính vào team; chỉ bạn được xem code. Tham gia lại khi bạn trở về cá nhân, nếu agent vẫn hợp lệ.</p>{personal.map(a=><details key={a.id} className="border-t py-2"><summary>{a.agent_name} · v{a.version} · {a.elo} điểm</summary><textarea aria-label={`Code cá nhân ${a.agent_name}`} className="mt-2 h-48 w-full border p-2 font-mono text-xs" value={a.code} readOnly/></details>)}</section>}
-        <div className="mb-6 border-b border-[#ded8d3] pb-6">
-          <div className="flex items-center gap-3 mb-2">
+        {/* Tiêu đề trang */}
+        <div className="mb-4 border-b border-[#ded8d3] pb-4">
+          <div className="flex items-center gap-3">
             <h1 className="text-3xl font-extrabold tracking-tight text-[#1a1e29] sm:text-4xl">
               🤖 Nộp Agent AI
             </h1>
@@ -175,20 +174,55 @@ export default function ArenaSubmitPage() {
               Arena OTTv2
             </span>
           </div>
-          <p className="text-sm text-slate-600">
-            Agent luôn tự kiểm tra bằng self-play tối đa 60 nước. Hết giới hạn hoặc hòa lặp thế cờ mà không lỗi vẫn được duyệt. Chỉ agent public hợp lệ mới tham gia rating; agent riêng tư dùng để thách đấu.
-          </p>
         </div>
 
-        {/* Yêu cầu: Khung thẳng */}
-        <div className="mb-8 rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm">
-          <p className="mb-2 text-sm font-bold text-[#1a1e29]">📖 Quy tắc Agent</p>
-          <ul className="space-y-1.5 text-xs text-slate-600">
-            <li>• Bàn cờ 9×9. Quân: ✊ ROCK &gt; ✌️ SCISSORS, ✋ PAPER &gt; ✊ ROCK, ✌️ SCISSORS &gt; ✋ PAPER</li>
-            <li>• P1 (Xanh) thắng khi chiếm ô i9 hoặc ăn hết 1 loại quân đối thủ. P2 ngược lại (chiếm a1).</li>
-            <li>• Hàm <code className="bg-stone-100 px-1 py-0.5 font-mono text-[#253B80] font-bold">def agent(observation, configuration)</code> là bắt buộc.</li>
-            <li>• Chạy trong Python sandbox với giới hạn CPU, thời gian thực và bộ nhớ theo cấu hình worker. Code tối đa 65,536 ký tự.</li>
-          </ul>
+        {/* Box Tư cách nộp bài ở bên dưới tiêu đề trang */}
+        <p className="mb-4 border border-[#ded8d3] bg-white p-3 text-sm">
+          Tư cách nộp bài: <strong>{scopeName}</strong>. Agent nộp cho team là tài sản chung của đội.
+        </p>
+
+        {!!personal.length && (
+          <section className="mb-5 border border-amber-200 bg-white p-4">
+            <h2 className="font-bold">Agent cá nhân giữ riêng · Tạm ngừng rating</h2>
+            <p className="my-2 text-xs text-slate-500">
+              Không tính vào team; chỉ bạn được xem code. Tham gia lại khi bạn trở về cá nhân, nếu agent vẫn hợp lệ.
+            </p>
+            {personal.map((a) => (
+              <details key={a.id} className="border-t py-2">
+                <summary>
+                  {a.agent_name} · v{a.version} · {a.elo} điểm
+                </summary>
+                <textarea
+                  aria-label={`Code cá nhân ${a.agent_name}`}
+                  className="mt-2 h-48 w-full border p-2 font-mono text-xs"
+                  value={a.code}
+                  readOnly
+                />
+              </details>
+            ))}
+          </section>
+        )}
+
+        {/* Yêu cầu: Khung thẳng chứa cả Quy tắc Agent và Quy tắc OTTv2Arena */}
+        <div className="mb-8 rounded-none border border-[#ded8d3] bg-white p-5 shadow-sm space-y-4">
+          <div>
+            <p className="mb-2 text-sm font-bold text-[#1a1e29]">📖 Quy tắc Agent</p>
+            <ul className="space-y-1.5 text-xs text-slate-600">
+              <li>• Bàn cờ 9×9. Quân: ✊ ROCK &gt; ✌️ SCISSORS, ✋ PAPER &gt; ✊ ROCK, ✌️ SCISSORS &gt; ✋ PAPER</li>
+              <li>• P1 (Xanh) thắng khi chiếm ô i9 hoặc ăn hết 1 loại quân đối thủ. P2 ngược lại (chiếm a1).</li>
+              <li>• Hàm <code className="bg-stone-100 px-1 py-0.5 font-mono text-[#253B80] font-bold">def agent(observation, configuration)</code> là bắt buộc.</li>
+              <li>• Chạy trong Python sandbox với giới hạn CPU, thời gian thực và bộ nhớ theo cấu hình worker. Code tối đa 65,536 ký tự.</li>
+            </ul>
+          </div>
+
+          <div className="border-t border-[#ded8d3] pt-3">
+            <p className="mb-2 text-sm font-bold text-[#1a1e29]">📖 Quy tắc OTTv2Arena</p>
+            <ul className="space-y-1.5 text-xs text-slate-600">
+              <li>• Agent luôn tự kiểm tra bằng self-play tối đa 60 nước.</li>
+              <li>• Hết giới hạn hoặc hòa lặp thế cờ mà không lỗi vẫn được duyệt.</li>
+              <li>• Chỉ agent public hợp lệ mới tham gia rating; agent riêng tư dùng để thách đấu.</li>
+            </ul>
+          </div>
         </div>
 
         {/* Form nộp: Khung thẳng */}
