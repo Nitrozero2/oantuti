@@ -235,10 +235,10 @@ def agent(observation, configuration):
                     </ul>
                   </div>
                   <div className="border border-[#ded8d3] bg-white p-4 text-xs font-mono">
-                    <div className="font-bold text-slate-500 mb-2">// Vị trí căn cứ</div>
+                    <div className="font-bold text-slate-500 mb-2">{"// Vị trí căn cứ"}</div>
                     <p>• Player 1 Mục tiêu: Đi quân đến ô <strong>i9</strong> (col=8, row=8)</p>
                     <p>• Player 2 Mục tiêu: Đi quân đến ô <strong>a1</strong> (col=0, row=0)</p>
-                    <p className="mt-2 text-slate-500">// Index chuyển đổi: index = row * 9 + col</p>
+                    <p className="mt-2 text-slate-500">{"// Index chuyển đổi: index = row * 9 + col"}</p>
                   </div>
                 </div>
               </div>
